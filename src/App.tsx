@@ -2,8 +2,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import DashboardLayout from "./components/layout/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import BookedExams from "./pages/exams/BookedExams";
+import ExamHistory from "./pages/exams/ExamHistory";
+import ExamFeedback from "./pages/exams/ExamFeedback";
+import Reports from "./pages/Reports";
+import Certifications from "./pages/Certifications";
+import Community from "./pages/Community";
+import Referrals from "./pages/Referrals";
+import Scholarship from "./pages/Scholarship";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -15,8 +27,29 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Redirect root to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Dashboard routes */}
+          <Route path="/dashboard" element={
+            <SidebarProvider>
+              <DashboardLayout />
+            </SidebarProvider>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="exams/booked" element={<BookedExams />} />
+            <Route path="exams/history" element={<ExamHistory />} />
+            <Route path="exams/feedback" element={<ExamFeedback />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="certifications" element={<Certifications />} />
+            <Route path="community" element={<Community />} />
+            <Route path="referrals" element={<Referrals />} />
+            <Route path="scholarship" element={<Scholarship />} />
+            <Route path="support" element={<Support />} />
+          </Route>
+
+          {/* Catch all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
