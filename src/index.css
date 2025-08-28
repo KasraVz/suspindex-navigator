@@ -10,67 +10,78 @@ All colors MUST be HSL.
   :root {
     /* Core background and foreground */
     --background: 0 0% 100%;
-    --foreground: 210 24% 16%;
+    --foreground: 196 56% 20%;
 
     /* Card styling */
     --card: 0 0% 100%;
-    --card-foreground: 210 24% 16%;
+    --card-foreground: 196 56% 20%;
 
     /* Popover styling */
     --popover: 0 0% 100%;
-    --popover-foreground: 210 24% 16%;
+    --popover-foreground: 196 56% 20%;
 
-    /* Professional blue primary palette */
-    --primary: 221 83% 53%;
+    /* Supsindex brand colors */
+    --primary: 196 56% 20%; /* #194563 - Dark Blue */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 221 83% 48%;
-    --primary-light: 221 83% 95%;
+    --primary-hover: 196 56% 16%;
+    --primary-light: 196 56% 95%;
+
+    /* Brand accent colors */
+    --brand-orange: 20 96% 54%; /* #F76B20 */
+    --brand-orange-foreground: 0 0% 100%;
+    --brand-green: 140 51% 60%; /* #60D486 */
+    --brand-green-foreground: 0 0% 100%;
+    --brand-gold: 52 36% 49%; /* #AD9E52 */
+    --brand-gold-foreground: 0 0% 100%;
+    --brand-cream: 52 22% 90%; /* #E4E3D4 */
+    --brand-cream-foreground: 196 56% 20%;
 
     /* Secondary grays */
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 210 24% 16%;
+    --secondary: 52 22% 90%; /* Using brand cream */
+    --secondary-foreground: 196 56% 20%;
 
     /* Muted colors */
-    --muted: 210 20% 98%;
-    --muted-foreground: 210 16% 50%;
+    --muted: 52 22% 95%;
+    --muted-foreground: 196 30% 40%;
 
     /* Accent colors */
-    --accent: 210 20% 96%;
-    --accent-foreground: 210 24% 16%;
+    --accent: 52 22% 90%;
+    --accent-foreground: 196 56% 20%;
 
     /* Status colors */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 76% 36%;
+    --success: 140 51% 60%; /* Using brand green */
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 20 96% 54%; /* Using brand orange */
     --warning-foreground: 0 0% 100%;
 
     /* UI elements */
-    --border: 210 20% 91%;
-    --input: 210 20% 91%;
-    --ring: 221 83% 53%;
+    --border: 52 22% 85%;
+    --input: 52 22% 85%;
+    --ring: 196 56% 20%;
 
     --radius: 0.75rem;
 
-    /* Sidebar colors */
-    --sidebar-background: 210 24% 16%;
-    --sidebar-foreground: 210 20% 95%;
-    --sidebar-primary: 221 83% 53%;
+    /* Sidebar colors - using brand palette */
+    --sidebar-background: 196 56% 20%; /* Primary dark blue */
+    --sidebar-foreground: 52 22% 90%; /* Brand cream */
+    --sidebar-primary: 20 96% 54%; /* Brand orange */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 24% 20%;
-    --sidebar-accent-foreground: 210 20% 95%;
-    --sidebar-border: 210 24% 24%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-accent: 196 56% 24%;
+    --sidebar-accent-foreground: 52 22% 90%;
+    --sidebar-border: 196 56% 24%;
+    --sidebar-ring: 20 96% 54%;
 
-    /* Custom gradients */
+    /* Custom gradients with brand colors */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted)));
+    --gradient-brand: linear-gradient(135deg, hsl(var(--brand-orange)), hsl(var(--brand-green)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--brand-cream)));
     
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(210 20% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(210 20% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(210 20% 0% / 0.1);
+    /* Shadows with brand colors */
+    --shadow-sm: 0 1px 2px 0 hsl(196 56% 20% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(196 56% 20% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(196 56% 20% / 0.1);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

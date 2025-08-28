@@ -72,7 +72,7 @@ export function GeneralScholarship() {
               </div>
               
               <Button 
-                className="w-full" 
+                className="w-full bg-brand-green hover:bg-brand-green/90 text-white" 
                 disabled={scholarship.status === "Closing Soon"}
               >
                 Apply Now

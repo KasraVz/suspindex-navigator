@@ -9,13 +9,13 @@ export function WelcomeHeader() {
   };
 
   return (
-    <Card className="bg-gradient-to-r from-primary to-primary-hover text-primary-foreground">
+    <Card className="bg-gradient-to-r from-brand-orange to-brand-green text-white">
       <CardContent className="p-6">
         <h1 className="text-3xl font-bold mb-2">
           {getGreeting()}, John Doe
         </h1>
         <p className="text-lg opacity-90">
-          Welcome back to your Suspindex dashboard. Here's what's happening today.
+          Welcome back to your Supsindex dashboard. Here's what's happening today.
         </p>
       </CardContent>
     </Card>

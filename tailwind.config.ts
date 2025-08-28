@@ -62,6 +62,16 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				brand: {
+					orange: 'hsl(var(--brand-orange))',
+					'orange-foreground': 'hsl(var(--brand-orange-foreground))',
+					green: 'hsl(var(--brand-green))',
+					'green-foreground': 'hsl(var(--brand-green-foreground))',
+					gold: 'hsl(var(--brand-gold))',
+					'gold-foreground': 'hsl(var(--brand-gold-foreground))',
+					cream: 'hsl(var(--brand-cream))',
+					'cream-foreground': 'hsl(var(--brand-cream-foreground))',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

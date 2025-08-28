@@ -64,7 +64,7 @@ export function BookedTestsTable() {
                 <TableCell>{test.bookedDateTime}</TableCell>
                 <TableCell>{test.type}</TableCell>
                 <TableCell>
-                  <Badge variant={test.paymentStatus === "Purchased" ? "default" : "secondary"}>
+                  <Badge variant={test.paymentStatus === "Purchased" ? "default" : "secondary"} className={test.paymentStatus === "Purchased" ? "bg-brand-green text-white" : "bg-brand-cream text-brand-cream-foreground"}>
                     {test.paymentStatus}
                   </Badge>
                 </TableCell>

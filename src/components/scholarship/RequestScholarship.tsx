@@ -78,10 +78,10 @@ export function RequestScholarship() {
           </div>
 
           <div className="flex gap-4">
-            <Button type="button" variant="outline" className="flex-1">
+            <Button type="button" variant="outline" className="flex-1 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white">
               Save Draft
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white">
               Submit Application
             </Button>
           </div>

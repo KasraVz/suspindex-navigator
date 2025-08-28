@@ -91,7 +91,7 @@ export function AffiliateSection() {
           </TableBody>
         </Table>
 
-        <Button className="w-full">Apply for Affiliate Partnership</Button>
+        <Button className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white">Apply for Affiliate Partnership</Button>
       </CardContent>
     </Card>
   );

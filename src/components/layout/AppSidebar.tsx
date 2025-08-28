@@ -50,11 +50,12 @@ export function AppSidebar() {
     <Sidebar variant="sidebar" className="w-64" collapsible="icon">
       <SidebarContent>
         <div className="p-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
-            </div>
-            <span className="font-bold text-sidebar-foreground">Suspindex</span>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/24cac4e2-dcdf-47c3-a730-ec68198e51ed.png" 
+              alt="Supsindex" 
+              className="h-8 w-auto"
+            />
           </div>
         </div>
 

@@ -67,7 +67,7 @@ export function CertificationsTable() {
                 <TableCell>{cert.testDate}</TableCell>
                 <TableCell>{cert.testName}</TableCell>
                 <TableCell>
-                  <Badge variant={cert.status === "Valid" ? "default" : "secondary"}>
+            <Badge variant={cert.status === "Valid" ? "default" : "secondary"} className={cert.status === "Valid" ? "bg-brand-green text-white" : ""}>
                     {cert.status}
                   </Badge>
                 </TableCell>

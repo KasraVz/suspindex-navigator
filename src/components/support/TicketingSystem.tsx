@@ -106,7 +106,7 @@ export function TicketingSystem() {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white">
                 Submit Ticket
               </Button>
             </form>

@@ -44,11 +44,11 @@ export function ReferralCode() {
           </ul>
         </div>
         
-        <div className="p-3 bg-muted rounded-lg">
-          <div className="text-sm font-medium">Earnings This Month</div>
-          <div className="text-2xl font-bold text-primary">$125.00</div>
-          <div className="text-xs text-muted-foreground">From 5 referrals</div>
-        </div>
+          <div className="p-3 bg-brand-cream rounded-lg">
+            <div className="text-sm font-medium text-brand-cream-foreground">Earnings This Month</div>
+            <div className="text-2xl font-bold text-primary">$125.00</div>
+            <div className="text-xs text-muted-foreground">From 5 referrals</div>
+          </div>
       </CardContent>
     </Card>
   );
