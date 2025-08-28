@@ -9,6 +9,13 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <WelcomeHeader />
+      
+      {/* Promotional Cards directly under welcome */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <FastTrakCard />
+        <SpecialOfferCard />
+      </div>
+      
       <KeyMetrics />
       <div className="grid gap-6 lg:grid-cols-4">
         <div className="lg:col-span-2">
@@ -17,11 +24,6 @@ const Dashboard = () => {
         <div className="lg:col-span-2">
           <RecentActivity />
         </div>
-      </div>
-      
-      <div className="grid gap-6 lg:grid-cols-2">
-        <FastTrakCard />
-        <SpecialOfferCard />
       </div>
     </div>
   );
