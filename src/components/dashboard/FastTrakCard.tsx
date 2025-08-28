@@ -5,17 +5,17 @@ import { Rocket } from "lucide-react";
 
 export function FastTrakCard() {
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-brand-orange/10 via-brand-orange/5 to-brand-green/10 border-brand-orange/30 hover:shadow-xl hover:shadow-brand-orange/20 transition-all duration-500 hover:scale-[1.02] animate-pulse">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-brand-orange/10 via-brand-orange/5 to-brand-green/10 border-brand-orange/30 hover:shadow-xl hover:shadow-brand-orange/20 transition-all duration-500 hover:scale-[1.02]">
       <div className="absolute inset-0 bg-gradient-to-r from-brand-orange/5 to-brand-green/5 opacity-50" />
       <div className="absolute top-2 right-2">
-        <div className="bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded-full animate-bounce">
+        <div className="bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse" style={{animationDuration: '3s'}}>
           NEW
         </div>
       </div>
       <CardHeader className="pb-3 relative">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-3 bg-gradient-to-br from-brand-orange to-brand-orange/80 rounded-xl shadow-lg">
-            <Rocket className="h-6 w-6 text-white animate-pulse" />
+            <Rocket className="h-6 w-6 text-white" />
           </div>
           <div>
             <CardTitle className="text-xl font-bold text-brand-orange mb-1">Fast Trak Program</CardTitle>

@@ -9,9 +9,9 @@ export function SpecialOfferCard() {
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-accent/10 rounded-lg">
-            <Sparkles className="h-5 w-5 text-accent" />
+            <Sparkles className="h-5 w-5 text-brand-gold" />
           </div>
-          <CardTitle className="text-lg text-accent">Special Offers</CardTitle>
+          <CardTitle className="text-lg text-brand-gold">Special Offers</CardTitle>
         </div>
       </CardHeader>
       <CardContent className="pb-4">
@@ -21,7 +21,7 @@ export function SpecialOfferCard() {
         </p>
       </CardContent>
       <CardFooter>
-        <Button asChild className="w-full bg-accent hover:bg-accent/90">
+        <Button asChild className="w-full bg-brand-gold text-white hover:bg-brand-gold/90">
           <Link to="/dashboard/special-offer">
             View Offers
           </Link>
