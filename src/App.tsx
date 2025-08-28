@@ -16,6 +16,8 @@ import Community from "./pages/Community";
 import Referrals from "./pages/Referrals";
 import Scholarship from "./pages/Scholarship";
 import Support from "./pages/Support";
+import FastTrak from "./pages/FastTrak";
+import SpecialOffer from "./pages/SpecialOffer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +49,8 @@ const App = () => (
             <Route path="referrals" element={<Referrals />} />
             <Route path="scholarship" element={<Scholarship />} />
             <Route path="support" element={<Support />} />
+            <Route path="fast-trak" element={<FastTrak />} />
+            <Route path="special-offer" element={<SpecialOffer />} />
           </Route>
 
           {/* Catch all route */}

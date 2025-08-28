@@ -9,6 +9,9 @@ import {
   UserPlus,
   GraduationCap,
   HelpCircle,
+  Tag,
+  Rocket,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -20,6 +23,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -39,6 +47,11 @@ const otherItems = [
   { title: "Referrals", url: "/dashboard/referrals", icon: UserPlus },
   { title: "Scholarship", url: "/dashboard/scholarship", icon: GraduationCap },
   { title: "Support", url: "/dashboard/support", icon: HelpCircle },
+];
+
+const offerItems = [
+  { title: "Fast Trak", url: "/dashboard/fast-trak", icon: Rocket },
+  { title: "Special Offer", url: "/dashboard/special-offer", icon: Sparkles },
 ];
 
 export function AppSidebar() {
@@ -112,6 +125,33 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <Collapsible className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="flex w-full items-center gap-2 hover:bg-accent/50 rounded-md px-2 py-1.5">
+                <Tag className="h-4 w-4" />
+                <span>Supsindex Offer</span>
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {offerItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <NavLink to={item.url}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       </SidebarContent>
     </Sidebar>
   );
