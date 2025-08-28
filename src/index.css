@@ -63,14 +63,14 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Sidebar colors - using lighter brand palette for better logo visibility */
-    --sidebar-background: 52 22% 90%; /* Brand cream for better logo contrast */
-    --sidebar-foreground: 196 56% 20%; /* Primary dark blue */
+    /* Sidebar colors - using brand palette */
+    --sidebar-background: 196 56% 20%; /* Primary dark blue */
+    --sidebar-foreground: 52 22% 90%; /* Brand cream */
     --sidebar-primary: 20 96% 54%; /* Brand orange */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 52 22% 85%; /* Slightly darker cream for hover */
-    --sidebar-accent-foreground: 196 56% 20%;
-    --sidebar-border: 52 22% 80%; /* Cream border */
+    --sidebar-accent: 196 56% 24%;
+    --sidebar-accent-foreground: 52 22% 90%;
+    --sidebar-border: 196 56% 24%;
     --sidebar-ring: 20 96% 54%;
 
     /* Custom gradients with brand colors */
