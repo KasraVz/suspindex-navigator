@@ -6,7 +6,7 @@ const Community = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Community Hub</h1>
+        <h1 className="text-3xl font-bold">SupsHub</h1>
         <p className="text-muted-foreground">Connect with other startup founders and partners</p>
       </div>
 

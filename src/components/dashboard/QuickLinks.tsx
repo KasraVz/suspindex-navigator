@@ -27,7 +27,7 @@ export function QuickLinks() {
         <Button asChild variant="outline" className="h-20 flex-col gap-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white">
           <Link to="/dashboard/community">
             <Users className="h-6 w-6" />
-            Community Hub
+            SupsHub
           </Link>
         </Button>
       </CardContent>
