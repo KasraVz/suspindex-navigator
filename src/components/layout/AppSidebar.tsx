@@ -44,7 +44,7 @@ const examItems = [
 const otherItems = [
   { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
   { title: "Certifications", url: "/dashboard/certifications", icon: Award },
-  { title: "Community", url: "/dashboard/community", icon: Users },
+  { title: "SupsHub", url: "/dashboard/community", icon: Users },
   { title: "Referrals", url: "/dashboard/referrals", icon: UserPlus },
   { title: "Scholarship", url: "/dashboard/scholarship", icon: GraduationCap },
   { title: "Support", url: "/dashboard/support", icon: HelpCircle },

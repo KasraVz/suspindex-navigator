@@ -12,7 +12,7 @@ const activities = [
   {
     id: 2,
     title: "New Message",
-    description: "Community discussion reply",
+    description: "SupsHub discussion reply",
     time: "4 hours ago",
     type: "info",
   },

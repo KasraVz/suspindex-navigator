@@ -39,7 +39,7 @@ export function DashboardHeader() {
               <Link to="/dashboard/reports">View Reports</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link to="/dashboard/community">Community</Link>
+              <Link to="/dashboard/community">SupsHub</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
