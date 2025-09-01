@@ -13,7 +13,7 @@ import {
 
 export function DashboardHeader() {
   return (
-    <header className="flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
         <Button variant="ghost" size="sm" asChild>
