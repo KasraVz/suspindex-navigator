@@ -25,18 +25,18 @@ export function Cart({ items, onRemoveItem }: CartProps) {
   };
 
   return (
-    <div className="w-72 sm:w-80">
-      <div className="p-3 sm:p-4">
+    <div className="w-full overflow-hidden">
+      <div className="p-4">
         <h3 className="font-semibold text-sm mb-3">Shopping Cart</h3>
         {items.length === 0 ? (
           <p className="text-muted-foreground text-sm">Your cart is empty</p>
         ) : (
           <>
-            <div className="space-y-2 sm:space-y-3 mb-4">
+            <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-start gap-2 sm:gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium break-words leading-tight">{item.name}</p>
+                <div key={item.id} className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <p className="text-sm font-medium truncate">{item.name}</p>
                     <p className="text-sm text-muted-foreground">${item.price}</p>
                   </div>
                   <Button

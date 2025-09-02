@@ -32,29 +32,29 @@ export function Notifications({ notifications, onMarkAsRead }: NotificationsProp
   };
 
   return (
-    <div className="w-72 sm:w-80 max-h-96 overflow-y-auto">
-      <div className="p-3 sm:p-4">
+    <div className="w-full max-h-96 overflow-y-auto overflow-x-hidden">
+      <div className="p-4">
         <h3 className="font-semibold text-sm mb-3">Notifications</h3>
         {notifications.length === 0 ? (
           <p className="text-muted-foreground text-sm">No notifications</p>
         ) : (
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-3">
             {notifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`p-2 sm:p-3 rounded-lg border-l-4 ${
+                className={`p-3 rounded-lg border-l-4 overflow-hidden ${
                   notification.type === "alert" 
                     ? "border-l-brand-orange bg-brand-orange/5" 
                     : "border-l-brand-green bg-brand-green/5"
                 } ${!notification.isRead ? "bg-opacity-100" : "opacity-60"}`}
               >
-                <div className="flex items-start gap-2 sm:gap-3">
+                <div className="flex items-start gap-3">
                   {notification.type === "alert" ? (
                     <AlertCircle className="h-4 w-4 text-brand-orange flex-shrink-0 mt-0.5" />
                   ) : (
                     <Info className="h-4 w-4 text-brand-green flex-shrink-0 mt-0.5" />
                   )}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="text-sm text-foreground break-words">{notification.content}</p>
                     <p className="text-xs text-muted-foreground mt-1">{notification.timestamp}</p>
                     {notification.action?.type === "book_now" && (
