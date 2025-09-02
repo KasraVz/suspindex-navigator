@@ -1,44 +1,30 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-const testHistory = [
-  {
-    orderNumber: "ORD005",
-    testName: "FPA",
-    finalTestDate: "2024-01-10",
-    testStatus: "Done",
-    paymentStatus: "Paid",
-    kycStatus: "Accepted",
-  },
-  {
-    orderNumber: "ORD004",
-    testName: "GEB",
-    finalTestDate: "2024-01-05",
-    testStatus: "Done",
-    paymentStatus: "Paid",
-    kycStatus: "Accepted",
-  },
-  {
-    orderNumber: "ORD003",
-    testName: "EEA",
-    finalTestDate: "2023-12-28",
-    testStatus: "Not Done",
-    paymentStatus: "Unpaid",
-    kycStatus: "Not Accepted",
-  },
-];
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+const testHistory = [{
+  orderNumber: "ORD005",
+  testName: "FPA",
+  finalTestDate: "2024-01-10",
+  testStatus: "Done",
+  paymentStatus: "Paid",
+  kycStatus: "Accepted"
+}, {
+  orderNumber: "ORD004",
+  testName: "GEB",
+  finalTestDate: "2024-01-05",
+  testStatus: "Done",
+  paymentStatus: "Paid",
+  kycStatus: "Accepted"
+}, {
+  orderNumber: "ORD003",
+  testName: "EEA",
+  finalTestDate: "2023-12-28",
+  testStatus: "Not Done",
+  paymentStatus: "Unpaid",
+  kycStatus: "Not Accepted"
+}];
 export function TestHistoryTable() {
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
         <CardTitle>Test History</CardTitle>
       </CardHeader>
@@ -48,15 +34,14 @@ export function TestHistoryTable() {
             <TableRow>
               <TableHead>Order Number</TableHead>
               <TableHead>Test Name</TableHead>
-              <TableHead>Final Test Date</TableHead>
+              <TableHead>Test Completion Date</TableHead>
               <TableHead>Test Status</TableHead>
               <TableHead>Payment Status</TableHead>
               <TableHead>KYC Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {testHistory.map((test) => (
-              <TableRow key={test.orderNumber}>
+            {testHistory.map(test => <TableRow key={test.orderNumber}>
                 <TableCell className="font-medium">{test.orderNumber}</TableCell>
                 <TableCell>{test.testName}</TableCell>
                 <TableCell>{test.finalTestDate}</TableCell>
@@ -75,11 +60,9 @@ export function TestHistoryTable() {
                     {test.kycStatus}
                   </Badge>
                 </TableCell>
-              </TableRow>
-            ))}
+              </TableRow>)}
           </TableBody>
         </Table>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
