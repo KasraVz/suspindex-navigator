@@ -5,11 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText } from "lucide-react";
-interface RequestScholarshipProps {
-  initialData?: any;
-}
-
-export function RequestScholarship({ initialData }: RequestScholarshipProps) {
+export function RequestScholarship() {
   return <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -33,7 +29,7 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
 
           <div className="space-y-2">
             <Label htmlFor="scholarshipType">Scholarship Type</Label>
-            <Select defaultValue={initialData?.scholarshipType?.toLowerCase().replace(' ', '')}>
+            <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Select scholarship type" />
               </SelectTrigger>
@@ -41,20 +37,15 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
                 <SelectItem value="general">General Scholarship</SelectItem>
                 <SelectItem value="women">Women Entrepreneurs</SelectItem>
                 <SelectItem value="social">Social Impact</SelectItem>
-                <SelectItem value="tech">Technology Innovation</SelectItem>
-                <SelectItem value="custom">Custom Request</SelectItem>
+                <SelectItem value="tech">Requested Test</SelectItem>
+                <SelectItem value="custom"></SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="requestedAmount">Requested Amount (USD)</Label>
-            <Input 
-              id="requestedAmount" 
-              type="number" 
-              placeholder="1000"
-              defaultValue={initialData?.requestedAmount || ""}
-            />
+            <Input id="requestedAmount" type="number" placeholder="1000" />
           </div>
 
           <div className="space-y-2">
@@ -65,17 +56,6 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
           <div className="space-y-2">
             <Label htmlFor="businessPlan">Pitch Deck Summary</Label>
             <Textarea id="businessPlan" placeholder="Provide a brief summary of your business plan and goals..." className="min-h-[100px]" />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="pitchDeck">Upload Pitch Deck</Label>
-            <Input 
-              id="pitchDeck" 
-              type="file" 
-              accept=".pdf,.doc,.docx,.ppt,.pptx" 
-              className="cursor-pointer"
-            />
-            <p className="text-sm text-muted-foreground">Accepted formats: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)</p>
           </div>
 
           <div className="flex gap-4">
