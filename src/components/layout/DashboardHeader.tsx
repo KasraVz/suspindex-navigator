@@ -1,4 +1,4 @@
-import { Bell, Home, Grid3X3 } from "lucide-react";
+import { Bell, Home, Zap, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,8 +10,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Notifications, Notification } from "./Notifications";
+import { Cart, CartItem } from "./Cart";
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  notifications: Notification[];
+  unreadNotifications: Notification[];
+  cartItems: CartItem[];
+  onMarkAsRead: (id: string) => void;
+  onRemoveCartItem: (id: string) => void;
+}
+
+export function DashboardHeader({ 
+  notifications, 
+  unreadNotifications, 
+  cartItems, 
+  onMarkAsRead, 
+  onRemoveCartItem 
+}: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
@@ -24,33 +45,77 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Apps Menu */}
+        {/* Quick Actions Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <Grid3X3 className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="gap-2">
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:block">Quick Actions</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Link to="/dashboard/exams/booked">Book Test</Link>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/exams/booked" className="w-full">
+                Book a Test
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link to="/dashboard/reports">View Reports</Link>
+            <DropdownMenuItem asChild>
+              <a 
+                href="https://supshub.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full"
+              >
+                SupsHub
+              </a>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link to="/dashboard/community">SupsHub</Link>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/reports" className="w-full">
+                View Reports
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Notifications */}
-        <Button variant="ghost" size="sm" className="relative">
-          <Bell className="h-4 w-4" />
-          <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
-            3
-          </Badge>
-        </Button>
+        {/* Notifications Popover */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="h-4 w-4" />
+              {unreadNotifications.length > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
+                  {unreadNotifications.length}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="p-0">
+            <Notifications 
+              notifications={notifications}
+              onMarkAsRead={onMarkAsRead}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {/* Shopping Cart Popover */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="relative">
+              <ShoppingCart className="h-4 w-4" />
+              {cartItems.length > 0 && (
+                <Badge variant="secondary" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
+                  {cartItems.length}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="p-0">
+            <Cart 
+              items={cartItems}
+              onRemoveItem={onRemoveCartItem}
+            />
+          </PopoverContent>
+        </Popover>
 
         {/* User Avatar */}
         <DropdownMenu>

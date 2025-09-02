@@ -12,6 +12,8 @@ import {
   Tag,
   Rocket,
   Sparkles,
+  CreditCard,
+  ExternalLink,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,6 +34,7 @@ import {
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Fast Trak", url: "/dashboard/fast-trak", icon: Rocket, special: true },
+  { title: "My Orders", url: "/dashboard/orders", icon: CreditCard },
   { title: "Profile", url: "/dashboard/profile", icon: User },
 ];
 
@@ -63,13 +66,19 @@ export function AppSidebar() {
     <Sidebar variant="sidebar" className="w-64" collapsible="icon">
       <SidebarContent>
         <div className="p-4">
-          <div className="flex items-center gap-3">
+          <a 
+            href="https://supsindex.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <img 
               src="/lovable-uploads/24cac4e2-dcdf-47c3-a730-ec68198e51ed.png" 
               alt="Supsindex" 
               className="h-8 w-auto"
             />
-          </div>
+            <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          </a>
         </div>
 
         <SidebarGroup>

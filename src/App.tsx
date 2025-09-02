@@ -18,6 +18,8 @@ import Scholarship from "./pages/Scholarship";
 import Support from "./pages/Support";
 import FastTrak from "./pages/FastTrak";
 import SpecialOffer from "./pages/SpecialOffer";
+import PurchasePage from "./pages/PurchasePage";
+import MyOrdersPage from "./pages/MyOrdersPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +53,8 @@ const App = () => (
             <Route path="support" element={<Support />} />
             <Route path="fast-trak" element={<FastTrak />} />
             <Route path="special-offer" element={<SpecialOffer />} />
+            <Route path="purchase" element={<PurchasePage />} />
+            <Route path="orders" element={<MyOrdersPage />} />
           </Route>
 
           {/* Catch all route */}
