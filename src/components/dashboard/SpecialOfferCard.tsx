@@ -5,7 +5,7 @@ import { Sparkles } from "lucide-react";
 
 export function SpecialOfferCard() {
   return (
-    <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 hover:shadow-lg transition-all duration-300">
+    <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-2 border-yellow-400/60 hover:border-yellow-400/80 hover:shadow-lg transition-all duration-300">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2 mb-2">
           <div className="p-2 bg-accent/10 rounded-lg">
