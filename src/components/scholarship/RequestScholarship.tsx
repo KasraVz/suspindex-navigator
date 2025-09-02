@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText } from "lucide-react";
-export function RequestScholarship() {
+export function RequestScholarship({ initialData }: { initialData?: any }) {
   return <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -37,8 +37,9 @@ export function RequestScholarship() {
                 <SelectItem value="general">General Scholarship</SelectItem>
                 <SelectItem value="women">Women Entrepreneurs</SelectItem>
                 <SelectItem value="social">Social Impact</SelectItem>
-                <SelectItem value="tech">Requested Test</SelectItem>
-                <SelectItem value="custom"></SelectItem>
+                <SelectItem value="fpa">FPA</SelectItem>
+                <SelectItem value="eea">EEA</SelectItem>
+                <SelectItem value="geb">GEB</SelectItem>
               </SelectContent>
             </Select>
           </div>
