@@ -32,6 +32,22 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
           
 
           <div className="space-y-2">
+            <Label htmlFor="scholarshipType">Scholarship Type</Label>
+            <Select defaultValue={initialData?.scholarshipType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select scholarship type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="general">General Scholarship</SelectItem>
+                <SelectItem value="women">Women Entrepreneurs</SelectItem>
+                <SelectItem value="social">Social Impact</SelectItem>
+                <SelectItem value="tech">Technology Innovation</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="requestedTest">Requested Test</Label>
             <Select defaultValue={initialData?.requestedTest}>
               <SelectTrigger>
@@ -43,11 +59,6 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
                 <SelectItem value="GEB">GEB</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="requestedAmount">Requested Amount (USD)</Label>
-            <Input id="requestedAmount" type="number" placeholder="1000" />
           </div>
 
           <div className="space-y-2">
