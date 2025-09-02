@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Clock, PlayCircle } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
 import { toast } from "sonner";
@@ -12,12 +12,14 @@ interface Test {
   name: string;
   price: number;
   description?: string;
+  bookingDate?: string;
+  bookingTime?: string;
 }
 
 const PurchasePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { addToPaidItems, removeFromUnpaidOrders, clearCart } = useOrders();
+  const { addToPaidItems, removeFromUnpaidOrders, clearCart, removeFromCart } = useOrders();
   const [tests, setTests] = useState<Test[]>([]);
 
   useEffect(() => {
@@ -39,7 +41,9 @@ const PurchasePage = () => {
         id: item.id,
         name: item.name,
         price: item.price,
-        description: `${item.name} certification exam`
+        description: `${item.name} certification exam`,
+        bookingDate: item.bookingDate ? item.bookingDate.toLocaleDateString() : undefined,
+        bookingTime: item.bookingTime,
       }));
       setTests(convertedTests);
     } else {
@@ -48,18 +52,12 @@ const PurchasePage = () => {
     }
   }, [location.state]);
 
-  const total = tests.reduce((sum, test) => sum + test.price, 0);
-
-  const handleTakeNow = (test: Test) => {
-    // Mock navigation to exam
-    console.log(`Taking ${test.name} now`);
+  const handleRemoveItem = (testId: string) => {
+    setTests(prev => prev.filter(test => test.id !== testId));
+    removeFromCart(testId);
   };
 
-  const handleBookLater = (test: Test) => {
-    navigate("/dashboard/exams/booked");
-  };
-
-  const handlePayNow = () => {
+  const handleProceedToPayment = () => {
     // Mock payment processing
     console.log("Processing payment for:", tests);
     
@@ -69,9 +67,8 @@ const PurchasePage = () => {
       testName: test.name,
       amount: test.price,
       datePaid: new Date().toLocaleDateString(),
-      // If this was from cart items, preserve booking info
-      bookingDate: location.state?.cartItems?.find((item: CartItem) => item.id === test.id)?.bookingDate,
-      bookingTime: location.state?.cartItems?.find((item: CartItem) => item.id === test.id)?.bookingTime,
+      bookingDate: test.bookingDate ? new Date(test.bookingDate) : undefined,
+      bookingTime: test.bookingTime,
     }));
     
     addToPaidItems(paidItems);
@@ -84,18 +81,16 @@ const PurchasePage = () => {
     // Clear cart
     clearCart();
     
-    toast.success(`Payment successful! ${tests.length} test(s) purchased.`);
+    toast.success("Payment Successful! Your order is confirmed.");
     navigate("/dashboard/orders");
   };
 
-  const handleAddToCart = () => {
-    // Mock add to cart
-    console.log("Adding to cart:", tests);
-    navigate("/dashboard");
-  };
+  const subtotal = tests.reduce((sum, test) => sum + test.price, 0);
+  const tax = Math.round(subtotal * 0.08); // 8% tax
+  const total = subtotal + tax;
 
   return (
-    <div className="container mx-auto max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-6xl space-y-6">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -105,7 +100,7 @@ const PurchasePage = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">Purchase Tests</h1>
+        <h1 className="text-2xl font-bold">Checkout</h1>
       </div>
 
       {tests.length === 0 ? (
@@ -121,78 +116,94 @@ const PurchasePage = () => {
           </CardContent>
         </Card>
       ) : (
-        <>
-          <div className="space-y-4">
-            {tests.map((test) => (
-              <Card key={test.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold">{test.name}</h3>
-                      {test.description && (
-                        <p className="text-muted-foreground mt-1">{test.description}</p>
-                      )}
-                      <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleTakeNow(test)}
-                        className="flex items-center gap-2"
-                      >
-                        <PlayCircle className="h-4 w-4" />
-                        Take Test Now!
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleBookLater(test)}
-                        className="flex items-center gap-2"
-                      >
-                        <Clock className="h-4 w-4" />
-                        Book for Later
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column: Order Details */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Review Your Order</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {tests.map((test) => (
+                  <Card key={test.id} className="bg-muted/30">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold">{test.name}</h3>
+                          {test.description && (
+                            <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
+                          )}
+                          {test.bookingDate && (
+                            <p className="text-sm text-primary mt-2 font-medium">
+                              Booked for: {test.bookingDate}
+                              {test.bookingTime && ` at ${test.bookingTime}`}
+                            </p>
+                          )}
+                          <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveItem(test.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </CardContent>
+            </Card>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 mb-4">
-                {tests.map((test) => (
-                  <div key={test.id} className="flex justify-between">
-                    <span>{test.name}</span>
-                    <span>${test.price}</span>
+          {/* Right Column: Order Summary */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-6">
+              <CardHeader>
+                <CardTitle>Order Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 mb-4">
+                  {tests.map((test) => (
+                    <div key={test.id} className="flex justify-between text-sm">
+                      <span>{test.name}</span>
+                      <span>${test.price}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <Separator className="mb-4" />
+                
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal:</span>
+                    <span>${subtotal}</span>
                   </div>
-                ))}
-              </div>
-              <Separator className="mb-4" />
-              <div className="flex justify-between text-lg font-semibold mb-6">
-                <span>Total:</span>
-                <span>${total}</span>
-              </div>
-              <div className="flex gap-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Tax:</span>
+                    <span>${tax}</span>
+                  </div>
+                </div>
+                
+                <Separator className="mb-4" />
+                
+                <div className="flex justify-between text-lg font-semibold mb-6">
+                  <span>Total:</span>
+                  <span>${total}</span>
+                </div>
+                
                 <Button 
-                  className="flex-1" 
-                  onClick={handlePayNow}
+                  className="w-full" 
+                  size="lg"
+                  onClick={handleProceedToPayment}
                 >
-                  Pay Now
+                  Proceed to Payment
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={handleAddToCart}
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       )}
     </div>
   );
