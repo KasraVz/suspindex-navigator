@@ -205,7 +205,11 @@ export function ReportsTable() {
                   {/* Share with Referring Partner */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        disabled={report.status === "Unpaid"}
+                      >
                         <Users className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
