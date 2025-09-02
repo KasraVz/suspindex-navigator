@@ -39,21 +39,22 @@ export function CertificationSummaryCard() {
       <CardContent>
         <div className="space-y-3">
           {latestCertifications.map((cert) => (
-            <div key={cert.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+            <div key={cert.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors overflow-hidden">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Award className={`h-5 w-5 ${cert.status === "Valid" ? "text-green-600" : "text-muted-foreground"}`} />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold">{cert.testName} Certificate</p>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-semibold truncate flex-1">{cert.testName} Certificate</p>
                   <Badge 
                     variant={cert.status === "Valid" ? "default" : "secondary"}
-                    className={cert.status === "Valid" ? "bg-green-600 hover:bg-green-700" : ""}
+                    className={`shrink-0 text-xs ${cert.status === "Valid" ? "bg-green-600 hover:bg-green-700" : ""}`}
                   >
-                    {cert.status === "Valid" ? "✓ Valid" : "⚠ Expired"}
+                    <span className="hidden sm:inline">{cert.status === "Valid" ? "✓ Valid" : "⚠ Expired"}</span>
+                    <span className="sm:hidden">{cert.status === "Valid" ? "✓" : "⚠"}</span>
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground truncate">
                   {cert.status === "Valid" ? "Expires" : "Expired"}: {new Date(cert.expiryDate).toLocaleDateString()}
                 </p>
               </div>
