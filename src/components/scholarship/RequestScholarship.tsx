@@ -58,6 +58,17 @@ export function RequestScholarship() {
             <Textarea id="businessPlan" placeholder="Provide a brief summary of your business plan and goals..." className="min-h-[100px]" />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="pitchDeck">Upload Pitch Deck</Label>
+            <Input 
+              id="pitchDeck" 
+              type="file" 
+              accept=".pdf,.doc,.docx,.ppt,.pptx" 
+              className="cursor-pointer"
+            />
+            <p className="text-sm text-muted-foreground">Accepted formats: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)</p>
+          </div>
+
           <div className="flex gap-4">
             <Button type="button" variant="outline" className="flex-1 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white">
               Save Draft
