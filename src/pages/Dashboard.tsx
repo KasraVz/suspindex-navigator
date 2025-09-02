@@ -7,6 +7,7 @@ import { SpecialOfferCard } from "@/components/dashboard/SpecialOfferCard";
 import { UpcomingTestCard } from "@/components/dashboard/UpcomingTestCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { ReportSummaryCard } from "@/components/dashboard/ReportSummaryCard";
+import { CertificationSummaryCard } from "@/components/dashboard/CertificationSummaryCard";
 
 const Dashboard = () => {
   const profileCompletion = 75; // This would come from user data/state
@@ -15,11 +16,12 @@ const Dashboard = () => {
     <div className="space-y-6">
       <WelcomeHeader />
       
-      {/* New Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <UpcomingTestCard />
         <ProfileCompletionCard completionPercentage={profileCompletion} />
         <ReportSummaryCard />
+        <CertificationSummaryCard />
       </div>
       
       {/* Promotional Cards */}

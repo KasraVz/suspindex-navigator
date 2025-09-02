@@ -70,18 +70,18 @@ export function UpcomingTestCard() {
         <CardTitle className="text-sm font-medium">Upcoming Tests</CardTitle>
         <CalendarClock className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {hasUpcomingTests ? (
           <>
             {/* Next Test Summary */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <div className="text-lg font-semibold">{nextTest.testName}</div>
+                <div className="text-sm font-semibold">{nextTest.testName}</div>
                 <Badge variant="secondary" className="text-xs">
                   {nextTest.status === 'ready' ? 'Ready' : 'Scheduled'}
                 </Badge>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
                 <span>{format(parseISO(nextTest.date), 'MMM dd, yyyy')} at {nextTest.time}</span>
               </div>
@@ -94,27 +94,24 @@ export function UpcomingTestCard() {
 
             {/* Pending Tasks Indicator */}
             {pendingTasksCount > 0 && (
-              <div className="flex items-center gap-2 p-2 bg-primary-light rounded-lg border border-primary/20">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
+              <div className="flex items-center gap-1 p-1 bg-primary-light rounded border border-primary/20">
+                <div className="w-1 h-1 bg-primary rounded-full"></div>
                 <span className="text-xs text-primary font-medium">
-                  {pendingTasksCount} pending tasks
+                  {pendingTasksCount} pending
                 </span>
               </div>
             )}
 
             {/* Upcoming Test Events */}
-            <div className="space-y-3">
-              {upcomingTestEvents.map((event) => (
+            <div className="space-y-2">
+              {upcomingTestEvents.slice(0, 2).map((event) => (
                 <div
                   key={event.id}
-                  className={`p-3 rounded-lg ${event.bgColor} ${event.textColor}`}
+                  className={`p-2 rounded-lg ${event.bgColor} ${event.textColor}`}
                 >
-                  <div className="font-medium text-sm">{event.title}</div>
-                  <div className="text-xs opacity-90 mt-1">
-                    {format(parseISO(event.date), 'EEEE, MMMM dd, yyyy')}
-                  </div>
+                  <div className="font-medium text-xs">{event.title}</div>
                   <div className="text-xs opacity-90">
-                    {event.time}
+                    {format(parseISO(event.date), 'MMM dd, yyyy')} • {event.time}
                   </div>
                 </div>
               ))}
@@ -132,8 +129,8 @@ export function UpcomingTestCard() {
             </Button>
           </>
         ) : (
-          <div className="space-y-3">
-            <div className="text-sm text-muted-foreground">
+          <div className="space-y-2">
+            <div className="text-xs text-muted-foreground">
               No upcoming tests scheduled
             </div>
             <Button 

@@ -20,17 +20,17 @@ export function ProfileCompletionCard({ completionPercentage }: ProfileCompletio
         <User className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <div className="text-2xl font-bold">{completionPercentage}%</div>
-            <Progress value={completionPercentage} className="h-2" />
+        <div className="space-y-2">
+          <div className="space-y-1">
+            <div className="text-xl font-bold">{completionPercentage}%</div>
+            <Progress value={completionPercentage} className="h-1" />
             <p className="text-xs text-muted-foreground">
-              Your profile is {completionPercentage}% complete
+              {completionPercentage}% complete
             </p>
           </div>
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link to="/dashboard/profile">
-              Complete your Profile
+              Complete Profile
             </Link>
           </Button>
         </div>
