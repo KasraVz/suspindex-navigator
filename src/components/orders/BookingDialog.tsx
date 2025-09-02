@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 interface BookingDialogProps {
@@ -22,6 +24,7 @@ export function BookingDialog({
 }: BookingDialogProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate);
   const [selectedTime, setSelectedTime] = useState<string>(initialTime || "");
+  const [acceptedRules, setAcceptedRules] = useState<boolean>(false);
 
   const timeSlots = [
     "9:00 AM",
@@ -36,7 +39,7 @@ export function BookingDialog({
   ];
 
   const handleConfirm = () => {
-    if (selectedDate && selectedTime) {
+    if (selectedDate && selectedTime && acceptedRules) {
       onConfirm(selectedDate, selectedTime);
       onOpenChange(false);
     }
@@ -47,6 +50,7 @@ export function BookingDialog({
     // Reset to initial values when closing without confirmation
     setSelectedDate(initialDate);
     setSelectedTime(initialTime || "");
+    setAcceptedRules(false);
   };
 
   // Only allow booking for future dates
@@ -98,6 +102,30 @@ export function BookingDialog({
             </div>
           )}
 
+          {selectedDate && selectedTime && (
+            <div className="flex items-start space-x-2">
+              <Checkbox 
+                id="test-rules" 
+                checked={acceptedRules}
+                onCheckedChange={(checked) => setAcceptedRules(checked === true)}
+              />
+              <Label 
+                htmlFor="test-rules" 
+                className="text-sm leading-relaxed cursor-pointer"
+              >
+                I have read and agree to the{" "}
+                <a 
+                  href="/test-rules" 
+                  className="text-primary underline hover:no-underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Supsindex Test Rules
+                </a>
+              </Label>
+            </div>
+          )}
+
           <div className="flex gap-3">
             <Button 
               variant="outline" 
@@ -108,7 +136,7 @@ export function BookingDialog({
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={!selectedDate || !selectedTime}
+              disabled={!selectedDate || !selectedTime || !acceptedRules}
               className="flex-1"
             >
               Confirm Booking
