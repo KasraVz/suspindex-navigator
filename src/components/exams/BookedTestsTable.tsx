@@ -96,7 +96,6 @@ export function BookedTestsTable() {
                         variant="default" 
                         size="sm"
                         onClick={() => handleTakeNow(test.id, test.testName)}
-                        disabled={!isPaid}
                       >
                         Take it Now
                       </Button>
