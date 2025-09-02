@@ -36,7 +36,6 @@ const reports = [
     status: "Paid",
     score: 85,
     quarter: "Q2",
-    hasReferringPartner: true,
   },
   {
     id: "TST002",
@@ -46,7 +45,6 @@ const reports = [
     status: "Paid",
     score: 45,
     quarter: "Q4",
-    hasReferringPartner: false,
   },
   {
     id: "TST003",
@@ -56,7 +54,33 @@ const reports = [
     status: "Unpaid",
     score: 32,
     quarter: "Q4",
-    hasReferringPartner: true,
+  },
+  {
+    id: "TST004",
+    testDate: "2023-11-20",
+    publishDate: "2023-11-22",
+    testName: "CPA",
+    status: "Paid",
+    score: 38,
+    quarter: "Q3",
+  },
+  {
+    id: "TST005",
+    testDate: "2023-12-08",
+    publishDate: "2023-12-10",
+    testName: "MBA",
+    status: "Paid",
+    score: 28,
+    quarter: "Q4",
+  },
+  {
+    id: "TST006",
+    testDate: "2024-02-14",
+    publishDate: "2024-02-16",
+    testName: "PMP",
+    status: "Unpaid",
+    score: 42,
+    quarter: "Q3",
   },
 ];
 
@@ -179,16 +203,14 @@ export function ReportsTable() {
                   </Button>
                   
                   {/* Share with Referring Partner */}
-                  {report.hasReferringPartner && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <Users className="w-4 h-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <ShareWithPartnerModal report={report} />
-                    </Dialog>
-                  )}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <Users className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <ShareWithPartnerModal report={report} />
+                  </Dialog>
                   
                   {/* Regular Share */}
                   <Dialog>
