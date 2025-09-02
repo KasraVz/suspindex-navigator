@@ -7,42 +7,42 @@ import { Eye, CreditCard } from "lucide-react";
 
 const testHistory = [
   {
-    id: "1",
+    id: "TST001",
     testName: "FPA",
     finalTestDate: "2024-01-10",
     paymentStatus: "Paid",
     kycStatus: "Accepted"
   },
   {
-    id: "2", 
+    id: "TST002", 
     testName: "GEB",
     finalTestDate: "2024-01-05",
     paymentStatus: "Paid",
     kycStatus: "Accepted"
   },
   {
-    id: "3",
+    id: "TST003",
     testName: "EEA", 
     finalTestDate: "2023-12-28",
     paymentStatus: "Unpaid",
     kycStatus: "Pending"
   },
   {
-    id: "4",
+    id: "TST004",
     testName: "CPA",
     finalTestDate: "2023-12-15", 
     paymentStatus: "Paid",
     kycStatus: "Not Accepted"
   },
   {
-    id: "5",
+    id: "TST005",
     testName: "MBA",
     finalTestDate: "2024-02-01",
     paymentStatus: "Unpaid", 
     kycStatus: "Pending"
   },
   {
-    id: "6",
+    id: "TST006",
     testName: "PHR",
     finalTestDate: "2024-01-20",
     paymentStatus: "Paid",
@@ -90,6 +90,7 @@ export function TestHistoryTable() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Test ID</TableHead>
               <TableHead>Test Name</TableHead>
               <TableHead>Test Completion Date</TableHead>
               <TableHead>Payment Status</TableHead>
@@ -99,6 +100,7 @@ export function TestHistoryTable() {
           </TableHeader>
           <TableBody>
             {testHistory.map(test => <TableRow key={test.id}>
+                <TableCell className="font-medium">{test.id}</TableCell>
                 <TableCell className="font-medium">{test.testName}</TableCell>
                 <TableCell>{test.finalTestDate}</TableCell>
                 <TableCell>
