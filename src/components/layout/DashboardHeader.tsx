@@ -89,7 +89,7 @@ export function DashboardHeader({
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="p-0">
+          <PopoverContent align="end">
             <Notifications 
               notifications={notifications}
               onMarkAsRead={onMarkAsRead}
@@ -109,7 +109,7 @@ export function DashboardHeader({
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent align="end" className="p-0">
+          <PopoverContent align="end">
             <Cart 
               items={cartItems}
               onRemoveItem={onRemoveCartItem}
