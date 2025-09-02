@@ -79,17 +79,65 @@ export function UpcomingTestCard() {
             </div>
 
             {/* Mini Calendar Widget */}
-            <div className="border rounded-lg p-2 bg-muted/30">
+            <div className="border rounded-lg p-3 bg-background">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-center">
+                  {format(selectedDate || new Date(), 'MMMM yyyy').toUpperCase()}
+                </h3>
+              </div>
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className={cn("p-0 [&_.rdp-cell]:h-8 [&_.rdp-cell]:w-8 [&_.rdp-day]:h-7 [&_.rdp-day]:w-7 [&_.rdp-day]:text-xs pointer-events-auto")}
-                modifiers={{
-                  testDate: testDates
+                className="p-0 w-full [&_.rdp-table]:w-full [&_.rdp-cell]:p-0 pointer-events-auto"
+                classNames={{
+                  head_cell: "text-[10px] font-medium text-muted-foreground w-8 h-6",
+                  cell: "relative h-8 w-8 p-0 text-center text-[11px]",
+                  day: "h-8 w-8 p-0 font-normal hover:bg-accent hover:text-accent-foreground text-[11px]",
+                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                  day_today: "bg-accent text-accent-foreground font-medium",
+                  day_outside: "text-muted-foreground opacity-50",
                 }}
-                modifiersClassNames={{
-                  testDate: "bg-brand-green/20 text-brand-green font-medium hover:bg-brand-green/30 relative after:absolute after:bottom-0.5 after:left-1/2 after:transform after:-translate-x-1/2 after:w-1 after:h-1 after:bg-brand-green after:rounded-full"
+                components={{
+                  Day: ({ date, ...props }) => {
+                    const dayTests = upcomingTests.filter(test => isSameDay(parseISO(test.date), date));
+                    const hasTests = dayTests.length > 0;
+                    
+                    return (
+                      <div className="relative h-8 w-8">
+                        <button
+                          {...props}
+                          className={cn(
+                            "h-8 w-8 p-0 font-normal hover:bg-accent hover:text-accent-foreground text-[11px] relative z-10",
+                            hasTests && "font-medium"
+                          )}
+                        />
+                        {hasTests && (
+                          <div className="absolute inset-0 z-0">
+                            {dayTests.map((test, index) => (
+                              <div
+                                key={test.id}
+                                className={cn(
+                                  "absolute text-[8px] px-1 py-0.5 rounded text-white font-medium leading-none",
+                                  test.testName === 'FPA' && "bg-blue-500",
+                                  test.testName === 'GEB' && "bg-brand-orange",
+                                  test.testName === 'EEA' && "bg-red-500",
+                                  index === 0 && "top-0 left-0 right-0",
+                                  index === 1 && "bottom-0 left-0 right-0"
+                                )}
+                                style={{
+                                  fontSize: '7px',
+                                  lineHeight: '8px'
+                                }}
+                              >
+                                {test.testName}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
                 }}
                 disabled={(date) => date < new Date()}
               />
