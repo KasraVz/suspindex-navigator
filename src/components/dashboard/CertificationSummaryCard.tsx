@@ -32,7 +32,7 @@ export function CertificationSummaryCard() {
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4">
         <CardTitle className="text-sm font-medium">Latest Certificates</CardTitle>
         <Award className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
