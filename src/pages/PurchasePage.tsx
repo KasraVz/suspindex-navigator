@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Clock, PlayCircle } from "lucide-react";
 import { useState, useEffect } from "react";
-import { CartItem } from "@/contexts/OrderContext";
+import { CartItem, useOrders } from "@/contexts/OrderContext";
+import { toast } from "sonner";
 
 interface Test {
   id: string;
@@ -16,6 +17,7 @@ interface Test {
 const PurchasePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { addToPaidItems, removeFromUnpaidOrders, clearCart } = useOrders();
   const [tests, setTests] = useState<Test[]>([]);
 
   useEffect(() => {
@@ -60,7 +62,29 @@ const PurchasePage = () => {
   const handlePayNow = () => {
     // Mock payment processing
     console.log("Processing payment for:", tests);
-    // Navigate to orders page after "payment"
+    
+    // Move items from unpaid to paid
+    const paidItems = tests.map(test => ({
+      id: test.id,
+      testName: test.name,
+      amount: test.price,
+      datePaid: new Date().toLocaleDateString(),
+      // If this was from cart items, preserve booking info
+      bookingDate: location.state?.cartItems?.find((item: CartItem) => item.id === test.id)?.bookingDate,
+      bookingTime: location.state?.cartItems?.find((item: CartItem) => item.id === test.id)?.bookingTime,
+    }));
+    
+    addToPaidItems(paidItems);
+    
+    // Remove from unpaid orders if they were there
+    tests.forEach(test => {
+      removeFromUnpaidOrders(test.id);
+    });
+    
+    // Clear cart
+    clearCart();
+    
+    toast.success(`Payment successful! ${tests.length} test(s) purchased.`);
     navigate("/dashboard/orders");
   };
 

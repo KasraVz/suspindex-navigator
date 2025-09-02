@@ -18,7 +18,7 @@ export interface OrderItemData {
 
 const OrderAssessmentsPage = () => {
   const navigate = useNavigate();
-  const { addToCart, addToUnpaidOrders, clearCart } = useOrders();
+  const { addToCart, addToUnpaidOrders, addToBookedItems, clearCart } = useOrders();
   const [orderItems, setOrderItems] = useState<OrderItemData[]>([
     {
       id: "1",
@@ -123,13 +123,40 @@ const OrderAssessmentsPage = () => {
       bookingTime: item.bookingTime,
       status: item.status
     }));
+
+    // Add booked items to the booked items list
+    const bookedOnlyItems = validItems.filter(item => item.status === "booked" && item.bookingDate && item.bookingTime);
+    const bookedItems = bookedOnlyItems.map(item => ({
+      id: item.id,
+      testName: item.assessment,
+      bookingDate: item.bookingDate!,
+      bookingTime: item.bookingTime!,
+      type: "Individual", // Default type, could be made configurable
+      testTime: getTestDuration(item.assessment)
+    }));
     
-    // Add to both cart and unpaid orders
+    // Add to cart, unpaid orders, and booked items (if applicable)
     addToCart(cartItems);
     addToUnpaidOrders(unpaidItems);
+    if (bookedItems.length > 0) {
+      addToBookedItems(bookedItems);
+    }
     
     toast.success(`${validItems.length} item(s) added to cart and saved for later payment`);
     navigate("/dashboard/orders");
+  };
+
+  const getTestDuration = (assessment: string) => {
+    switch (assessment) {
+      case "FPA":
+        return "120 minutes";
+      case "GEB":
+        return "90 minutes";
+      case "EEA":
+        return "150 minutes";
+      default:
+        return "90 minutes";
+    }
   };
 
   return (
