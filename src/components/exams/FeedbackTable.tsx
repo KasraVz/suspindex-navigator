@@ -57,7 +57,7 @@ export function FeedbackTable() {
                         <div>
                           <Label htmlFor="feedback-image" className="mb-2">Upload Image (Optional)</Label>
                           <div className="mt-3">
-                            <Input id="feedback-image" type="file" accept="image/*" className="file:mr-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80 file:ml-0 pl-0 py-0 px-[22px] my-0 mx-[9px]" />
+                            <Input id="feedback-image" type="file" accept="image/*" className="file:mr-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80 file:ml-0 pl-0 mx-[6px] my-[2px] px-px py-[6px]" />
                             <p className="text-sm text-muted-foreground mt-2">
                               Attach an image to support your feedback
                             </p>
