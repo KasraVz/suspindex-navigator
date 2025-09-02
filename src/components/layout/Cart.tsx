@@ -25,25 +25,25 @@ export function Cart({ items, onRemoveItem }: CartProps) {
   };
 
   return (
-    <div className="w-80">
-      <div className="p-4">
+    <div className="w-72 sm:w-80">
+      <div className="p-3 sm:p-4">
         <h3 className="font-semibold text-sm mb-3">Shopping Cart</h3>
         {items.length === 0 ? (
           <p className="text-muted-foreground text-sm">Your cart is empty</p>
         ) : (
           <>
-            <div className="space-y-3 mb-4">
+            <div className="space-y-2 sm:space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between">
+                <div key={item.id} className="flex items-start gap-2 sm:gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
+                    <p className="text-sm font-medium break-words leading-tight">{item.name}</p>
                     <p className="text-sm text-muted-foreground">${item.price}</p>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onRemoveItem(item.id)}
-                    className="text-destructive hover:text-destructive/80"
+                    className="text-destructive hover:text-destructive/80 text-xs px-2 py-1 h-auto flex-shrink-0"
                   >
                     Remove
                   </Button>
@@ -52,8 +52,8 @@ export function Cart({ items, onRemoveItem }: CartProps) {
             </div>
             <Separator className="mb-4" />
             <div className="flex items-center justify-between mb-4">
-              <span className="font-semibold">Total:</span>
-              <span className="font-semibold">${total}</span>
+              <span className="font-semibold text-sm">Total:</span>
+              <span className="font-semibold text-sm">${total}</span>
             </div>
             <Button 
               className="w-full" 
