@@ -9,8 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Download, Share2 } from "lucide-react";
-// Fixed Share2 icon import
+import { Eye, Download, Share2, Users, AlertTriangle, RotateCcw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,32 +17,116 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useState } from "react";
 
 const reports = [
   {
-    id: "RPT001",
+    id: "TST001",
     testDate: "2024-01-10",
     publishDate: "2024-01-12",
     testName: "FPA",
     status: "Paid",
+    score: 85,
+    quarter: "Q2",
+    hasReferringPartner: true,
   },
   {
-    id: "RPT002",
+    id: "TST002",
     testDate: "2024-01-05",
     publishDate: "2024-01-07",
     testName: "GEB",
     status: "Paid",
+    score: 45,
+    quarter: "Q4",
+    hasReferringPartner: false,
   },
   {
-    id: "RPT003",
+    id: "TST003",
     testDate: "2023-10-15",
     publishDate: "2023-10-17",
     testName: "EEA",
     status: "Unpaid",
+    score: 32,
+    quarter: "Q4",
+    hasReferringPartner: true,
   },
 ];
 
+const referringPartners = [
+  { id: "partner1", name: "TechCorp Academy" },
+  { id: "partner2", name: "Digital Learning Hub" },
+  { id: "partner3", name: "Professional Development Center" },
+  { id: "partner4", name: "Skills Training Institute" },
+];
+
 export function ReportsTable() {
+  const [selectedPartner, setSelectedPartner] = useState("");
+
+  const ShareWithPartnerModal = ({ report }: { report: any }) => {
+    const isPoorPerformance = report.quarter === "Q3" || report.quarter === "Q4";
+
+    return (
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share with Referring Partner</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          {/* Section 1: Partner Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Select Referring Partner</label>
+            <Select value={selectedPartner} onValueChange={setSelectedPartner}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose a referring partner" />
+              </SelectTrigger>
+              <SelectContent>
+                {referringPartners.map((partner) => (
+                  <SelectItem key={partner.id} value={partner.id}>
+                    {partner.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Section 2: Conditional Performance Warning */}
+          {isPoorPerformance && (
+            <Alert variant="destructive">
+              <AlertTriangle className="w-4 h-4" />
+              <AlertTitle>Performance Notice</AlertTitle>
+              <AlertDescription className="space-y-3">
+                <p>
+                  You have scored poorly and are located in {report.quarter}. You may want to take the test again to improve your standing.
+                </p>
+                <Button variant="destructive" size="sm" className="w-full">
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Order Test Again
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Final Share Button */}
+          <div className="flex justify-end">
+            <Button 
+              disabled={!selectedPartner}
+              className="w-full"
+            >
+              Share Report
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -53,7 +136,7 @@ export function ReportsTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Report ID</TableHead>
+              <TableHead>Test ID</TableHead>
               <TableHead>Test Date</TableHead>
               <TableHead>Publish Date</TableHead>
               <TableHead>Test Name</TableHead>
@@ -78,11 +161,15 @@ export function ReportsTable() {
                   )}
                 </TableCell>
                 <TableCell className="space-x-2">
-                  {report.status === "Paid" && (
-                    <Button variant="ghost" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  )}
+                  {/* View button - always visible but grayed out for unpaid */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    disabled={report.status === "Unpaid"}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  
                   <Button 
                     variant="ghost" 
                     size="sm" 
@@ -90,6 +177,20 @@ export function ReportsTable() {
                   >
                     <Download className="w-4 h-4" />
                   </Button>
+                  
+                  {/* Share with Referring Partner */}
+                  {report.hasReferringPartner && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <Users className="w-4 h-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <ShareWithPartnerModal report={report} />
+                    </Dialog>
+                  )}
+                  
+                  {/* Regular Share */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button 
