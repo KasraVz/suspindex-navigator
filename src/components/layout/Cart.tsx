@@ -34,18 +34,29 @@ export function Cart({ items, onRemoveItem }: CartProps) {
           <>
             <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0 overflow-hidden">
-                    <p className="text-sm font-medium truncate">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">${item.price}</p>
+                <div key={item.id} className="border-b border-border pb-3 last:border-b-0">
+                  <div className="flex items-start gap-3 mb-2">
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <p className="text-sm font-medium truncate">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">${item.price}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onRemoveItem(item.id)}
+                      className="text-destructive hover:text-destructive/80 text-xs px-2 py-1 h-auto flex-shrink-0"
+                    >
+                      Remove
+                    </Button>
                   </div>
                   <Button
-                    variant="ghost"
                     size="sm"
-                    onClick={() => onRemoveItem(item.id)}
-                    className="text-destructive hover:text-destructive/80 text-xs px-2 py-1 h-auto flex-shrink-0"
+                    onClick={() => navigate("/dashboard/purchase", {
+                      state: { cartItems: [item] }
+                    })}
+                    className="w-full text-xs"
                   >
-                    Remove
+                    Pay Now
                   </Button>
                 </div>
               ))}
@@ -60,7 +71,7 @@ export function Cart({ items, onRemoveItem }: CartProps) {
               onClick={handlePayNow}
               disabled={items.length === 0}
             >
-              Pay Now
+              Pay All
             </Button>
           </>
         )}

@@ -20,6 +20,7 @@ import FastTrak from "./pages/FastTrak";
 import SpecialOffer from "./pages/SpecialOffer";
 import PurchasePage from "./pages/PurchasePage";
 import MyOrdersPage from "./pages/MyOrdersPage";
+import OrderAssessmentsPage from "./pages/OrderAssessmentsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="special-offer" element={<SpecialOffer />} />
             <Route path="purchase" element={<PurchasePage />} />
             <Route path="orders" element={<MyOrdersPage />} />
+            <Route path="orders/new" element={<OrderAssessmentsPage />} />
           </Route>
 
           {/* Catch all route */}

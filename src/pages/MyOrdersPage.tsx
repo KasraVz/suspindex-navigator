@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 interface UnpaidItem {
   id: string;
@@ -23,6 +25,7 @@ interface PaidOrder {
 }
 
 const MyOrdersPage = () => {
+  const navigate = useNavigate();
   const [selectedUnpaidItems, setSelectedUnpaidItems] = useState<string[]>([]);
 
   // Mock data
@@ -79,9 +82,17 @@ const MyOrdersPage = () => {
     const selectedItems = unpaidItems.filter(item => 
       selectedUnpaidItems.includes(item.id)
     );
-    console.log("Paying for selected items:", selectedItems);
-    // Mock payment process
-    setSelectedUnpaidItems([]);
+    
+    // Navigate to purchase page with selected items
+    navigate("/dashboard/purchase", {
+      state: { 
+        cartItems: selectedItems.map(item => ({
+          id: item.id,
+          name: item.testName,
+          price: item.price
+        }))
+      }
+    });
   };
 
   const selectedTotal = unpaidItems
@@ -103,9 +114,15 @@ const MyOrdersPage = () => {
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="text-muted-foreground">Manage your test purchases and order history</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">My Orders</h1>
+          <p className="text-muted-foreground">Manage your test purchases and order history</p>
+        </div>
+        <Button onClick={() => navigate("/dashboard/orders/new")} size="lg">
+          <Plus className="w-4 h-4 mr-2" />
+          Order New Assessments
+        </Button>
       </div>
 
       <Tabs defaultValue="unpaid" className="space-y-6">
