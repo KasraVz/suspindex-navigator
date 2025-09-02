@@ -4,10 +4,12 @@ import { AppSidebar } from "./AppSidebar";
 import { DashboardHeader } from "./DashboardHeader";
 import { useState } from "react";
 import { Notification } from "./Notifications";
-import { CartItem } from "./Cart";
+import { useOrders } from "@/contexts/OrderContext";
 
 const DashboardLayout = () => {
-  // State management for notifications and cart
+  const { cartItems, removeFromCart } = useOrders();
+  
+  // State management for notifications
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: "1",
@@ -43,11 +45,6 @@ const DashboardLayout = () => {
     }
   ]);
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { id: "1", name: "FPA Advanced Certification", price: 75 },
-    { id: "2", name: "Security Module Assessment", price: 50 }
-  ]);
-
   const handleMarkAsRead = (id: string) => {
     setNotifications(notifications.map(notification =>
       notification.id === id ? { ...notification, isRead: true } : notification
@@ -55,7 +52,7 @@ const DashboardLayout = () => {
   };
 
   const handleRemoveCartItem = (id: string) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
+    removeFromCart(id);
   };
 
   const unreadNotifications = notifications.filter(n => !n.isRead);
@@ -67,9 +64,7 @@ const DashboardLayout = () => {
         <DashboardHeader 
           notifications={notifications}
           unreadNotifications={unreadNotifications}
-          cartItems={cartItems}
           onMarkAsRead={handleMarkAsRead}
-          onRemoveCartItem={handleRemoveCartItem}
         />
         <main className="flex-1 p-6">
           <Outlet />

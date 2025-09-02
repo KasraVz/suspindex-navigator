@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Clock, PlayCircle } from "lucide-react";
 import { useState, useEffect } from "react";
-import { CartItem } from "@/components/layout/Cart";
+import { CartItem } from "@/contexts/OrderContext";
 
 interface Test {
   id: string;

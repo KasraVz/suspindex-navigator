@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OrderItem } from "@/components/orders/OrderItem";
+import { useOrders } from "@/contexts/OrderContext";
+import { toast } from "sonner";
 
 export interface OrderItemData {
   id: string;
@@ -16,6 +18,7 @@ export interface OrderItemData {
 
 const OrderAssessmentsPage = () => {
   const navigate = useNavigate();
+  const { addToCart, addToUnpaidOrders, clearCart } = useOrders();
   const [orderItems, setOrderItems] = useState<OrderItemData[]>([
     {
       id: "1",
@@ -95,14 +98,37 @@ const OrderAssessmentsPage = () => {
       status: item.status
     }));
     
+    addToCart(cartItems);
     navigate("/dashboard/purchase", {
       state: { cartItems }
     });
   };
 
   const handlePayLater = () => {
-    // In a real app, this would save to a backend or localStorage
-    console.log("Saving items for later payment:", validItems);
+    const cartItems = validItems.map(item => ({
+      id: item.id,
+      name: item.assessment,
+      price: item.price,
+      bookingDate: item.bookingDate,
+      bookingTime: item.bookingTime,
+      status: item.status
+    }));
+
+    const unpaidItems = validItems.map(item => ({
+      id: item.id,
+      testName: item.assessment,
+      amount: item.price,
+      dateAdded: new Date().toLocaleDateString(),
+      bookingDate: item.bookingDate,
+      bookingTime: item.bookingTime,
+      status: item.status
+    }));
+    
+    // Add to both cart and unpaid orders
+    addToCart(cartItems);
+    addToUnpaidOrders(unpaidItems);
+    
+    toast.success(`${validItems.length} item(s) added to cart and saved for later payment`);
     navigate("/dashboard/orders");
   };
 

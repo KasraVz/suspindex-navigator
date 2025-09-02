@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
+import { useOrders } from "@/contexts/OrderContext";
 
 interface UnpaidItem {
   id: string;
@@ -26,15 +27,10 @@ interface PaidOrder {
 
 const MyOrdersPage = () => {
   const navigate = useNavigate();
+  const { unpaidOrders, removeFromUnpaidOrders } = useOrders();
   const [selectedUnpaidItems, setSelectedUnpaidItems] = useState<string[]>([]);
 
-  // Mock data
-  const unpaidItems: UnpaidItem[] = [
-    { id: "1", testName: "FPA", price: 50, addedDate: "2024-01-15" },
-    { id: "2", testName: "EEA", price: 75, addedDate: "2024-01-14" },
-    { id: "3", testName: "GEB", price: 60, addedDate: "2024-01-13" },
-  ];
-
+  // Mock paid orders data
   const paidOrders: PaidOrder[] = [
     {
       id: "1",
@@ -72,14 +68,14 @@ const MyOrdersPage = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUnpaidItems(unpaidItems.map(item => item.id));
+      setSelectedUnpaidItems(unpaidOrders.map(item => item.id));
     } else {
       setSelectedUnpaidItems([]);
     }
   };
 
   const handlePaySelected = () => {
-    const selectedItems = unpaidItems.filter(item => 
+    const selectedItems = unpaidOrders.filter(item => 
       selectedUnpaidItems.includes(item.id)
     );
     
@@ -89,15 +85,18 @@ const MyOrdersPage = () => {
         cartItems: selectedItems.map(item => ({
           id: item.id,
           name: item.testName,
-          price: item.price
+          price: item.amount,
+          bookingDate: item.bookingDate,
+          bookingTime: item.bookingTime,
+          status: item.status
         }))
       }
     });
   };
 
-  const selectedTotal = unpaidItems
+  const selectedTotal = unpaidOrders
     .filter(item => selectedUnpaidItems.includes(item.id))
-    .reduce((sum, item) => sum + item.price, 0);
+    .reduce((sum, item) => sum + item.amount, 0);
 
   const getStatusBadge = (status: PaidOrder["status"]) => {
     switch (status) {
@@ -127,7 +126,7 @@ const MyOrdersPage = () => {
 
       <Tabs defaultValue="unpaid" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="unpaid">Unpaid ({unpaidItems.length})</TabsTrigger>
+          <TabsTrigger value="unpaid">Unpaid ({unpaidOrders.length})</TabsTrigger>
           <TabsTrigger value="paid">Order History ({paidOrders.length})</TabsTrigger>
         </TabsList>
 
@@ -137,7 +136,7 @@ const MyOrdersPage = () => {
               <CardTitle>Unpaid Items</CardTitle>
             </CardHeader>
             <CardContent>
-              {unpaidItems.length === 0 ? (
+              {unpaidOrders.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">No unpaid items</p>
               ) : (
                 <>
@@ -146,7 +145,7 @@ const MyOrdersPage = () => {
                       <TableRow>
                         <TableHead className="w-12">
                           <Checkbox
-                            checked={selectedUnpaidItems.length === unpaidItems.length}
+                            checked={selectedUnpaidItems.length === unpaidOrders.length && unpaidOrders.length > 0}
                             onCheckedChange={handleSelectAll}
                           />
                         </TableHead>
@@ -156,7 +155,7 @@ const MyOrdersPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {unpaidItems.map((item) => (
+                      {unpaidOrders.map((item) => (
                         <TableRow key={item.id}>
                           <TableCell>
                             <Checkbox
@@ -167,8 +166,8 @@ const MyOrdersPage = () => {
                             />
                           </TableCell>
                           <TableCell className="font-medium">{item.testName}</TableCell>
-                          <TableCell>${item.price}</TableCell>
-                          <TableCell>{item.addedDate}</TableCell>
+                          <TableCell>${item.amount}</TableCell>
+                          <TableCell>{item.dateAdded}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

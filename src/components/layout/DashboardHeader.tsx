@@ -16,23 +16,21 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Notifications, Notification } from "./Notifications";
-import { Cart, CartItem } from "./Cart";
+import { Cart } from "./Cart";
+import { useOrders } from "@/contexts/OrderContext";
 
 interface DashboardHeaderProps {
   notifications: Notification[];
   unreadNotifications: Notification[];
-  cartItems: CartItem[];
   onMarkAsRead: (id: string) => void;
-  onRemoveCartItem: (id: string) => void;
 }
 
 export function DashboardHeader({ 
   notifications, 
   unreadNotifications, 
-  cartItems, 
-  onMarkAsRead, 
-  onRemoveCartItem 
+  onMarkAsRead
 }: DashboardHeaderProps) {
+  const { cartItems } = useOrders();
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
@@ -110,10 +108,7 @@ export function DashboardHeader({
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 sm:w-96 max-w-[90vw] p-0">
-            <Cart 
-              items={cartItems}
-              onRemoveItem={onRemoveCartItem}
-            />
+            <Cart />
           </PopoverContent>
         </Popover>
 
