@@ -74,7 +74,7 @@ export function FeedbackTable() {
                               id="feedback-image"
                               type="file"
                               accept="image/*"
-                              className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
+                              className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80 file:ml-0 pl-0"
                             />
                             <p className="text-sm text-muted-foreground mt-2">
                               Attach an image to support your feedback
