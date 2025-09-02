@@ -56,11 +56,11 @@ export function FeedbackTable() {
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Provide Feedback for {test.testName}</DialogTitle>
+                        <DialogTitle className="mb-6">Provide Feedback for {test.testName}</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         <div>
-                          <Label htmlFor="feedback-text">Your Feedback</Label>
+                          <Label htmlFor="feedback-text" className="mb-2">Your Feedback</Label>
                           <Textarea
                             id="feedback-text"
                             placeholder="Please share your thoughts about this test..."
@@ -68,20 +68,20 @@ export function FeedbackTable() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="feedback-image">Upload Image (Optional)</Label>
-                          <div className="mt-2">
+                          <Label htmlFor="feedback-image" className="mb-2">Upload Image (Optional)</Label>
+                          <div className="mt-3">
                             <Input
                               id="feedback-image"
                               type="file"
                               accept="image/*"
                               className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
                             />
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-sm text-muted-foreground mt-2">
                               Attach an image to support your feedback
                             </p>
                           </div>
                         </div>
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end space-x-4 pt-6">
                           <Button variant="outline">Cancel</Button>
                           <Button>Submit Feedback</Button>
                         </div>
