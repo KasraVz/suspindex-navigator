@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, Download, Share2 } from "lucide-react";
+// Fixed Share2 icon import
 import {
   Dialog,
   DialogContent,
