@@ -22,9 +22,21 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export function AccountSettings() {
   const [isPrivate, setIsPrivate] = useState(false);
   const [acceptedDeleteRules, setAcceptedDeleteRules] = useState(false);
+  const [showPrivateConfirm, setShowPrivateConfirm] = useState(false);
 
   const handleVisibilityChange = (checked: boolean) => {
-    setIsPrivate(checked);
+    if (checked) {
+      // Show confirmation when switching to private
+      setShowPrivateConfirm(true);
+    } else {
+      // Allow switching back to visible without confirmation
+      setIsPrivate(false);
+    }
+  };
+
+  const confirmPrivateProfile = () => {
+    setIsPrivate(true);
+    setShowPrivateConfirm(false);
   };
 
   const handleDeleteAccount = () => {
@@ -70,6 +82,24 @@ export function AccountSettings() {
             </Alert>
           )}
         </div>
+        
+        {/* Private Profile Confirmation Dialog */}
+        <AlertDialog open={showPrivateConfirm} onOpenChange={setShowPrivateConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Make Profile Private?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to make your profile private? This will hide your profile from other users and may limit some platform features.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmPrivateProfile}>
+                Make Private
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         
         <Separator />
         
