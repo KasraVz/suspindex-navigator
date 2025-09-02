@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Download, Share } from "lucide-react";
+import { Eye, Download, Share2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,21 +24,21 @@ const reports = [
     testDate: "2024-01-10",
     publishDate: "2024-01-12",
     testName: "FPA",
-    status: "Valid",
+    status: "Paid",
   },
   {
     id: "RPT002",
     testDate: "2024-01-05",
     publishDate: "2024-01-07",
     testName: "GEB",
-    status: "Valid",
+    status: "Paid",
   },
   {
     id: "RPT003",
     testDate: "2023-10-15",
     publishDate: "2023-10-17",
     testName: "EEA",
-    status: "Expired",
+    status: "Unpaid",
   },
 ];
 
@@ -68,21 +68,35 @@ export function ReportsTable() {
                 <TableCell>{report.publishDate}</TableCell>
                 <TableCell>{report.testName}</TableCell>
                 <TableCell>
-                  <Badge variant={report.status === "Valid" ? "default" : "secondary"}>
-                    {report.status}
-                  </Badge>
+                  {report.status === "Unpaid" ? (
+                    <Button size="sm">Pay Now</Button>
+                  ) : (
+                    <Badge variant="default">
+                      {report.status}
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="space-x-2">
-                  <Button variant="ghost" size="sm">
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
+                  {report.status === "Paid" && (
+                    <Button variant="ghost" size="sm">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    disabled={report.status === "Unpaid"}
+                  >
                     <Download className="w-4 h-4" />
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Share className="w-4 h-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        disabled={report.status === "Unpaid"}
+                      >
+                        <Share2 className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
