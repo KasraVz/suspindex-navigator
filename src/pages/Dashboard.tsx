@@ -1,5 +1,4 @@
 import { WelcomeHeader } from "@/components/dashboard/WelcomeHeader";
-import { KeyMetrics } from "@/components/dashboard/KeyMetrics";
 import { QuickLinks } from "@/components/dashboard/QuickLinks";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { FastTrakCard } from "@/components/dashboard/FastTrakCard";
@@ -43,7 +42,6 @@ const Dashboard = () => {
         <SpecialOfferCard />
       </div>
       
-      <KeyMetrics />
       <div className="grid gap-6 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <QuickLinks />
