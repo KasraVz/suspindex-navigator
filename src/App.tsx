@@ -30,41 +30,41 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <OrderProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Redirect root to dashboard */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Dashboard routes */}
+            <Route path="/dashboard" element={
+              <SidebarProvider>
+                <DashboardLayout />
+              </SidebarProvider>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="exams/booked" element={<BookedExams />} />
+              <Route path="exams/history" element={<ExamHistory />} />
+              <Route path="exams/feedback" element={<ExamFeedback />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="certifications" element={<Certifications />} />
+              <Route path="community" element={<Community />} />
+              <Route path="referrals" element={<Referrals />} />
+              <Route path="scholarship" element={<Scholarship />} />
+              <Route path="support" element={<Support />} />
+              <Route path="fast-trak" element={<FastTrak />} />
+              <Route path="special-offer" element={<SpecialOffer />} />
+              <Route path="purchase" element={<PurchasePage />} />
+              <Route path="orders" element={<MyOrdersPage />} />
+              <Route path="orders/new" element={<OrderAssessmentsPage />} />
+            </Route>
+
+            {/* Catch all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-        <Routes>
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          {/* Dashboard routes */}
-          <Route path="/dashboard" element={
-            <SidebarProvider>
-              <DashboardLayout />
-            </SidebarProvider>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="exams/booked" element={<BookedExams />} />
-            <Route path="exams/history" element={<ExamHistory />} />
-            <Route path="exams/feedback" element={<ExamFeedback />} />
-            <Route path="reports" element={<Reports />} />
-            <Route path="certifications" element={<Certifications />} />
-            <Route path="community" element={<Community />} />
-            <Route path="referrals" element={<Referrals />} />
-            <Route path="scholarship" element={<Scholarship />} />
-            <Route path="support" element={<Support />} />
-            <Route path="fast-trak" element={<FastTrak />} />
-            <Route path="special-offer" element={<SpecialOffer />} />
-            <Route path="purchase" element={<PurchasePage />} />
-            <Route path="orders" element={<MyOrdersPage />} />
-            <Route path="orders/new" element={<OrderAssessmentsPage />} />
-          </Route>
-
-          {/* Catch all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        </BrowserRouter>
       </OrderProvider>
     </TooltipProvider>
   </QueryClientProvider>
