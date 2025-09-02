@@ -21,8 +21,8 @@ export function WelcomeHeader() {
             Welcome back to your Supsindex dashboard. Here's what's happening today.
           </p>
         </div>
-        <Button asChild variant="secondary" size="lg" className="hidden sm:block">
-          <Link to="/dashboard/exams/booked">
+        <Button asChild variant="secondary" size="lg" className="hidden sm:flex items-center justify-center px-6 py-3">
+          <Link to="/dashboard/exams/booked" className="text-center">
             Book a Test Now!
           </Link>
         </Button>
