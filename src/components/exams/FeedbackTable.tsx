@@ -1,34 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MessageSquare, Upload } from "lucide-react";
-
-const feedbackTests = [
-  { testId: "TST001", testName: "FPA", completed: true },
-  { testId: "TST002", testName: "GEB", completed: true },
-  { testId: "TST003", testName: "EEA", completed: false },
-];
-
+const feedbackTests = [{
+  testId: "TST001",
+  testName: "FPA",
+  completed: true
+}, {
+  testId: "TST002",
+  testName: "GEB",
+  completed: true
+}, {
+  testId: "TST003",
+  testName: "EEA",
+  completed: false
+}];
 export function FeedbackTable() {
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
         <CardTitle>Exam Feedback</CardTitle>
       </CardHeader>
@@ -42,8 +34,7 @@ export function FeedbackTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {feedbackTests.map((test) => (
-              <TableRow key={test.testId}>
+            {feedbackTests.map(test => <TableRow key={test.testId}>
                 <TableCell className="font-medium">{test.testId}</TableCell>
                 <TableCell>{test.testName}</TableCell>
                 <TableCell>
@@ -61,21 +52,12 @@ export function FeedbackTable() {
                       <div className="space-y-6">
                         <div>
                           <Label htmlFor="feedback-text" className="mb-2">Your Feedback</Label>
-                          <Textarea
-                            id="feedback-text"
-                            placeholder="Please share your thoughts about this test..."
-                            className="min-h-[120px]"
-                          />
+                          <Textarea id="feedback-text" placeholder="Please share your thoughts about this test..." className="min-h-[120px]" />
                         </div>
                         <div>
                           <Label htmlFor="feedback-image" className="mb-2">Upload Image (Optional)</Label>
                           <div className="mt-3">
-                            <Input
-                              id="feedback-image"
-                              type="file"
-                              accept="image/*"
-                              className="file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80 file:ml-0 pl-0"
-                            />
+                            <Input id="feedback-image" type="file" accept="image/*" className="file:mr-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80 file:ml-0 pl-0 py-0 px-[22px] my-0 mx-[9px]" />
                             <p className="text-sm text-muted-foreground mt-2">
                               Attach an image to support your feedback
                             </p>
@@ -89,11 +71,9 @@ export function FeedbackTable() {
                     </DialogContent>
                   </Dialog>
                 </TableCell>
-              </TableRow>
-            ))}
+              </TableRow>)}
           </TableBody>
         </Table>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
