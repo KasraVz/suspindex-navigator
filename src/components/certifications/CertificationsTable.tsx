@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Download, Share } from "lucide-react";
+import { Eye, Download, Share2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -82,7 +82,7 @@ export function CertificationsTable() {
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="sm">
-                        <Share className="w-4 h-4" />
+                        <Share2 className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
