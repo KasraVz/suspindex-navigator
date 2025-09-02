@@ -92,15 +92,6 @@ export function UpcomingTestCard() {
               )}
             </div>
 
-            {/* Pending Tasks Indicator */}
-            {pendingTasksCount > 0 && (
-              <div className="flex items-center gap-1 p-1 bg-primary-light rounded border border-primary/20">
-                <div className="w-1 h-1 bg-primary rounded-full"></div>
-                <span className="text-xs text-primary font-medium">
-                  {pendingTasksCount} pending
-                </span>
-              </div>
-            )}
 
             {/* Upcoming Test Events */}
             <div className="space-y-2">
