@@ -2,8 +2,16 @@ import { GeneralScholarship } from "@/components/scholarship/GeneralScholarship"
 import { RequestScholarship } from "@/components/scholarship/RequestScholarship";
 import { DraftScholarships } from "@/components/scholarship/DraftScholarships";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState } from "react";
 
 const Scholarship = () => {
+  const [activeTab, setActiveTab] = useState("available");
+  const [draftData, setDraftData] = useState(null);
+
+  const handleEditDraft = (draft: any) => {
+    setDraftData(draft);
+    setActiveTab("request");
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -11,7 +19,7 @@ const Scholarship = () => {
         <p className="text-muted-foreground">Apply for scholarships to support your startup journey</p>
       </div>
 
-      <Tabs defaultValue="available" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="available">Available Scholarships</TabsTrigger>
           <TabsTrigger value="request">Request Scholarship</TabsTrigger>
@@ -23,11 +31,11 @@ const Scholarship = () => {
         </TabsContent>
 
         <TabsContent value="request">
-          <RequestScholarship />
+          <RequestScholarship initialData={draftData} />
         </TabsContent>
 
         <TabsContent value="drafts">
-          <DraftScholarships />
+          <DraftScholarships onEditDraft={handleEditDraft} />
         </TabsContent>
       </Tabs>
     </div>

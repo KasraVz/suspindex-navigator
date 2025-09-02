@@ -5,7 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText } from "lucide-react";
-export function RequestScholarship() {
+interface RequestScholarshipProps {
+  initialData?: any;
+}
+
+export function RequestScholarship({ initialData }: RequestScholarshipProps) {
   return <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -29,7 +33,7 @@ export function RequestScholarship() {
 
           <div className="space-y-2">
             <Label htmlFor="scholarshipType">Scholarship Type</Label>
-            <Select>
+            <Select defaultValue={initialData?.scholarshipType?.toLowerCase().replace(' ', '')}>
               <SelectTrigger>
                 <SelectValue placeholder="Select scholarship type" />
               </SelectTrigger>
@@ -45,7 +49,12 @@ export function RequestScholarship() {
 
           <div className="space-y-2">
             <Label htmlFor="requestedAmount">Requested Amount (USD)</Label>
-            <Input id="requestedAmount" type="number" placeholder="1000" />
+            <Input 
+              id="requestedAmount" 
+              type="number" 
+              placeholder="1000"
+              defaultValue={initialData?.requestedAmount || ""}
+            />
           </div>
 
           <div className="space-y-2">

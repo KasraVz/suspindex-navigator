@@ -3,7 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, Edit, Trash2 } from "lucide-react";
 
-export function DraftScholarships() {
+interface DraftScholarshipsProps {
+  onEditDraft: (draft: any) => void;
+}
+
+export function DraftScholarships({ onEditDraft }: DraftScholarshipsProps) {
   const draftApplications = [
     {
       id: "DRAFT001",
@@ -66,7 +70,12 @@ export function DraftScholarships() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2"
+                  onClick={() => onEditDraft(draft)}
+                >
                   <Edit className="w-4 h-4" />
                   Continue Editing
                 </Button>
