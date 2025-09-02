@@ -17,11 +17,19 @@ const Dashboard = () => {
       <WelcomeHeader />
       
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <UpcomingTestCard />
-        <ProfileCompletionCard completionPercentage={profileCompletion} />
-        <ReportSummaryCard />
-        <CertificationSummaryCard />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+          <UpcomingTestCard />
+        </div>
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+          <ProfileCompletionCard completionPercentage={profileCompletion} />
+        </div>
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+          <ReportSummaryCard />
+        </div>
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+          <CertificationSummaryCard />
+        </div>
       </div>
       
       {/* Promotional Cards */}
