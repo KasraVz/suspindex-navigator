@@ -15,7 +15,6 @@ const Profile = () => {
       <Tabs defaultValue="view" className="space-y-6">
         <TabsList>
           <TabsTrigger value="view">View Profile</TabsTrigger>
-          <TabsTrigger value="edit">Edit Profile</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
 
@@ -26,17 +25,6 @@ const Profile = () => {
               <ProfileInfo />
             </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="edit" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit Profile Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Edit functionality coming soon...</p>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">
