@@ -53,8 +53,8 @@ export function DashboardHeader({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link to="/dashboard/exams/booked" className="w-full">
-                Book a Test
+              <Link to="/dashboard/orders/new" className="w-full">
+                Order New Assessment
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
