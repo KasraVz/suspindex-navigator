@@ -1,4 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 export function WelcomeHeader() {
   const getGreeting = () => {
@@ -10,13 +12,20 @@ export function WelcomeHeader() {
 
   return (
     <Card className="bg-gradient-to-r from-brand-orange to-brand-green text-white">
-      <CardContent className="p-6">
-        <h1 className="text-3xl font-bold mb-2">
-          {getGreeting()}, John Doe
-        </h1>
-        <p className="text-lg opacity-90">
-          Welcome back to your Supsindex dashboard. Here's what's happening today.
-        </p>
+      <CardContent className="p-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            {getGreeting()}, John Doe
+          </h1>
+          <p className="text-lg opacity-90">
+            Welcome back to your Supsindex dashboard. Here's what's happening today.
+          </p>
+        </div>
+        <Button asChild variant="secondary" size="lg" className="hidden sm:block">
+          <Link to="/dashboard/exams/booked">
+            Book a Test Now!
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );

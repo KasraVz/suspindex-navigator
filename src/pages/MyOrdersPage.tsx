@@ -27,9 +27,9 @@ const MyOrdersPage = () => {
 
   // Mock data
   const unpaidItems: UnpaidItem[] = [
-    { id: "1", testName: "FPA Certification", price: 50, addedDate: "2024-01-15" },
-    { id: "2", testName: "EEA Advanced", price: 75, addedDate: "2024-01-14" },
-    { id: "3", testName: "GEB Foundation", price: 60, addedDate: "2024-01-13" },
+    { id: "1", testName: "FPA", price: 50, addedDate: "2024-01-15" },
+    { id: "2", testName: "EEA", price: 75, addedDate: "2024-01-14" },
+    { id: "3", testName: "GEB", price: 60, addedDate: "2024-01-13" },
   ];
 
   const paidOrders: PaidOrder[] = [
@@ -39,7 +39,7 @@ const MyOrdersPage = () => {
       date: "2024-01-10",
       amount: 125,
       status: "completed",
-      tests: ["FPA Basic", "EEA Foundation"]
+      tests: ["FPA", "EEA"]
     },
     {
       id: "2", 
@@ -47,7 +47,7 @@ const MyOrdersPage = () => {
       date: "2024-01-05",
       amount: 80,
       status: "processing",
-      tests: ["GEB Advanced"]
+      tests: ["GEB"]
     },
     {
       id: "3",
@@ -55,7 +55,7 @@ const MyOrdersPage = () => {
       date: "2023-12-28",
       amount: 95,
       status: "completed",
-      tests: ["FPA Advanced", "Security Module"]
+      tests: ["FPA", "EEA"]
     },
   ];
 

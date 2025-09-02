@@ -4,13 +4,25 @@ import { QuickLinks } from "@/components/dashboard/QuickLinks";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { FastTrakCard } from "@/components/dashboard/FastTrakCard";
 import { SpecialOfferCard } from "@/components/dashboard/SpecialOfferCard";
+import { UpcomingTestCard } from "@/components/dashboard/UpcomingTestCard";
+import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import { ReportSummaryCard } from "@/components/dashboard/ReportSummaryCard";
 
 const Dashboard = () => {
+  const profileCompletion = 75; // This would come from user data/state
+
   return (
     <div className="space-y-6">
       <WelcomeHeader />
       
-      {/* Promotional Cards directly under welcome */}
+      {/* New Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <UpcomingTestCard />
+        <ProfileCompletionCard completionPercentage={profileCompletion} />
+        <ReportSummaryCard />
+      </div>
+      
+      {/* Promotional Cards */}
       <div className="grid gap-4 lg:grid-cols-2">
         <FastTrakCard />
         <SpecialOfferCard />

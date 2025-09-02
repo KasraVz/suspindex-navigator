@@ -20,9 +20,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare } from "lucide-react";
 
 const feedbackTests = [
-  { testId: "TST001", testName: "FPA Certification", completed: true },
-  { testId: "TST002", testName: "Business Analytics", completed: true },
-  { testId: "TST003", testName: "Leadership Assessment", completed: false },
+  { testId: "TST001", testName: "FPA", completed: true },
+  { testId: "TST002", testName: "GEB", completed: true },
+  { testId: "TST003", testName: "EEA", completed: false },
 ];
 
 export function FeedbackTable() {

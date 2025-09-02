@@ -17,7 +17,7 @@ const bookedTests = [
     bookedDateTime: "2024-01-15 10:00 AM",
     type: "Individual",
     paymentStatus: "Purchased",
-    testName: "FPA Certification",
+    testName: "FPA",
     testTime: "120 minutes",
   },
   {
@@ -25,7 +25,7 @@ const bookedTests = [
     bookedDateTime: "2024-01-18 2:00 PM",
     type: "Group",
     paymentStatus: "Not Purchased",
-    testName: "Business Analytics",
+    testName: "GEB",
     testTime: "90 minutes",
   },
   {
@@ -33,7 +33,7 @@ const bookedTests = [
     bookedDateTime: "2024-01-22 11:00 AM",
     type: "Individual",
     paymentStatus: "Purchased",
-    testName: "Leadership Assessment",
+    testName: "EEA",
     testTime: "150 minutes",
   },
 ];

@@ -12,7 +12,7 @@ import {
 const testHistory = [
   {
     orderNumber: "ORD005",
-    testName: "FPA Certification",
+    testName: "FPA",
     finalTestDate: "2024-01-10",
     testStatus: "Done",
     paymentStatus: "Paid",
@@ -20,7 +20,7 @@ const testHistory = [
   },
   {
     orderNumber: "ORD004",
-    testName: "Business Strategy",
+    testName: "GEB",
     finalTestDate: "2024-01-05",
     testStatus: "Done",
     paymentStatus: "Paid",
@@ -28,7 +28,7 @@ const testHistory = [
   },
   {
     orderNumber: "ORD003",
-    testName: "Market Analysis",
+    testName: "EEA",
     finalTestDate: "2023-12-28",
     testStatus: "Not Done",
     paymentStatus: "Unpaid",
