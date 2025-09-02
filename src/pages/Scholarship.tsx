@@ -1,5 +1,6 @@
 import { GeneralScholarship } from "@/components/scholarship/GeneralScholarship";
 import { RequestScholarship } from "@/components/scholarship/RequestScholarship";
+import { DraftScholarships } from "@/components/scholarship/DraftScholarships";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Scholarship = () => {
@@ -14,6 +15,7 @@ const Scholarship = () => {
         <TabsList>
           <TabsTrigger value="available">Available Scholarships</TabsTrigger>
           <TabsTrigger value="request">Request Scholarship</TabsTrigger>
+          <TabsTrigger value="drafts">Draft Applications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="available">
@@ -22,6 +24,10 @@ const Scholarship = () => {
 
         <TabsContent value="request">
           <RequestScholarship />
+        </TabsContent>
+
+        <TabsContent value="drafts">
+          <DraftScholarships />
         </TabsContent>
       </Tabs>
     </div>
