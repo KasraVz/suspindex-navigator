@@ -18,17 +18,22 @@ const Dashboard = () => {
       
       {/* Summary Cards */}
       <div className="flex flex-wrap gap-4">
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+        {/* Hero Card - Upcoming Tests (more prominent) */}
+        <div className="w-full lg:w-[calc(50%-0.5rem)]">
           <UpcomingTestCard />
         </div>
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+        
+        {/* Secondary Cards */}
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.5rem)]">
           <ProfileCompletionCard completionPercentage={profileCompletion} />
         </div>
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
-          <ReportSummaryCard />
-        </div>
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.5rem)]">
           <CertificationSummaryCard />
+        </div>
+        
+        {/* Reports Card - Full width on mobile, half on larger screens */}
+        <div className="w-full lg:w-[calc(50%-0.5rem)]">
+          <ReportSummaryCard />
         </div>
       </div>
       

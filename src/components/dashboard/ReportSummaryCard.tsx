@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -35,32 +36,32 @@ export function ReportSummaryCard() {
   const displayReports = recentReports.slice(0, 2);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-sm font-medium">Latest Reports</CardTitle>
         <FileText className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-xs">Report Name</TableHead>
-                <TableHead className="text-xs">Date Received</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {displayReports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell className="text-sm font-medium">{report.testName}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{report.dateReceived}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {displayReports.map((report, index) => (
+            <div key={report.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/70 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">{report.testName} Report</p>
+                  <p className="text-xs text-muted-foreground">{report.dateReceived}</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {index === 0 ? "Latest" : "Recent"}
+              </Badge>
+            </div>
+          ))}
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link to="/dashboard/reports">
-              View All Reports
+              📊 View All Reports
             </Link>
           </Button>
         </div>

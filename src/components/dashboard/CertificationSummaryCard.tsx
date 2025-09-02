@@ -31,35 +31,40 @@ export function CertificationSummaryCard() {
   const latestCertifications = recentCertifications.slice(0, 2);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-sm font-medium">Latest Certificates</CardTitle>
         <Award className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {latestCertifications.map((cert) => (
-            <div key={cert.id} className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium">{cert.testName}</p>
+            <div key={cert.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Award className={`h-5 w-5 ${cert.status === "Valid" ? "text-green-600" : "text-muted-foreground"}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">{cert.testName} Certificate</p>
+                  <Badge 
+                    variant={cert.status === "Valid" ? "default" : "secondary"}
+                    className={cert.status === "Valid" ? "bg-green-600 hover:bg-green-700" : ""}
+                  >
+                    {cert.status === "Valid" ? "✓ Valid" : "⚠ Expired"}
+                  </Badge>
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Expires: {new Date(cert.expiryDate).toLocaleDateString()}
+                  {cert.status === "Valid" ? "Expires" : "Expired"}: {new Date(cert.expiryDate).toLocaleDateString()}
                 </p>
               </div>
-              <Badge 
-                variant={cert.status === "Valid" ? "default" : "secondary"}
-                className={cert.status === "Valid" ? "bg-brand-green text-white" : ""}
-              >
-                {cert.status}
-              </Badge>
             </div>
           ))}
+          <Button asChild variant="outline" className="w-full" size="sm">
+            <Link to="/dashboard/certifications">
+              🏆 View All Certificates
+            </Link>
+          </Button>
         </div>
-        <Button asChild variant="outline" className="w-full mt-3" size="sm">
-          <Link to="/dashboard/certifications">
-            View All Certificates
-          </Link>
-        </Button>
       </CardContent>
     </Card>
   );

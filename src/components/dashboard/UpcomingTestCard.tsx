@@ -65,10 +65,10 @@ export function UpcomingTestCard() {
   const pendingTasksCount = 3;
 
   return (
-    <Card className="h-fit">
+    <Card className="h-fit border-l-4 border-l-primary shadow-md hover:shadow-lg transition-shadow">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-medium">Upcoming Tests</CardTitle>
-        <CalendarClock className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-base font-semibold text-primary">Upcoming Tests</CardTitle>
+        <CalendarClock className="h-5 w-5 text-primary" />
       </CardHeader>
       <CardContent className="space-y-3">
         {hasUpcomingTests ? (
@@ -86,8 +86,8 @@ export function UpcomingTestCard() {
                 <span>{format(parseISO(nextTest.date), 'MMM dd, yyyy')} at {nextTest.time}</span>
               </div>
               {nextTest.status === 'ready' && (
-                <Button className="w-full" size="sm">
-                  Start Test
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" size="sm">
+                  🚀 Start Test Now
                 </Button>
               )}
             </div>
