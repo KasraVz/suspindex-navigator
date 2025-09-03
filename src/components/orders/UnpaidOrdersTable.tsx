@@ -108,12 +108,14 @@ export function UnpaidOrdersTable() {
 
   const filteredBundles = Object.values(groupedOrders.bundles).filter(bundle =>
     bundle.items.some(item => 
-      item.testName.toLowerCase().includes(searchQuery.toLowerCase())
+      item.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      `BUNDLE-${bundle.bundleId}`.toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
   const filteredIndividual = groupedOrders.individual.filter(order =>
-    order.testName.toLowerCase().includes(searchQuery.toLowerCase())
+    order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    `ORD-${order.id}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -132,7 +134,7 @@ export function UnpaidOrdersTable() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search by test name..."
+              placeholder="Search by order ID or test name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -148,6 +150,7 @@ export function UnpaidOrdersTable() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Order ID</TableHead>
                   <TableHead>Order Details</TableHead>
                   <TableHead>Date Added</TableHead>
                   <TableHead>Amount</TableHead>
@@ -159,6 +162,9 @@ export function UnpaidOrdersTable() {
                 {/* Bundle rows */}
                 {filteredBundles.map((bundle) => (
                   <TableRow key={bundle.bundleId} className="bg-muted/30">
+                    <TableCell>
+                      <div className="font-mono text-sm">BUNDLE-{bundle.bundleId}</div>
+                    </TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
@@ -204,6 +210,9 @@ export function UnpaidOrdersTable() {
                 {/* Individual order rows */}
                 {filteredIndividual.map((order) => (
                   <TableRow key={order.id}>
+                    <TableCell>
+                      <div className="font-mono text-sm">ORD-{order.id}</div>
+                    </TableCell>
                     <TableCell>
                       <div className="font-medium">{order.testName}</div>
                     </TableCell>
