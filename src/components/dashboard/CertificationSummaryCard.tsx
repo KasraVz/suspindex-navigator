@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Award } from "lucide-react";
+import { Award, Share } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Mock data for recent certifications
@@ -54,6 +54,9 @@ export function CertificationSummaryCard() {
                   </Badge>
                 </div>
               </div>
+              <button className="p-1 hover:bg-secondary/50 rounded transition-colors shrink-0" title="Share certificate">
+                <Share className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+              </button>
             </div>
           ))}
           <Button asChild variant="outline" className="w-full" size="sm">
