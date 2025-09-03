@@ -37,11 +37,7 @@ const DashboardLayout = () => {
       type: "alert",
       content: "Your affiliate code has unlocked new tests!",
       isRead: false,
-      timestamp: "5 days ago",
-      action: {
-        type: "book_now",
-        tests: ["FPA", "EEA", "GEB"]
-      }
+      timestamp: "5 days ago"
     }
   ]);
 
