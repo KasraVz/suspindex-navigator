@@ -97,19 +97,19 @@ export function Notifications({ notifications, onMarkAsRead, onNotificationClick
             )}
           </>
         )}
-        
-        {/* Scroll to Top Button */}
-        {showScrollTop && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={scrollToTop}
-            className="absolute bottom-4 right-4 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm border shadow-lg"
-          >
-            <ArrowUp className="h-4 w-4" />
-          </Button>
-        )}
       </div>
+      
+      {/* Scroll to Top Button - positioned relative to the scrollable container */}
+      {showScrollTop && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={scrollToTop}
+          className="absolute bottom-2 right-2 h-8 w-8 p-0 bg-background/90 backdrop-blur-sm border shadow-lg z-50 hover:bg-background/95"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
