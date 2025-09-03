@@ -7,6 +7,7 @@ export interface CartItem {
   bookingDate?: Date;
   bookingTime?: string;
   status?: string;
+  bundleId?: string;
 }
 
 export interface UnpaidOrder {
@@ -17,6 +18,7 @@ export interface UnpaidOrder {
   bookingDate?: Date;
   bookingTime?: string;
   status?: string;
+  bundleId?: string;
 }
 
 export interface BookedItem {
@@ -46,6 +48,7 @@ interface OrderContextType {
   removeFromCart: (id: string) => void;
   addToUnpaidOrders: (items: UnpaidOrder[]) => void;
   removeFromUnpaidOrders: (id: string) => void;
+  removeUnpaidBundle: (bundleId: string) => void;
   addToBookedItems: (items: BookedItem[]) => void;
   removeFromBookedItems: (id: string) => void;
   addToPaidItems: (items: PaidItem[]) => void;
@@ -167,6 +170,10 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setUnpaidOrders(prev => prev.filter(item => item.id !== id));
   };
 
+  const removeUnpaidBundle = (bundleId: string) => {
+    setUnpaidOrders(prev => prev.filter(item => item.bundleId !== bundleId));
+  };
+
   const addToBookedItems = (items: BookedItem[]) => {
     setBookedItems(prev => [...prev, ...items]);
   };
@@ -194,6 +201,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         removeFromCart,
         addToUnpaidOrders,
         removeFromUnpaidOrders,
+        removeUnpaidBundle,
         addToBookedItems,
         removeFromBookedItems,
         addToPaidItems,

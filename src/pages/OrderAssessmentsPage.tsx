@@ -89,13 +89,16 @@ const OrderAssessmentsPage = () => {
   const totalAmount = validItems.reduce((sum, item) => sum + item.price, 0);
 
   const handlePayNow = () => {
+    const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
+    
     const cartItems = validItems.map(item => ({
       id: item.id,
       name: item.assessment,
       price: item.price,
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
-      status: item.status
+      status: item.status,
+      bundleId
     }));
     
     addToCart(cartItems);
@@ -105,13 +108,16 @@ const OrderAssessmentsPage = () => {
   };
 
   const handlePayLater = () => {
+    const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
+    
     const cartItems = validItems.map(item => ({
       id: item.id,
       name: item.assessment,
       price: item.price,
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
-      status: item.status
+      status: item.status,
+      bundleId
     }));
 
     const unpaidItems = validItems.map(item => ({
@@ -121,7 +127,8 @@ const OrderAssessmentsPage = () => {
       dateAdded: new Date().toLocaleDateString(),
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
-      status: item.status
+      status: item.status,
+      bundleId
     }));
 
     // Add booked items to the booked items list

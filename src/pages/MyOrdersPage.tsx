@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { UnifiedOrdersTable } from "@/components/orders/UnifiedOrdersTable";
+import { UnpaidOrdersTable } from "@/components/orders/UnpaidOrdersTable";
 
 const MyOrdersPage = () => {
   const navigate = useNavigate();
@@ -19,7 +21,18 @@ const MyOrdersPage = () => {
         </Button>
       </div>
 
-      <UnifiedOrdersTable />
+      <Tabs defaultValue="unpaid" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="unpaid">Unpaid Orders</TabsTrigger>
+          <TabsTrigger value="all">All Orders</TabsTrigger>
+        </TabsList>
+        <TabsContent value="unpaid">
+          <UnpaidOrdersTable />
+        </TabsContent>
+        <TabsContent value="all">
+          <UnifiedOrdersTable />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
