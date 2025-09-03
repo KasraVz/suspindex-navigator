@@ -23,7 +23,7 @@ export function WelcomeHeader() {
         </div>
         <Button asChild variant="secondary" size="lg" className="hidden sm:flex items-center justify-center px-6 py-3">
           <Link to="/dashboard/exams/booked" className="text-center">
-            Book a Test Now!
+            Order New Assessment
           </Link>
         </Button>
       </CardContent>

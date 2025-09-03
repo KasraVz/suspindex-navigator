@@ -115,7 +115,7 @@ export function UpcomingTestCard() {
               size="sm"
             >
               <Link to="/dashboard/exams/booked">
-                Book a New Test
+                Order New Assessment
               </Link>
             </Button>
           </>
@@ -130,7 +130,7 @@ export function UpcomingTestCard() {
               size="sm"
             >
               <Link to="/dashboard/exams/booked">
-                Book a Test Now!
+                Order New Assessment
               </Link>
             </Button>
           </div>

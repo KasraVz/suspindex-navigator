@@ -13,7 +13,7 @@ export function QuickLinks() {
         <Button asChild className="h-20 flex-col gap-2 bg-brand-orange hover:bg-brand-orange/90 text-white">
           <Link to="/dashboard/exams/booked">
             <BookOpen className="h-6 w-6" />
-            Book a Test
+            Order New Assessment
           </Link>
         </Button>
 
