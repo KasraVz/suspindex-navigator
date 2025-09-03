@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfilePhoto } from "@/components/profile/ProfilePhoto";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { BusinessProfile } from "@/components/profile/BusinessProfile";
+import { LeaderboardProfile } from "@/components/profile/LeaderboardProfile";
 import { AccountSettings } from "@/components/profile/AccountSettings";
 import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
 
@@ -30,6 +31,7 @@ const Profile = () => {
           </div>
           
           <BusinessProfile />
+          <LeaderboardProfile />
         </TabsContent>
 
         <TabsContent value="requests" className="space-y-6">

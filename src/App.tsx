@@ -22,6 +22,7 @@ import SpecialOffer from "./pages/SpecialOffer";
 import PurchasePage from "./pages/PurchasePage";
 import MyOrdersPage from "./pages/MyOrdersPage";
 import OrderAssessmentsPage from "./pages/OrderAssessmentsPage";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
               <Route path="certifications" element={<Certifications />} />
               <Route path="community" element={<Community />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
               <Route path="referrals" element={<Referrals />} />
               <Route path="scholarship" element={<Scholarship />} />
               <Route path="support" element={<Support />} />

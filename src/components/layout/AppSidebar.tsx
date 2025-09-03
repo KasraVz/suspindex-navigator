@@ -14,6 +14,7 @@ import {
   Sparkles,
   CreditCard,
   ExternalLink,
+  Trophy,
 } from "lucide-react";
 import {
   Sidebar,
@@ -48,6 +49,7 @@ const otherItems = [
   { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
   { title: "Certifications", url: "/dashboard/certifications", icon: Award },
   { title: "SupsHub", url: "/dashboard/community", icon: Users },
+  { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
   { title: "Referrals", url: "/dashboard/referrals", icon: UserPlus },
   { title: "Scholarship", url: "/dashboard/scholarship", icon: GraduationCap },
   { title: "Support", url: "/dashboard/support", icon: HelpCircle },
