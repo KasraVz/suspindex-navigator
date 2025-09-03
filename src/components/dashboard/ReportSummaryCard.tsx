@@ -51,17 +51,26 @@ export function ReportSummaryCard() {
                   <FileText className="h-4 w-4 text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm whitespace-nowrap">{report.testName} Report</p>
-                    <Badge variant="outline" className="text-xs shrink-0">
-                      {index === 0 ? "Latest" : "Recent"}
-                    </Badge>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm whitespace-nowrap">{report.testName} Report</p>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {index === 0 ? "Latest" : "Recent"}
+                      </Badge>
+                    </div>
+                    <button 
+                      className="p-1.5 hover:bg-secondary rounded transition-colors shrink-0 ml-2" 
+                      title="Share report"
+                      onClick={() => {
+                        // Share functionality would go here
+                        console.log(`Sharing report: ${report.testName}`);
+                      }}
+                    >
+                      <Share className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                    </button>
                   </div>
                   <p className="text-xs text-muted-foreground whitespace-nowrap">{report.dateReceived}</p>
                 </div>
-                <button className="p-1 hover:bg-secondary/50 rounded transition-colors shrink-0" title="Share report">
-                  <Share className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                </button>
               </div>
             ))}
           </div>
