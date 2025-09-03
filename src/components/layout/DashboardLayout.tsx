@@ -9,71 +9,59 @@ import { useOrders } from "@/contexts/OrderContext";
 const DashboardLayout = () => {
   const { cartItems, removeFromCart } = useOrders();
   
-  // All available notifications pool
-  const allNotifications: Notification[] = [
-    {
-      id: "1",
-      type: "info",
-      content: "Your FPA certification results are ready",
-      isRead: false,
-      timestamp: "2 hours ago"
-    },
-    {
-      id: "2", 
-      type: "alert",
-      content: "Reminder: EEA exam scheduled for tomorrow",
-      isRead: false,
-      timestamp: "4 hours ago"
-    },
-    {
-      id: "3",
-      type: "info",
-      content: "New practice materials available",
-      isRead: true,
-      timestamp: "1 day ago"
-    },
-    {
-      id: "4",
-      type: "alert",
-      content: "Your affiliate code has unlocked new tests!",
-      isRead: false,
-      timestamp: "5 days ago"
-    },
-    {
-      id: "5",
-      type: "info",
-      content: "System maintenance scheduled for this weekend",
-      isRead: false,
-      timestamp: "1 week ago"
-    },
-    {
-      id: "6",
-      type: "alert",
-      content: "Payment confirmation received for recent order",
-      isRead: true,
-      timestamp: "1 week ago"
-    },
-    {
-      id: "7",
-      type: "info",
-      content: "New features added to the platform",
-      isRead: false,
-      timestamp: "2 weeks ago"
-    },
-    {
-      id: "8",
-      type: "alert",
-      content: "Account security review completed",
-      isRead: true,
-      timestamp: "2 weeks ago"
-    }
-  ];
+  // Notification generator function
+  const generateNotification = (index: number): Notification => {
+    const notificationTypes: Array<{ type: "info" | "alert", content: string }> = [
+      { type: "info", content: "Your certification results are ready" },
+      { type: "alert", content: "Exam reminder scheduled" },
+      { type: "info", content: "New practice materials available" },
+      { type: "alert", content: "Affiliate code unlocked new tests" },
+      { type: "info", content: "System maintenance notification" },
+      { type: "alert", content: "Payment confirmation received" },
+      { type: "info", content: "New features added to platform" },
+      { type: "alert", content: "Account security review completed" },
+      { type: "info", content: "Course completion certificate available" },
+      { type: "alert", content: "Subscription renewal reminder" },
+      { type: "info", content: "Weekly progress report generated" },
+      { type: "alert", content: "Test score improvement detected" },
+      { type: "info", content: "Learning path recommendation updated" },
+      { type: "alert", content: "Fast Track program eligibility" },
+      { type: "info", content: "Community forum new discussions" },
+      { type: "alert", content: "Scholarship application deadline approaching" },
+      { type: "info", content: "Performance analytics report ready" },
+      { type: "alert", content: "Account verification required" },
+      { type: "info", content: "Resource library updated with new content" },
+      { type: "alert", content: "Time-sensitive offer available" }
+    ];
+
+    const timeOptions = [
+      "2 hours ago", "4 hours ago", "6 hours ago", "8 hours ago", "12 hours ago",
+      "1 day ago", "2 days ago", "3 days ago", "4 days ago", "5 days ago",
+      "1 week ago", "2 weeks ago", "3 weeks ago", "1 month ago", "2 months ago",
+      "3 months ago", "4 months ago", "5 months ago", "6 months ago"
+    ];
+
+    const template = notificationTypes[index % notificationTypes.length];
+    const timeIndex = Math.floor(index / notificationTypes.length) % timeOptions.length;
+    
+    return {
+      id: `notification-${index + 1}`,
+      type: template.type,
+      content: `${template.content} #${Math.floor(index / notificationTypes.length) + 1}`,
+      isRead: Math.random() > 0.7, // 30% chance of being read
+      timestamp: timeOptions[timeIndex]
+    };
+  };
+
+  // Initial notifications
+  const getInitialNotifications = (): Notification[] => {
+    return Array.from({ length: 4 }, (_, i) => generateNotification(i));
+  };
 
   // State management for notifications
-  const [displayedNotifications, setDisplayedNotifications] = useState<Notification[]>(
-    allNotifications.slice(0, 4)
-  );
-  const [hasMoreNotifications, setHasMoreNotifications] = useState(true);
+  const [displayedNotifications, setDisplayedNotifications] = useState<Notification[]>(getInitialNotifications);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalGenerated, setTotalGenerated] = useState(4);
 
   const handleMarkAsRead = (id: string) => {
     setDisplayedNotifications(displayedNotifications.map(notification =>
@@ -82,13 +70,18 @@ const DashboardLayout = () => {
   };
 
   const handleShowMore = () => {
-    const currentCount = displayedNotifications.length;
-    const nextBatch = allNotifications.slice(currentCount, currentCount + 4);
-    setDisplayedNotifications(prev => [...prev, ...nextBatch]);
+    setIsLoadingMore(true);
     
-    if (currentCount + 4 >= allNotifications.length) {
-      setHasMoreNotifications(false);
-    }
+    // Simulate API delay for better UX
+    setTimeout(() => {
+      const nextBatch = Array.from({ length: 4 }, (_, i) => 
+        generateNotification(totalGenerated + i)
+      );
+      
+      setDisplayedNotifications(prev => [...prev, ...nextBatch]);
+      setTotalGenerated(prev => prev + 4);
+      setIsLoadingMore(false);
+    }, 300);
   };
 
   const handleRemoveCartItem = (id: string) => {
@@ -106,7 +99,8 @@ const DashboardLayout = () => {
           unreadNotifications={unreadNotifications}
           onMarkAsRead={handleMarkAsRead}
           onShowMore={handleShowMore}
-          hasMore={hasMoreNotifications}
+          hasMore={true}
+          isLoadingMore={isLoadingMore}
         />
         <main className="flex-1 p-6">
           <Outlet />

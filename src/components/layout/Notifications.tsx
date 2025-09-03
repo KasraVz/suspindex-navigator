@@ -17,9 +17,10 @@ interface NotificationsProps {
   onNotificationClick?: (notification: Notification) => void;
   onShowMore?: () => void;
   hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
-export function Notifications({ notifications, onMarkAsRead, onNotificationClick, onShowMore, hasMore }: NotificationsProps) {
+export function Notifications({ notifications, onMarkAsRead, onNotificationClick, onShowMore, hasMore, isLoadingMore }: NotificationsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -88,9 +89,10 @@ export function Notifications({ notifications, onMarkAsRead, onNotificationClick
                 variant="ghost"
                 size="sm"
                 onClick={onShowMore}
+                disabled={isLoadingMore}
                 className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground"
               >
-                Show More
+                {isLoadingMore ? "Loading..." : "Show More"}
               </Button>
             )}
           </>

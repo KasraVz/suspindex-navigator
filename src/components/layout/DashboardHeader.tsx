@@ -25,6 +25,7 @@ interface DashboardHeaderProps {
   onMarkAsRead: (id: string) => void;
   onShowMore?: () => void;
   hasMore?: boolean;
+  isLoadingMore?: boolean;
 }
 
 export function DashboardHeader({ 
@@ -32,7 +33,8 @@ export function DashboardHeader({
   unreadNotifications, 
   onMarkAsRead,
   onShowMore,
-  hasMore
+  hasMore,
+  isLoadingMore
 }: DashboardHeaderProps) {
   const { cartItems } = useOrders();
   return (
@@ -92,12 +94,13 @@ export function DashboardHeader({
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 sm:w-96 max-w-[90vw] p-0">
-            <Notifications 
-              notifications={notifications}
-              onMarkAsRead={onMarkAsRead}
-              onShowMore={onShowMore}
-              hasMore={hasMore}
-            />
+                  <Notifications 
+                    notifications={notifications}
+                    onMarkAsRead={onMarkAsRead}
+                    onShowMore={onShowMore}
+                    hasMore={hasMore}
+                    isLoadingMore={isLoadingMore}
+                  />
           </PopoverContent>
         </Popover>
 
