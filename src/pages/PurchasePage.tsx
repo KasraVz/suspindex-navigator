@@ -2,7 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Trash2, Tag, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
 import { toast } from "sonner";
@@ -21,6 +22,22 @@ const PurchasePage = () => {
   const navigate = useNavigate();
   const { addToPaidItems, removeFromUnpaidOrders, clearCart, removeFromCart } = useOrders();
   const [tests, setTests] = useState<Test[]>([]);
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    type: "percentage" | "fixed";
+    value: number;
+    description: string;
+  } | null>(null);
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+
+  // Mock discount codes
+  const validDiscountCodes = {
+    "STUDENT10": { type: "percentage" as const, value: 10, description: "Student Discount" },
+    "NEWUSER15": { type: "percentage" as const, value: 15, description: "New User Discount" },
+    "SAVE20": { type: "percentage" as const, value: 20, description: "Save 20%" },
+    "FIXED25": { type: "fixed" as const, value: 25, description: "$25 Off" },
+  };
 
   useEffect(() => {
     // Handle different data sources
@@ -57,9 +74,42 @@ const PurchasePage = () => {
     removeFromCart(testId);
   };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    
+    setIsApplyingDiscount(true);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const upperCode = discountCode.toUpperCase();
+    const discount = validDiscountCodes[upperCode as keyof typeof validDiscountCodes];
+    
+    if (discount) {
+      setAppliedDiscount({
+        code: upperCode,
+        type: discount.type,
+        value: discount.value,
+        description: discount.description
+      });
+      setDiscountCode("");
+      toast.success(`Discount applied: ${discount.description}`);
+    } else {
+      toast.error("Invalid discount code");
+    }
+    
+    setIsApplyingDiscount(false);
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    toast.success("Discount removed");
+  };
+
   const handleProceedToPayment = () => {
     // Mock payment processing
     console.log("Processing payment for:", tests);
+    console.log("Applied discount:", appliedDiscount);
     
     // Move items from unpaid to paid
     const paidItems = tests.map(test => ({
@@ -86,8 +136,20 @@ const PurchasePage = () => {
   };
 
   const subtotal = tests.reduce((sum, test) => sum + test.price, 0);
-  const tax = Math.round(subtotal * 0.08); // 8% tax
-  const total = subtotal + tax;
+  
+  // Calculate discount amount
+  let discountAmount = 0;
+  if (appliedDiscount) {
+    if (appliedDiscount.type === "percentage") {
+      discountAmount = Math.round(subtotal * (appliedDiscount.value / 100));
+    } else {
+      discountAmount = Math.min(appliedDiscount.value, subtotal);
+    }
+  }
+  
+  const discountedSubtotal = subtotal - discountAmount;
+  const tax = Math.round(discountedSubtotal * 0.08); // 8% tax on discounted amount
+  const total = discountedSubtotal + tax;
 
   return (
     <div className="container mx-auto max-w-6xl space-y-6">
@@ -175,11 +237,69 @@ const PurchasePage = () => {
                 
                 <Separator className="mb-4" />
                 
+                {/* Discount Code Section */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Discount Code</span>
+                  </div>
+                  
+                  {appliedDiscount ? (
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-green-600" />
+                        <div>
+                          <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                            {appliedDiscount.code}
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400">
+                            {appliedDiscount.description}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveDiscount}
+                        className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Enter discount code"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleApplyDiscount()}
+                        className="flex-1"
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={handleApplyDiscount}
+                        disabled={!discountCode.trim() || isApplyingDiscount}
+                        className="px-4"
+                      >
+                        {isApplyingDiscount ? "Applying..." : "Apply"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                
+                <Separator className="mb-4" />
+                
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
                     <span>${subtotal}</span>
                   </div>
+                  {appliedDiscount && (
+                    <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                      <span>Discount ({appliedDiscount.code}):</span>
+                      <span>-${discountAmount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span>Tax:</span>
                     <span>${tax}</span>
