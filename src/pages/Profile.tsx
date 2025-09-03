@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfilePhoto } from "@/components/profile/ProfilePhoto";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
+import { BusinessProfile } from "@/components/profile/BusinessProfile";
 import { AccountSettings } from "@/components/profile/AccountSettings";
 
 const Profile = () => {
@@ -25,6 +26,8 @@ const Profile = () => {
               <ProfileInfo />
             </div>
           </div>
+          
+          <BusinessProfile />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">
