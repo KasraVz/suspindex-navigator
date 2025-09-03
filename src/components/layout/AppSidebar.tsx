@@ -68,10 +68,8 @@ export function AppSidebar() {
     <Sidebar variant="sidebar" className="w-64" collapsible="icon">
       <SidebarContent>
         <div className="p-4">
-          <a 
-            href="https://supsindex.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <NavLink 
+            to="/dashboard"
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <img 
@@ -79,8 +77,7 @@ export function AppSidebar() {
               alt="Supsindex" 
               className="h-8 w-auto"
             />
-            <ExternalLink className="h-4 w-4 text-muted-foreground" />
-          </a>
+          </NavLink>
         </div>
 
         <SidebarGroup>
