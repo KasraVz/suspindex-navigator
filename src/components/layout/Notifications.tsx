@@ -33,23 +33,29 @@ export function Notifications({ notifications, onMarkAsRead, onNotificationClick
 
   const handleScroll = () => {
     if (scrollRef.current) {
-      setShowScrollTop(scrollRef.current.scrollTop > 100);
+      const scrollTop = scrollRef.current.scrollTop;
+      setShowScrollTop(scrollTop > 100);
     }
   };
 
   const scrollToTop = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      setShowScrollTop(false);
     }
   };
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
     if (scrollElement) {
+      // Reset scroll position detection when content changes
+      const currentScrollTop = scrollElement.scrollTop;
+      setShowScrollTop(currentScrollTop > 100);
+      
       scrollElement.addEventListener('scroll', handleScroll);
       return () => scrollElement.removeEventListener('scroll', handleScroll);
     }
-  }, []);
+  }, [notifications.length]); // Re-bind when notifications change
 
   return (
     <div className="w-full max-h-96 overflow-y-auto overflow-x-hidden relative" ref={scrollRef}>
