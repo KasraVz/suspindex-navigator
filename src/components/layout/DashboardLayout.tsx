@@ -69,6 +69,18 @@ const DashboardLayout = () => {
     ));
   };
 
+  const handleMarkAsUnread = (id: string) => {
+    setDisplayedNotifications(displayedNotifications.map(notification =>
+      notification.id === id ? { ...notification, isRead: false } : notification
+    ));
+  };
+
+  const handleMarkAllAsRead = () => {
+    setDisplayedNotifications(displayedNotifications.map(notification => 
+      ({ ...notification, isRead: true })
+    ));
+  };
+
   const handleShowMore = () => {
     setIsLoadingMore(true);
     
@@ -98,6 +110,8 @@ const DashboardLayout = () => {
           notifications={displayedNotifications}
           unreadNotifications={unreadNotifications}
           onMarkAsRead={handleMarkAsRead}
+          onMarkAsUnread={handleMarkAsUnread}
+          onMarkAllAsRead={handleMarkAllAsRead}
           onShowMore={handleShowMore}
           hasMore={true}
           isLoadingMore={isLoadingMore}

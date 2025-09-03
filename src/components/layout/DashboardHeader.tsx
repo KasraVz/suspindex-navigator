@@ -23,6 +23,8 @@ interface DashboardHeaderProps {
   notifications: Notification[];
   unreadNotifications: Notification[];
   onMarkAsRead: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
+  onMarkAllAsRead?: () => void;
   onShowMore?: () => void;
   hasMore?: boolean;
   isLoadingMore?: boolean;
@@ -32,6 +34,8 @@ export function DashboardHeader({
   notifications, 
   unreadNotifications, 
   onMarkAsRead,
+  onMarkAsUnread,
+  onMarkAllAsRead,
   onShowMore,
   hasMore,
   isLoadingMore
@@ -97,6 +101,8 @@ export function DashboardHeader({
                   <Notifications 
                     notifications={notifications}
                     onMarkAsRead={onMarkAsRead}
+                    onMarkAsUnread={onMarkAsUnread}
+                    onMarkAllAsRead={onMarkAllAsRead}
                     onShowMore={onShowMore}
                     hasMore={hasMore}
                     isLoadingMore={isLoadingMore}
