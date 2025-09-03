@@ -1,5 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, Globe, Briefcase, TrendingUp, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building2, Globe, Briefcase, TrendingUp, MapPin, FileEdit } from "lucide-react";
+import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
+import { useState } from "react";
 
 const INDUSTRY_OPTIONS = [
   "Artificial Intelligence & Machine Learning",
@@ -52,10 +55,25 @@ const mockBusinessData = {
 };
 
 export function BusinessProfile() {
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  
   return (
+    <>
+      <ProfileEditRequestDialog 
+        open={showRequestDialog} 
+        onOpenChange={setShowRequestDialog}
+      />
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Business Profile</CardTitle>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setShowRequestDialog(true)}
+        >
+          <FileEdit className="w-4 h-4 mr-2" />
+          Request Edit
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2">
@@ -118,5 +136,6 @@ export function BusinessProfile() {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }

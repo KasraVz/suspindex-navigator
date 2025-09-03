@@ -4,6 +4,7 @@ import { ProfilePhoto } from "@/components/profile/ProfilePhoto";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { BusinessProfile } from "@/components/profile/BusinessProfile";
 import { AccountSettings } from "@/components/profile/AccountSettings";
+import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
 
 const Profile = () => {
   return (
@@ -16,6 +17,7 @@ const Profile = () => {
       <Tabs defaultValue="view" className="space-y-6">
         <TabsList>
           <TabsTrigger value="view">View Profile</TabsTrigger>
+          <TabsTrigger value="requests">Edit Requests</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
 
@@ -28,6 +30,10 @@ const Profile = () => {
           </div>
           
           <BusinessProfile />
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-6">
+          <ProfileEditRequests />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">

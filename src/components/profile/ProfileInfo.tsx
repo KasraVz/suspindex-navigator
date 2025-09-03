@@ -1,16 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, User, CreditCard, CheckCircle, Edit } from "lucide-react";
+import { Mail, User, CreditCard, CheckCircle, FileEdit } from "lucide-react";
+import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
+import { useState } from "react";
 
 export function ProfileInfo() {
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  
   return (
+    <>
+      <ProfileEditRequestDialog 
+        open={showRequestDialog} 
+        onOpenChange={setShowRequestDialog}
+      />
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Profile Information</CardTitle>
-        <Button variant="outline" size="sm">
-          <Edit className="w-4 h-4 mr-2" />
-          Edit
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setShowRequestDialog(true)}
+        >
+          <FileEdit className="w-4 h-4 mr-2" />
+          Request Edit
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -29,9 +42,6 @@ export function ProfileInfo() {
               <span className="text-sm font-medium">Email Address</span>
             </div>
             <p className="text-sm">john.doe@example.com</p>
-            <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
-              Change Email
-            </Button>
           </div>
           
           <div className="space-y-2">
@@ -72,5 +82,6 @@ export function ProfileInfo() {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }
