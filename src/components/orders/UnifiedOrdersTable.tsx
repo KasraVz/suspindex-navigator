@@ -118,116 +118,9 @@ export function UnifiedOrdersTable() {
     }
   };
 
-  const getActionButtons = (order: UnifiedOrder) => {
-    const buttons = [];
-
-    // View Details button - always available
-    buttons.push(
-      <Button
-        key="view"
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          setSelectedOrder(order);
-          setShowDetailsDialog(true);
-        }}
-        className="flex items-center gap-2"
-      >
-        <Eye size={16} />
-        View Details
-      </Button>
-    );
-
-    // Status-specific action buttons
-    switch (order.overallStatus) {
-      case "waiting_payment":
-        buttons.push(
-          <Button
-            key="pay"
-            variant="default"
-            size="sm"
-            onClick={() => navigate("/dashboard/purchase")}
-            className="flex items-center gap-2"
-          >
-            <CreditCard size={16} />
-            Pay Now
-          </Button>
-        );
-        // Can still take test even without payment
-        buttons.push(
-          <Button
-            key="take"
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/dashboard/exams/take")}
-            className="flex items-center gap-2"
-          >
-            <FileText size={16} />
-            Take Test
-          </Button>
-        );
-        break;
-      case "waiting_test":
-        buttons.push(
-          <Button
-            key="take"
-            variant="default"
-            size="sm"
-            onClick={() => navigate("/dashboard/exams/take")}
-            className="flex items-center gap-2"
-          >
-            <FileText size={16} />
-            Take Test
-          </Button>
-        );
-        if (!order.bookingDate) {
-          buttons.push(
-            <Button
-              key="schedule"
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/dashboard/exams/schedule")}
-              className="flex items-center gap-2"
-            >
-              <Calendar size={16} />
-              Schedule
-            </Button>
-          );
-        }
-        break;
-      case "completed":
-        buttons.push(
-          <Button
-            key="report"
-            variant="default"
-            size="sm"
-            onClick={() => navigate("/dashboard/reports")}
-            className="flex items-center gap-2"
-          >
-            <FileText size={16} />
-            View Report
-          </Button>
-        );
-        break;
-      case "rejected":
-        buttons.push(
-          <Button
-            key="appeal"
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/dashboard/support")}
-            className="flex items-center gap-2"
-          >
-            Appeal
-          </Button>
-        );
-        break;
-      case "waiting_kyc":
-        // No additional action needed, just waiting
-        break;
-    }
-
-    return buttons;
+  const handleViewOrder = (order: UnifiedOrder) => {
+    setSelectedOrder(order);
+    setShowDetailsDialog(true);
   };
 
   const filteredOrders = unifiedOrders.filter(order => {
@@ -319,9 +212,14 @@ export function UnifiedOrdersTable() {
                     </TableCell>
                     <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2 flex-wrap">
-                        {getActionButtons(order)}
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewOrder(order)}
+                        className="flex items-center gap-2"
+                      >
+                        <Eye size={16} />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

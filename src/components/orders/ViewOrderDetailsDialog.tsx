@@ -7,7 +7,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, CreditCard, FileText, Shield, User } from "lucide-react";
+import { Calendar, Clock, CreditCard, FileText, Shield, User, CheckCircle, Circle, XCircle } from "lucide-react";
 import { UnifiedOrder } from "./UnifiedOrdersTable";
 import { useNavigate } from "react-router-dom";
 
@@ -70,6 +70,112 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const getOrderTimeline = () => {
+    const timeline = [
+      {
+        title: "Order Placed",
+        date: order.orderDate,
+        completed: true,
+        icon: CheckCircle,
+        description: `${order.testName} assessment ordered`
+      }
+    ];
+
+    // Payment step
+    if (order.paymentStatus === "paid") {
+      timeline.push({
+        title: "Payment Completed",
+        date: order.orderDate, // Assuming payment was on same day for mock data
+        completed: true,
+        icon: CheckCircle,
+        description: `$${order.amount} payment processed`
+      });
+    } else {
+      timeline.push({
+        title: "Payment Pending",
+        date: "",
+        completed: false,
+        icon: Circle,
+        description: "Payment required to proceed"
+      });
+    }
+
+    // Test step
+    if (order.testStatus === "taken" && order.testTakenDate) {
+      timeline.push({
+        title: "Test Completed",
+        date: order.testTakenDate,
+        completed: true,
+        icon: CheckCircle,
+        description: "Assessment successfully completed"
+      });
+    } else if (order.testStatus === "scheduled") {
+      timeline.push({
+        title: "Test Scheduled",
+        date: order.bookingDate?.toISOString().split('T')[0] || "",
+        completed: false,
+        icon: Circle,
+        description: order.bookingTime ? `Scheduled for ${order.bookingTime}` : "Test scheduled"
+      });
+    } else {
+      timeline.push({
+        title: "Test Pending",
+        date: "",
+        completed: false,
+        icon: Circle,
+        description: "Test needs to be taken"
+      });
+    }
+
+    // KYC step
+    if (order.kycStatus === "approved") {
+      timeline.push({
+        title: "KYC Approved",
+        date: order.kycSubmissionDate || "",
+        completed: true,
+        icon: CheckCircle,
+        description: "Identity verification approved"
+      });
+    } else if (order.kycStatus === "rejected") {
+      timeline.push({
+        title: "KYC Rejected",
+        date: order.kycSubmissionDate || "",
+        completed: false,
+        icon: XCircle,
+        description: "Identity verification rejected"
+      });
+    } else if (order.kycSubmissionDate) {
+      timeline.push({
+        title: "KYC Under Review",
+        date: order.kycSubmissionDate,
+        completed: false,
+        icon: Circle,
+        description: "Identity verification in progress"
+      });
+    } else {
+      timeline.push({
+        title: "KYC Pending",
+        date: "",
+        completed: false,
+        icon: Circle,
+        description: "Identity verification required"
+      });
+    }
+
+    // Certificate/Completion step
+    if (order.overallStatus === "completed") {
+      timeline.push({
+        title: "Certificate Issued",
+        date: order.kycSubmissionDate || "", // Mock date
+        completed: true,
+        icon: CheckCircle,
+        description: "Assessment certificate ready for download"
+      });
+    }
+
+    return timeline;
   };
 
   const getNextSteps = () => {
@@ -204,6 +310,44 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
             </>
           )}
 
+          {/* Order Timeline */}
+          <Separator />
+          <div>
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Order Timeline
+            </h3>
+            <div className="space-y-4">
+              {getOrderTimeline().map((item, index) => {
+                const IconComponent = item.icon;
+                return (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                      item.completed 
+                        ? item.icon === XCircle 
+                          ? "bg-destructive text-destructive-foreground" 
+                          : "bg-success text-success-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      <IconComponent className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium text-sm">{item.title}</p>
+                        {item.date && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(item.date)}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Next Steps */}
           <Separator />
           <div>
@@ -220,47 +364,56 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
             </ul>
           </div>
 
-          {/* Action Buttons */}
+          {/* Available Actions */}
           <Separator />
-          <div className="flex flex-wrap gap-2">
-            {order.overallStatus === "waiting_payment" && (
-              <>
-                <Button onClick={() => handleAction("pay")} className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Pay Now
-                </Button>
-                <Button variant="outline" onClick={() => handleAction("take_test")} className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Take Test
-                </Button>
-              </>
-            )}
-            {order.overallStatus === "waiting_test" && (
-              <>
-                <Button onClick={() => handleAction("take_test")} className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Take Test
-                </Button>
-                {!order.bookingDate && (
-                  <Button variant="outline" onClick={() => handleAction("schedule")} className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Schedule Test
+          <div>
+            <h3 className="font-semibold mb-3">Available Actions</h3>
+            <div className="flex flex-wrap gap-2">
+              {order.overallStatus === "waiting_payment" && (
+                <>
+                  <Button onClick={() => handleAction("pay")} className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Pay Now
                   </Button>
-                )}
-              </>
-            )}
-            {order.overallStatus === "completed" && (
-              <Button onClick={() => handleAction("view_report")} className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                View Report
-              </Button>
-            )}
-            {order.overallStatus === "rejected" && (
-              <Button variant="outline" onClick={() => handleAction("appeal")} className="flex items-center gap-2">
-                Appeal Decision
-              </Button>
-            )}
+                  <Button variant="outline" onClick={() => handleAction("take_test")} className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Take Test
+                  </Button>
+                </>
+              )}
+              {order.overallStatus === "waiting_test" && (
+                <>
+                  <Button onClick={() => handleAction("take_test")} className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Take Test
+                  </Button>
+                  {!order.bookingDate && (
+                    <Button variant="outline" onClick={() => handleAction("schedule")} className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Schedule Test
+                    </Button>
+                  )}
+                </>
+              )}
+              {order.overallStatus === "completed" && (
+                <Button onClick={() => handleAction("view_report")} className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  View Report
+                </Button>
+              )}
+              {order.overallStatus === "rejected" && (
+                <Button variant="outline" onClick={() => handleAction("appeal")} className="flex items-center gap-2">
+                  Appeal Decision
+                </Button>
+              )}
+              {order.overallStatus === "waiting_kyc" && (
+                <p className="text-sm text-muted-foreground py-2">
+                  No actions required at this time. KYC review is in progress.
+                </p>
+              )}
+            </div>
           </div>
+
         </div>
       </DialogContent>
     </Dialog>
