@@ -15,6 +15,7 @@ interface Test {
   description?: string;
   bookingDate?: string;
   bookingTime?: string;
+  bundleId?: string;
 }
 
 const PurchasePage = () => {
@@ -61,6 +62,7 @@ const PurchasePage = () => {
         description: `${item.name} certification exam`,
         bookingDate: item.bookingDate ? item.bookingDate.toLocaleDateString() : undefined,
         bookingTime: item.bookingTime,
+        bundleId: item.bundleId, // Preserve bundle information
       }));
       setTests(convertedTests);
     } else {
@@ -181,42 +183,115 @@ const PurchasePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Order Details */}
           <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Review Your Order</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {tests.map((test) => (
-                  <Card key={test.id} className="bg-muted/30">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold">{test.name}</h3>
-                          {test.description && (
-                            <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
-                          )}
-                          {test.bookingDate && (
-                            <p className="text-sm text-primary mt-2 font-medium">
-                              Booked for: {test.bookingDate}
-                              {test.bookingTime && ` at ${test.bookingTime}`}
-                            </p>
-                          )}
-                          <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveItem(test.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </CardContent>
-            </Card>
+            {(() => {
+              // Group tests by bundleId
+              const groupedTests = tests.reduce((acc, test) => {
+                const key = test.bundleId || `individual-${test.id}`;
+                if (!acc[key]) {
+                  acc[key] = [];
+                }
+                acc[key].push(test);
+                return acc;
+              }, {} as Record<string, Test[]>);
+
+              const bundles = Object.entries(groupedTests).filter(([key, items]) => 
+                items[0].bundleId && items.length > 1
+              );
+              
+              const individualItems = Object.entries(groupedTests).filter(([key, items]) => 
+                !items[0].bundleId || items.length === 1
+              ).map(([_, items]) => items[0]);
+
+              return (
+                <>
+                  {/* Render Bundles */}
+                  {bundles.map(([bundleId, bundleTests]) => {
+                    const bundleTotal = bundleTests.reduce((sum, test) => sum + test.price, 0);
+                    return (
+                      <Card key={bundleId}>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <div className="w-3 h-3 bg-primary rounded-full"></div>
+                            Bundle ({bundleTests.length} items) - ${bundleTotal}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {bundleTests.map((test) => (
+                            <Card key={test.id} className="bg-muted/30">
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-semibold">{test.name}</h3>
+                                    {test.description && (
+                                      <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
+                                    )}
+                                    {test.bookingDate && (
+                                      <p className="text-sm text-primary mt-2 font-medium">
+                                        Booked for: {test.bookingDate}
+                                        {test.bookingTime && ` at ${test.bookingTime}`}
+                                      </p>
+                                    )}
+                                    <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveItem(test.id)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+
+                  {/* Render Individual Items */}
+                  {individualItems.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Individual Items</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {individualItems.map((test) => (
+                          <Card key={test.id} className="bg-muted/30">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h3 className="text-lg font-semibold">{test.name}</h3>
+                                  {test.description && (
+                                    <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
+                                  )}
+                                  {test.bookingDate && (
+                                    <p className="text-sm text-primary mt-2 font-medium">
+                                      Booked for: {test.bookingDate}
+                                      {test.bookingTime && ` at ${test.bookingTime}`}
+                                    </p>
+                                  )}
+                                  <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveItem(test.id)}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              );
+            })()}
           </div>
 
           {/* Right Column: Order Summary */}
