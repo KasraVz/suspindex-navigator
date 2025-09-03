@@ -24,6 +24,8 @@ export function UnpaidOrdersTable() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const totalUnpaidAmount = unpaidOrders.reduce((sum, order) => sum + order.amount, 0);
+
   // Group items by bundleId
   const groupedOrders = unpaidOrders.reduce((acc, order) => {
     if (order.bundleId) {
@@ -90,6 +92,20 @@ export function UnpaidOrdersTable() {
     navigate("/dashboard/purchase", { state: { cartItems } });
   };
 
+  const handlePayAll = () => {
+    const allCartItems = unpaidOrders.map(order => ({
+      id: order.id,
+      name: order.testName,
+      price: order.amount,
+      bookingDate: order.bookingDate,
+      bookingTime: order.bookingTime,
+      status: order.status,
+      bundleId: order.bundleId
+    }));
+    
+    navigate("/dashboard/purchase", { state: { cartItems: allCartItems } });
+  };
+
   const filteredBundles = Object.values(groupedOrders.bundles).filter(bundle =>
     bundle.items.some(item => 
       item.testName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -104,7 +120,15 @@ export function UnpaidOrdersTable() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Unpaid Orders</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Unpaid Orders</CardTitle>
+            {unpaidOrders.length > 0 && (
+              <Button onClick={handlePayAll} className="flex items-center gap-2">
+                <CreditCard size={16} />
+                Pay All (${totalUnpaidAmount})
+              </Button>
+            )}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input

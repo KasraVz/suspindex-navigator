@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus } from "lucide-react";
@@ -27,6 +27,11 @@ const OrderAssessmentsPage = () => {
       status: "empty"
     }
   ]);
+
+  // Clear cart when starting a new order session to prevent bundle mixing
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
 
   const addNewItem = () => {
     const newItem: OrderItemData = {
