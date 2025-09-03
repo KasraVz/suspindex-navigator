@@ -15,23 +15,21 @@ const Dashboard = () => {
     <div className="space-y-6">
       <WelcomeHeader />
       
-      {/* Summary Cards */}
-      <div className="flex flex-wrap gap-4">
-        {/* Hero Card - Upcoming Tests (more prominent) */}
-        <div className="w-full lg:w-[calc(50%-0.5rem)]">
+      {/* Summary Cards Grid */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-12">
+        {/* Row 1: Upcoming Tests + Profile + Certificates */}
+        <div className="lg:col-span-6">
           <UpcomingTestCard />
         </div>
-        
-        {/* Secondary Cards */}
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.5rem)]">
+        <div className="lg:col-span-3">
           <ProfileCompletionCard completionPercentage={profileCompletion} />
         </div>
-        <div className="w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.5rem)]">
+        <div className="lg:col-span-3">
           <CertificationSummaryCard />
         </div>
         
-        {/* Reports Card - Full width on mobile, half on larger screens */}
-        <div className="w-full lg:w-[calc(50%-0.5rem)]">
+        {/* Row 2: Reports Full Width */}
+        <div className="md:col-span-2 lg:col-span-12">
           <ReportSummaryCard />
         </div>
       </div>

@@ -36,29 +36,32 @@ export function ReportSummaryCard() {
   const displayReports = recentReports.slice(0, 2);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+    <Card className="h-fit hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 pt-4">
         <CardTitle className="text-sm font-medium">Latest Reports</CardTitle>
         <FileText className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4">
         <div className="space-y-3">
-          {displayReports.map((report, index) => (
-            <div key={report.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/70 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          {/* Horizontal layout for reports */}
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {displayReports.map((report, index) => (
+              <div key={report.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 hover:bg-secondary/70 transition-colors min-w-fit">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4 text-primary" />
                 </div>
-                <div>
-                  <p className="font-medium text-sm">{report.testName} Report</p>
-                  <p className="text-xs text-muted-foreground">{report.dateReceived}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm whitespace-nowrap">{report.testName} Report</p>
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {index === 0 ? "Latest" : "Recent"}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">{report.dateReceived}</p>
                 </div>
               </div>
-              <Badge variant="outline" className="text-xs">
-                {index === 0 ? "Latest" : "Recent"}
-              </Badge>
-            </div>
-          ))}
+            ))}
+          </div>
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link to="/dashboard/reports">
               📊 View All Reports

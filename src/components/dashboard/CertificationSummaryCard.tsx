@@ -31,38 +31,34 @@ export function CertificationSummaryCard() {
   const latestCertifications = recentCertifications.slice(0, 2);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4">
+    <Card className="h-fit hover:shadow-md transition-shadow">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
         <CardTitle className="text-sm font-medium">Latest Certificates</CardTitle>
         <Award className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+      <CardContent className="px-4 pb-4">
+        <div className="space-y-2">
           {latestCertifications.map((cert) => (
-            <div key={cert.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors overflow-hidden">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <Award className={`h-5 w-5 ${cert.status === "Valid" ? "text-green-600" : "text-muted-foreground"}`} />
+            <div key={cert.id} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors">
+              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Award className={`h-3 w-3 ${cert.status === "Valid" ? "text-green-600" : "text-muted-foreground"}`} />
               </div>
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-semibold truncate flex-1">{cert.testName} Certificate</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-medium truncate">{cert.testName}</p>
                   <Badge 
                     variant={cert.status === "Valid" ? "default" : "secondary"}
-                    className={`shrink-0 text-xs ${cert.status === "Valid" ? "bg-green-600 hover:bg-green-700" : ""}`}
+                    className={`shrink-0 text-xs h-4 px-1 ${cert.status === "Valid" ? "bg-green-600 hover:bg-green-700" : ""}`}
                   >
-                    <span className="hidden sm:inline">{cert.status === "Valid" ? "✓ Valid" : "⚠ Expired"}</span>
-                    <span className="sm:hidden">{cert.status === "Valid" ? "✓" : "⚠"}</span>
+                    {cert.status === "Valid" ? "✓" : "⚠"}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground truncate">
-                  {cert.status === "Valid" ? "Expires" : "Expired"}: {new Date(cert.expiryDate).toLocaleDateString()}
-                </p>
               </div>
             </div>
           ))}
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link to="/dashboard/certifications">
-              🏆 View All Certificates
+              🏆 View All
             </Link>
           </Button>
         </div>

@@ -66,11 +66,11 @@ export function UpcomingTestCard() {
 
   return (
     <Card className="h-fit border-l-4 border-l-primary shadow-md hover:shadow-lg transition-shadow">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 px-4 pt-4">
         <CardTitle className="text-base font-semibold text-primary">Upcoming Tests</CardTitle>
         <CalendarClock className="h-5 w-5 text-primary" />
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 px-4 pb-4">
         {hasUpcomingTests ? (
           <>
             {/* Next Test Summary */}

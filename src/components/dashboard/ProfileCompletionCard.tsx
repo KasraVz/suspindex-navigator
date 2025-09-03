@@ -14,19 +14,16 @@ export function ProfileCompletionCard({ completionPercentage }: ProfileCompletio
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="h-fit">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
         <CardTitle className="text-sm font-medium">Profile Completion</CardTitle>
         <User className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="space-y-1">
-            <div className="text-xl font-bold">{completionPercentage}%</div>
-            <Progress value={completionPercentage} className="h-1" />
-            <p className="text-xs text-muted-foreground">
-              {completionPercentage}% complete
-            </p>
+      <CardContent className="px-4 pb-4">
+        <div className="space-y-3">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary">{completionPercentage}%</div>
+            <Progress value={completionPercentage} className="h-2 mt-2" />
           </div>
           <Button asChild variant="outline" className="w-full" size="sm">
             <Link to="/dashboard/profile">
