@@ -1,5 +1,6 @@
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle, Info, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRef, useState, useEffect } from "react";
 
 export interface Notification {
   id: string;
@@ -19,6 +20,9 @@ interface NotificationsProps {
 }
 
 export function Notifications({ notifications, onMarkAsRead, onNotificationClick, onShowMore, hasMore }: NotificationsProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
   const handleNotificationClick = (notification: Notification) => {
     if (onNotificationClick) {
       onNotificationClick(notification);
@@ -26,8 +30,28 @@ export function Notifications({ notifications, onMarkAsRead, onNotificationClick
     onMarkAsRead(notification.id);
   };
 
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      setShowScrollTop(scrollRef.current.scrollTop > 100);
+    }
+  };
+
+  const scrollToTop = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
   return (
-    <div className="w-full max-h-96 overflow-y-auto overflow-x-hidden">
+    <div className="w-full max-h-96 overflow-y-auto overflow-x-hidden relative" ref={scrollRef}>
       <div className="p-4">
         <h3 className="font-semibold text-sm mb-3">Notifications</h3>
         {notifications.length === 0 ? (
@@ -70,6 +94,18 @@ export function Notifications({ notifications, onMarkAsRead, onNotificationClick
               </Button>
             )}
           </>
+        )}
+        
+        {/* Scroll to Top Button */}
+        {showScrollTop && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={scrollToTop}
+            className="absolute bottom-4 right-4 h-8 w-8 p-0 bg-background/80 backdrop-blur-sm border shadow-lg"
+          >
+            <ArrowUp className="h-4 w-4" />
+          </Button>
         )}
       </div>
     </div>
