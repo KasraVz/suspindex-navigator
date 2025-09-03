@@ -24,6 +24,11 @@ export function Cart() {
         ) : (
           <>
             <div className="space-y-3 mb-4">
+              {cartItems.length > 1 && (
+                <div className="bg-muted/50 rounded-lg p-3 mb-3">
+                  <p className="text-xs text-muted-foreground font-medium">Bundle - Items must be paid together</p>
+                </div>
+              )}
               {cartItems.map((item) => (
                 <div key={item.id} className="border-b border-border pb-3 last:border-b-0">
                   <div className="flex items-start gap-3 mb-2">
@@ -40,15 +45,17 @@ export function Cart() {
                       Remove
                     </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => navigate("/dashboard/purchase", {
-                      state: { cartItems: [item] }
-                    })}
-                    className="w-full text-xs"
-                  >
-                    Pay Now
-                  </Button>
+                  {cartItems.length === 1 && (
+                    <Button
+                      size="sm"
+                      onClick={() => navigate("/dashboard/purchase", {
+                        state: { cartItems: [item] }
+                      })}
+                      className="w-full text-xs"
+                    >
+                      Pay Now
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -62,7 +69,7 @@ export function Cart() {
               onClick={handlePayNow}
               disabled={cartItems.length === 0}
             >
-              Pay All
+              {cartItems.length > 1 ? `Pay Bundle ($${total})` : "Pay Now"}
             </Button>
           </>
         )}
