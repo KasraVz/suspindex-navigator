@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, User, CreditCard, CheckCircle, FileEdit } from "lucide-react";
+import { Mail, User, CreditCard, CheckCircle, FileEdit, Eye } from "lucide-react";
 import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
 import { useState } from "react";
 
@@ -48,6 +48,14 @@ export function ProfileInfo() {
             <div className="flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Passport ID</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.open('/path-to-passport-document.pdf', '_blank')}
+                className="h-6 w-6 p-0"
+              >
+                <Eye className="w-3 h-3" />
+              </Button>
             </div>
             <p className="text-sm">ABC123456789</p>
           </div>
