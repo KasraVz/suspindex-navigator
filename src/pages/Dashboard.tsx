@@ -7,6 +7,7 @@ import { UpcomingTestCard } from "@/components/dashboard/UpcomingTestCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { ReportSummaryCard } from "@/components/dashboard/ReportSummaryCard";
 import { CertificationSummaryCard } from "@/components/dashboard/CertificationSummaryCard";
+import { ReferringPartnerCard } from "@/components/dashboard/ReferringPartnerCard";
 
 const Dashboard = () => {
   const profileCompletion = 75; // This would come from user data/state
@@ -28,9 +29,12 @@ const Dashboard = () => {
           <CertificationSummaryCard />
         </div>
         
-        {/* Row 2: Reports Full Width */}
-        <div className="md:col-span-2 lg:col-span-12">
+        {/* Row 2: Reports + Partner Progress */}
+        <div className="md:col-span-2 lg:col-span-8">
           <ReportSummaryCard />
+        </div>
+        <div className="lg:col-span-4">
+          <ReferringPartnerCard />
         </div>
       </div>
       
