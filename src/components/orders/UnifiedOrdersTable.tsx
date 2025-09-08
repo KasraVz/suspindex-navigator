@@ -39,7 +39,7 @@ export function UnifiedOrdersTable() {
   const [orderToRemove, setOrderToRemove] = useState<UnifiedOrder | null>(null);
 
   // Consolidate all orders from different sources into unified format
-  const unifiedOrders: UnifiedOrder[] = [
+  const allOrders: UnifiedOrder[] = [
     // Unpaid orders
     ...unpaidOrders.map(order => ({
       id: `unpaid-${order.id}`,
@@ -62,15 +62,21 @@ export function UnifiedOrdersTable() {
       amount: order.amount,
       orderDate: order.datePaid,
       paymentStatus: "paid" as const,
-      testStatus: order.id === "paid-1" ? "taken" as const : "not_taken" as const,
-      kycStatus: order.id === "paid-1" ? "approved" as const : "pending" as const,
-      overallStatus: order.id === "paid-1" ? "completed" as const : "waiting_test" as const,
-      testTakenDate: order.id === "paid-1" ? "2023-12-20" : undefined,
-      kycSubmissionDate: order.id === "paid-1" ? "2023-12-21" : undefined,
+      testStatus: ["101", "103", "104"].includes(order.id) ? "taken" as const : "not_taken" as const,
+      kycStatus: ["101", "103", "104"].includes(order.id) ? "approved" as const : "pending" as const,
+      overallStatus: ["101", "103", "104"].includes(order.id) ? "completed" as const : "waiting_test" as const,
+      testTakenDate: ["101", "103", "104"].includes(order.id) ? "2023-12-20" : undefined,
+      kycSubmissionDate: ["101", "103", "104"].includes(order.id) ? "2023-12-21" : undefined,
       bookingDate: order.bookingDate,
       bookingTime: order.bookingTime,
     }))
   ];
+
+  // Remove duplicates based on original order ID
+  const unifiedOrders = allOrders.filter((order, index, array) => {
+    const originalId = order.id.replace(/^(unpaid-|paid-)/, '');
+    return array.findIndex(o => o.id.replace(/^(unpaid-|paid-)/, '') === originalId) === index;
+  });
 
   const getStatusBadge = (status: UnifiedOrder["overallStatus"]) => {
     switch (status) {
