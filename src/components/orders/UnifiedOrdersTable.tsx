@@ -42,7 +42,7 @@ export function UnifiedOrdersTable() {
   const unifiedOrders: UnifiedOrder[] = [
     // Unpaid orders
     ...unpaidOrders.map(order => ({
-      id: order.id,
+      id: `unpaid-${order.id}`,
       orderId: `ORD-${order.id}`,
       testName: order.testName,
       amount: order.amount,
@@ -56,7 +56,7 @@ export function UnifiedOrdersTable() {
     })),
     // Paid orders
     ...paidItems.map(order => ({
-      id: order.id,
+      id: `paid-${order.id}`,
       orderId: `ORD-${order.id}`,
       testName: order.testName,
       amount: order.amount,
@@ -100,10 +100,13 @@ export function UnifiedOrdersTable() {
   };
 
   const confirmRemoveOrder = () => {
-    if (orderToRemove && removeOrder(orderToRemove.id)) {
-      toast.success(`Order ${orderToRemove.orderId} removed successfully`);
-    } else {
-      toast.error("Failed to remove order. Order may be paid or test already taken.");
+    if (orderToRemove) {
+      const originalId = orderToRemove.id.replace(/^(unpaid-|paid-)/, '');
+      if (removeOrder(originalId)) {
+        toast.success(`Order ${orderToRemove.orderId} removed successfully`);
+      } else {
+        toast.error("Failed to remove order. Order may be paid or test already taken.");
+      }
     }
     setShowRemoveDialog(false);
     setOrderToRemove(null);
@@ -207,7 +210,7 @@ export function UnifiedOrdersTable() {
                         >
                           <Eye size={16} />
                         </Button>
-                        {canRemoveOrder(order.id) && (
+                        {canRemoveOrder(order.id.replace(/^(unpaid-|paid-)/, '')) && (
                           <Button
                             variant="ghost"
                             size="sm"
