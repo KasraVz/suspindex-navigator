@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Eye, CreditCard, Calendar, FileText, Search, Trash2, ChevronRight, ChevronDown } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
@@ -280,75 +279,81 @@ export function UnifiedOrdersTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.map((order) => (
-                  order.isBundleHeader ? (
-                    <Collapsible key={order.id} open={expandedBundles.has(order.bundleId!)} onOpenChange={() => toggleBundleExpansion(order.bundleId!)}>
-                      <CollapsibleTrigger asChild>
-                        <TableRow className="bg-muted/50 font-semibold hover:bg-muted/70 cursor-pointer">
-                          <TableCell className="font-medium">
-                            <div className="flex items-center gap-2">
-                              {expandedBundles.has(order.bundleId!) ? (
-                                <ChevronDown size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                              {order.orderId}
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium text-primary">
-                            {order.testName}
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {order.bundleItems?.length} assessments
-                            </div>
-                          </TableCell>
-                          <TableCell>{order.orderDate}</TableCell>
-                          <TableCell>${order.amount}</TableCell>
-                          <TableCell>
-                            <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
-                              {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                {filteredOrders.flatMap((order) => {
+                  if (order.isBundleHeader) {
+                    // Bundle header row
+                    const headerRow = (
+                      <TableRow 
+                        key={order.id} 
+                        className="bg-muted/50 font-semibold hover:bg-muted/70 cursor-pointer"
+                        onClick={() => toggleBundleExpansion(order.bundleId!)}
+                      >
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            {expandedBundles.has(order.bundleId!) ? (
+                              <ChevronDown size={16} />
+                            ) : (
+                              <ChevronRight size={16} />
+                            )}
+                            {order.orderId}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium text-primary">
+                          {order.testName}
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {order.bundleItems?.length} assessments
+                          </div>
+                        </TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell>${order.amount}</TableCell>
+                        <TableCell>
+                          <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
+                            {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            order.testStatus === "taken" ? "default" : 
+                            order.testStatus === "scheduled" ? "secondary" : "outline"
+                          }>
+                            {order.testStatus === "taken" ? "Taken" : 
+                             order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            order.kycStatus === "approved" ? "default" : 
+                            order.kycStatus === "rejected" ? "destructive" : "secondary"
+                          }>
+                            {order.kycStatus === "approved" ? "Approved" : 
+                             order.kycStatus === "rejected" ? "Rejected" : "Pending"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewOrder(order);
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <Eye size={16} />
+                            </Button>
+                            <Badge variant="secondary" className="text-xs">
+                              Bundle
                             </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              order.testStatus === "taken" ? "default" : 
-                              order.testStatus === "scheduled" ? "secondary" : "outline"
-                            }>
-                              {order.testStatus === "taken" ? "Taken" : 
-                               order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={
-                              order.kycStatus === "approved" ? "default" : 
-                              order.kycStatus === "rejected" ? "destructive" : "secondary"
-                            }>
-                              {order.kycStatus === "approved" ? "Approved" : 
-                               order.kycStatus === "rejected" ? "Rejected" : "Pending"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewOrder(order);
-                                }}
-                                className="flex items-center gap-2"
-                              >
-                                <Eye size={16} />
-                              </Button>
-                              <Badge variant="secondary" className="text-xs">
-                                Bundle
-                              </Badge>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        {order.bundleItems?.map((subOrder) => (
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+
+                    // Bundle sub-rows (only if expanded)
+                    const subRows = expandedBundles.has(order.bundleId!) 
+                      ? order.bundleItems?.map((subOrder) => (
                           <TableRow key={`${order.id}-${subOrder.id}`} className="bg-background/50">
                             <TableCell className="font-medium pl-8">
                               <div className="flex items-center gap-2">
@@ -412,64 +417,68 @@ export function UnifiedOrdersTable() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium">{order.orderId}</TableCell>
-                      <TableCell className="font-medium">{order.testName}</TableCell>
-                      <TableCell>{order.orderDate}</TableCell>
-                      <TableCell>${order.amount}</TableCell>
-                      <TableCell>
-                        <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
-                          {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          order.testStatus === "taken" ? "default" : 
-                          order.testStatus === "scheduled" ? "secondary" : "outline"
-                        }>
-                          {order.testStatus === "taken" ? "Taken" : 
-                           order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={
-                          order.kycStatus === "approved" ? "default" : 
-                          order.kycStatus === "rejected" ? "destructive" : "secondary"
-                        }>
-                          {order.kycStatus === "approved" ? "Approved" : 
-                           order.kycStatus === "rejected" ? "Rejected" : "Pending"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewOrder(order)}
-                            className="flex items-center gap-2"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          {canRemoveOrder(order.id.replace(/^(unpaid-|paid-)/, '')) && (
+                        )) ?? []
+                      : [];
+
+                    return [headerRow, ...subRows];
+                  } else {
+                    // Individual order row
+                    return (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">{order.orderId}</TableCell>
+                        <TableCell className="font-medium">{order.testName}</TableCell>
+                        <TableCell>{order.orderDate}</TableCell>
+                        <TableCell>${order.amount}</TableCell>
+                        <TableCell>
+                          <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
+                            {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            order.testStatus === "taken" ? "default" : 
+                            order.testStatus === "scheduled" ? "secondary" : "outline"
+                          }>
+                            {order.testStatus === "taken" ? "Taken" : 
+                             order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            order.kycStatus === "approved" ? "default" : 
+                            order.kycStatus === "rejected" ? "destructive" : "secondary"
+                          }>
+                            {order.kycStatus === "approved" ? "Approved" : 
+                             order.kycStatus === "rejected" ? "Rejected" : "Pending"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleRemoveOrder(order)}
-                              className="flex items-center gap-2 text-destructive hover:text-destructive"
+                              onClick={() => handleViewOrder(order)}
+                              className="flex items-center gap-2"
                             >
-                              <Trash2 size={16} />
+                              <Eye size={16} />
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                ))}
+                            {canRemoveOrder(order.id.replace(/^(unpaid-|paid-)/, '')) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveOrder(order)}
+                                className="flex items-center gap-2 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                })}
               </TableBody>
             </Table>
           )}
