@@ -7,7 +7,7 @@ import { Clock, CheckCircle, XCircle, FileText, AlertCircle } from "lucide-react
 import { ViewEditRequestDetailsDialog } from "./ViewEditRequestDetailsDialog";
 import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
 
-// Mock data for edit requests
+// Mock data for edit requests - only Personal Profile requests need admin approval
 const mockEditRequests = [
   {
     id: "REQ-001",
@@ -22,18 +22,6 @@ const mockEditRequests = [
     adminResponse: null
   },
   {
-    id: "REQ-002", 
-    profileSection: "Business Profile",
-    field: "Development Stage",
-    currentValue: "Building Initial Traction/Early Customers",
-    requestedValue: "Generating Revenue",
-    reason: "We've reached consistent monthly revenue and need to update our stage",
-    priority: "low",
-    status: "approved",
-    submittedDate: "2024-03-10",
-    adminResponse: "Request approved. Profile updated successfully."
-  },
-  {
     id: "REQ-003",
     profileSection: "Personal Profile", 
     field: "Full Name",
@@ -44,6 +32,18 @@ const mockEditRequests = [
     status: "rejected",
     submittedDate: "2024-03-08",
     adminResponse: "Please provide legal documentation for name changes. Contact support for assistance."
+  },
+  {
+    id: "REQ-004",
+    profileSection: "Personal Profile",
+    field: "Passport ID",
+    currentValue: "P123456789",
+    requestedValue: "P987654321",
+    reason: "Renewed passport with new ID number",
+    priority: "high",
+    status: "pending",
+    submittedDate: "2024-03-12",
+    adminResponse: null
   }
 ];
 

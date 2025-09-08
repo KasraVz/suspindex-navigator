@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building2, Globe, Briefcase, TrendingUp, MapPin, FileEdit } from "lucide-react";
-import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Building2, Globe, Briefcase, TrendingUp, MapPin, Edit2, Save, X } from "lucide-react";
 import { useState } from "react";
 
 const INDUSTRY_OPTIONS = [
@@ -55,25 +56,61 @@ const mockBusinessData = {
 };
 
 export function BusinessProfile() {
-  const [showRequestDialog, setShowRequestDialog] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [businessData, setBusinessData] = useState(mockBusinessData);
+  const [tempData, setTempData] = useState(mockBusinessData);
+  
+  const handleEdit = () => {
+    setTempData(businessData);
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setBusinessData(tempData);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setTempData(businessData);
+    setIsEditing(false);
+  };
+
+  const updateField = (field: string, value: string) => {
+    setTempData(prev => ({ ...prev, [field]: value }));
+  };
   
   return (
-    <>
-      <ProfileEditRequestDialog 
-        open={showRequestDialog} 
-        onOpenChange={setShowRequestDialog}
-      />
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Business Profile</CardTitle>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setShowRequestDialog(true)}
-        >
-          <FileEdit className="w-4 h-4 mr-2" />
-          Request Edit
-        </Button>
+        {!isEditing ? (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={handleEdit}
+          >
+            <Edit2 className="w-4 h-4 mr-2" />
+            Edit
+          </Button>
+        ) : (
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleCancel}
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button 
+              size="sm"
+              onClick={handleSave}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2">
@@ -82,9 +119,17 @@ export function BusinessProfile() {
               <Building2 className="w-4 h-4" />
               Startup Name
             </div>
-            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-              {mockBusinessData.startupName}
-            </div>
+            {isEditing ? (
+              <Input
+                value={tempData.startupName}
+                onChange={(e) => updateField('startupName', e.target.value)}
+                placeholder="Enter startup name"
+              />
+            ) : (
+              <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                {businessData.startupName}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -92,16 +137,24 @@ export function BusinessProfile() {
               <Globe className="w-4 h-4" />
               Startup Website
             </div>
-            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-              <a 
-                href={mockBusinessData.startupWebsite} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                {mockBusinessData.startupWebsite}
-              </a>
-            </div>
+            {isEditing ? (
+              <Input
+                value={tempData.startupWebsite}
+                onChange={(e) => updateField('startupWebsite', e.target.value)}
+                placeholder="Enter website URL"
+              />
+            ) : (
+              <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                <a 
+                  href={businessData.startupWebsite} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {businessData.startupWebsite}
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
@@ -110,9 +163,24 @@ export function BusinessProfile() {
             <Briefcase className="w-4 h-4" />
             Primary Industry/Field
           </div>
-          <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-            {mockBusinessData.primaryIndustry}
-          </div>
+          {isEditing ? (
+            <Select value={tempData.primaryIndustry} onValueChange={(value) => updateField('primaryIndustry', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {INDUSTRY_OPTIONS.map((industry) => (
+                  <SelectItem key={industry} value={industry}>
+                    {industry}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+              {businessData.primaryIndustry}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -120,9 +188,24 @@ export function BusinessProfile() {
             <TrendingUp className="w-4 h-4" />
             Current Stage of Development
           </div>
-          <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-            {mockBusinessData.developmentStage}
-          </div>
+          {isEditing ? (
+            <Select value={tempData.developmentStage} onValueChange={(value) => updateField('developmentStage', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select development stage" />
+              </SelectTrigger>
+              <SelectContent>
+                {DEVELOPMENT_STAGES.map((stage) => (
+                  <SelectItem key={stage} value={stage}>
+                    {stage}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+              {businessData.developmentStage}
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -130,12 +213,19 @@ export function BusinessProfile() {
             <MapPin className="w-4 h-4" />
             Target Ecosystem for Future Development
           </div>
-          <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-            {mockBusinessData.targetEcosystem}
-          </div>
+          {isEditing ? (
+            <Input
+              value={tempData.targetEcosystem}
+              onChange={(e) => updateField('targetEcosystem', e.target.value)}
+              placeholder="Enter target ecosystem"
+            />
+          ) : (
+            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+              {businessData.targetEcosystem}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
-    </>
   );
 }
