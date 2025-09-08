@@ -83,6 +83,8 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
 
   // Initialize comprehensive mock data if localStorage is empty
   const initializeMockData = () => {
+    console.log('🏗️  Initializing comprehensive mock data...');
+    
     const mockUnpaidOrders: UnpaidOrder[] = [
       // Individual unpaid orders - various statuses
       {
@@ -322,85 +324,146 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setUnpaidOrders(mockUnpaidOrders);
     setBookedItems(mockBookedItems);
     setPaidItems(mockPaidItems);
+    localStorage.setItem('orderDataVersion', DATA_VERSION);
+    
+    console.log('📊 Mock data summary:');
+    console.log(`  • Unpaid Orders: ${mockUnpaidOrders.length} (${new Set(mockUnpaidOrders.map(o => o.testName)).size} unique tests)`);
+    console.log(`  • Booked Items: ${mockBookedItems.length}`);
+    console.log(`  • Paid Items: ${mockPaidItems.length}`);
+    console.log(`  • Data Version: ${DATA_VERSION}`);
   };
+
+  // Data version for forcing updates when mock data changes
+  const DATA_VERSION = "2024-01-v2";
 
   // Clear localStorage and reinitialize
   const clearStorageAndReinitialize = () => {
+    console.log('🔄 Clearing localStorage and reinitializing with fresh mock data...');
     localStorage.removeItem('cartItems');
     localStorage.removeItem('unpaidOrders');
     localStorage.removeItem('bookedItems');
     localStorage.removeItem('paidItems');
+    localStorage.removeItem('orderDataVersion');
+    localStorage.setItem('orderDataVersion', DATA_VERSION);
     initializeMockData();
-    console.log('Cleared localStorage and reinitialized with fresh mock data');
+    console.log('✅ Fresh mock data initialized with version:', DATA_VERSION);
   };
 
-  // Validate data structure
-  const isValidData = (data: any[], requiredFields: string[]) => {
-    if (!Array.isArray(data) || data.length === 0) return false;
-    return data.every(item => 
+  // Enhanced data validation with duplicate detection and variety checks
+  const isValidData = (data: any[], requiredFields: string[], dataType: string) => {
+    if (!Array.isArray(data) || data.length === 0) {
+      console.log(`❌ Invalid ${dataType}: not an array or empty`);
+      return false;
+    }
+
+    // Check required fields
+    const hasRequiredFields = data.every(item => 
       typeof item === 'object' && 
       requiredFields.every(field => item.hasOwnProperty(field))
     );
+    
+    if (!hasRequiredFields) {
+      console.log(`❌ Invalid ${dataType}: missing required fields`);
+      return false;
+    }
+
+    // Check for duplicate IDs
+    const ids = data.map(item => item.id);
+    const uniqueIds = new Set(ids);
+    if (ids.length !== uniqueIds.size) {
+      console.log(`❌ Invalid ${dataType}: duplicate IDs found`, ids.filter((id, index) => ids.indexOf(id) !== index));
+      return false;
+    }
+
+    // For unpaid orders, check for comprehensive test variety (should have FPA, GEB, EEA, etc.)
+    if (dataType === 'unpaidOrders') {
+      const testNames = data.map(item => item.testName);
+      const uniqueTests = new Set(testNames);
+      const expectedTests = ['FPA', 'GEB', 'EEA'];
+      const hasVariety = expectedTests.some(test => uniqueTests.has(test));
+      
+      if (!hasVariety || uniqueTests.size < 3) {
+        console.log(`❌ Invalid ${dataType}: insufficient test variety. Found:`, Array.from(uniqueTests), 'Expected at least:', expectedTests);
+        return false;
+      }
+    }
+
+    console.log(`✅ Valid ${dataType}: ${data.length} items, ${uniqueIds.size} unique IDs`);
+    return true;
   };
 
   // Load data from localStorage on mount
   useEffect(() => {
+    console.log('🚀 Initializing order data...');
+    
+    // Check data version first
+    const savedVersion = localStorage.getItem('orderDataVersion');
+    if (savedVersion !== DATA_VERSION) {
+      console.log(`📊 Data version mismatch. Saved: ${savedVersion}, Required: ${DATA_VERSION}`);
+      clearStorageAndReinitialize();
+      return;
+    }
+
     const savedCart = localStorage.getItem('cartItems');
     const savedUnpaid = localStorage.getItem('unpaidOrders');
     const savedBooked = localStorage.getItem('bookedItems');
     const savedPaid = localStorage.getItem('paidItems');
 
-    let hasValidData = false;
+    let validDataCount = 0;
+    let totalExpectedSources = 3; // unpaid, booked, paid (cart is optional)
     
-    // Try to load and validate saved data
+    // Try to load and validate saved unpaid orders
     if (savedUnpaid) {
       try {
         const parsedUnpaid = JSON.parse(savedUnpaid);
-        if (isValidData(parsedUnpaid, ['id', 'testName', 'amount'])) {
+        if (isValidData(parsedUnpaid, ['id', 'testName', 'amount'], 'unpaidOrders')) {
           const unpaidWithDates = parsedUnpaid.map((item: any) => ({
             ...item,
             bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
           }));
           setUnpaidOrders(unpaidWithDates);
-          hasValidData = true;
+          validDataCount++;
         }
       } catch (error) {
-        console.error('Error parsing saved unpaid orders:', error);
+        console.error('❌ Error parsing saved unpaid orders:', error);
       }
     }
 
+    // Try to load and validate saved booked items
     if (savedBooked) {
       try {
         const parsedBooked = JSON.parse(savedBooked);
-        if (isValidData(parsedBooked, ['id', 'testName', 'bookingDate'])) {
+        if (isValidData(parsedBooked, ['id', 'testName', 'bookingDate'], 'bookedItems')) {
           const bookedWithDates = parsedBooked.map((item: any) => ({
             ...item,
             bookingDate: new Date(item.bookingDate)
           }));
           setBookedItems(bookedWithDates);
-          hasValidData = true;
+          validDataCount++;
         }
       } catch (error) {
-        console.error('Error parsing saved booked items:', error);
+        console.error('❌ Error parsing saved booked items:', error);
       }
     }
 
+    // Try to load and validate saved paid items
     if (savedPaid) {
       try {
         const parsedPaid = JSON.parse(savedPaid);
-        if (isValidData(parsedPaid, ['id', 'testName', 'amount'])) {
+        if (isValidData(parsedPaid, ['id', 'testName', 'amount'], 'paidItems')) {
           const paidWithDates = parsedPaid.map((item: any) => ({
             ...item,
             bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
           }));
           setPaidItems(paidWithDates);
-          hasValidData = true;
+          validDataCount++;
         }
       } catch (error) {
-        console.error('Error parsing saved paid items:', error);
+        console.error('❌ Error parsing saved paid items:', error);
       }
     }
 
+    // Try to load cart items (optional, no validation needed)
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
@@ -412,13 +475,16 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
           setCartItems(cartWithDates);
         }
       } catch (error) {
-        console.error('Error parsing saved cart items:', error);
+        console.error('❌ Error parsing saved cart items:', error);
       }
     }
     
-    // If no valid data found, clear storage and initialize mock data
-    if (!hasValidData) {
+    // If we don't have ALL expected data sources with valid data, reinitialize
+    if (validDataCount < totalExpectedSources) {
+      console.log(`⚠️  Incomplete data detected. Valid sources: ${validDataCount}/${totalExpectedSources}`);
       clearStorageAndReinitialize();
+    } else {
+      console.log(`✅ All data sources loaded successfully (${validDataCount}/${totalExpectedSources})`);
     }
   }, []);
 
