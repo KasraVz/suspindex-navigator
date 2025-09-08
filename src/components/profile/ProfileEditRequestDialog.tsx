@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FileUpload } from "@/components/ui/file-upload";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, FileEdit } from "lucide-react";
 
@@ -67,6 +68,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
   const [requestedValue, setRequestedValue] = useState<string>("");
   const [reason, setReason] = useState<string>("");
   const [priority, setPriority] = useState<string>("");
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   
   const { toast } = useToast();
 
@@ -104,6 +106,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
       setRequestedValue("");
       setReason("");
       setPriority("");
+      setUploadedFile(null);
     }
   }, [editingRequest, open]);
 
@@ -129,6 +132,16 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
       return;
     }
 
+    // Check if file upload is required for passport ID changes
+    if (selectedField === "passportId" && !uploadedFile) {
+      toast({
+        title: "Document Required",
+        description: "Please upload your passport or ID document for verification.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     // Simulate API call
@@ -148,6 +161,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
       setRequestedValue("");
       setReason("");
       setPriority("");
+      setUploadedFile(null);
     }
     setIsLoading(false);
     onOpenChange(false);
@@ -224,6 +238,20 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
                 onChange={(e) => setRequestedValue(e.target.value)}
                 placeholder="Enter the new value you want"
               />
+            </div>
+          )}
+
+          {selectedField === "passportId" && (
+            <div className="space-y-2">
+              <Label>Upload Passport/ID Document *</Label>
+              <FileUpload 
+                accept="image/*,.pdf"
+                required 
+                onFileSelect={setUploadedFile}
+              />
+              <p className="text-xs text-muted-foreground">
+                Please upload a clear photo of your passport or ID card for verification purposes.
+              </p>
             </div>
           )}
 

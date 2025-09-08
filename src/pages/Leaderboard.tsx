@@ -5,41 +5,45 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Medal, Award, Star, TrendingUp } from "lucide-react";
 
-// Mock leaderboard data
-const mockLeaderboardData = {
-  daily: [
-    { rank: 1, name: "Sarah Johnson", points: 2450, avatar: "", change: "+15", tests: 12 },
-    { rank: 2, name: "Mike Chen", points: 2380, avatar: "", change: "+8", tests: 11 },
-    { rank: 3, name: "Emily Davis", points: 2320, avatar: "", change: "+22", tests: 10 },
-    { rank: 4, name: "Alex Rodriguez", points: 2280, avatar: "", change: "+5", tests: 9 },
-    { rank: 5, name: "Lisa Wang", points: 2250, avatar: "", change: "+12", tests: 8 },
-    { rank: 6, name: "David Kim", points: 2200, avatar: "", change: "-3", tests: 7 },
-    { rank: 7, name: "Jessica Brown", points: 2150, avatar: "", change: "+18", tests: 6 },
-    { rank: 8, name: "Chris Wilson", points: 2100, avatar: "", change: "+7", tests: 5 },
+// Mock assessment leaderboard data
+const mockAssessmentLeaderboards = {
+  fpa: [
+    { rank: 1, name: "Sarah Johnson", points: 4850, avatar: "", change: "+125", tests: 28 },
+    { rank: 2, name: "Mike Chen", points: 4720, avatar: "", change: "+89", tests: 26 },
+    { rank: 3, name: "Emily Davis", points: 4680, avatar: "", change: "+156", tests: 25 },
+    { rank: 4, name: "Alex Rodriguez", points: 4520, avatar: "", change: "+67", tests: 23 },
+    { rank: 5, name: "Lisa Wang", points: 4450, avatar: "", change: "+134", tests: 22 },
+    { rank: 6, name: "David Kim", points: 4380, avatar: "", change: "+45", tests: 21 },
+    { rank: 7, name: "Jessica Brown", points: 4320, avatar: "", change: "+98", tests: 20 },
+    { rank: 8, name: "Chris Wilson", points: 4280, avatar: "", change: "+78", tests: 19 },
   ],
-  weekly: [
-    { rank: 1, name: "Emily Davis", points: 15820, avatar: "", change: "+145", tests: 78 },
-    { rank: 2, name: "Sarah Johnson", points: 15750, avatar: "", change: "+89", tests: 76 },
-    { rank: 3, name: "Mike Chen", points: 15680, avatar: "", change: "+134", tests: 74 },
-    { rank: 4, name: "Alex Rodriguez", points: 15420, avatar: "", change: "+67", tests: 72 },
-    { rank: 5, name: "Lisa Wang", points: 15380, avatar: "", change: "+156", tests: 70 },
-    { rank: 6, name: "David Kim", points: 15200, avatar: "", change: "+23", tests: 68 },
-    { rank: 7, name: "Jessica Brown", points: 15150, avatar: "", change: "+98", tests: 66 },
-    { rank: 8, name: "Chris Wilson", points: 15100, avatar: "", change: "+45", tests: 64 },
+  geb: [
+    { rank: 1, name: "Emily Davis", points: 5120, avatar: "", change: "+178", tests: 34 },
+    { rank: 2, name: "Lisa Wang", points: 5080, avatar: "", change: "+142", tests: 33 },
+    { rank: 3, name: "Sarah Johnson", points: 4950, avatar: "", change: "+115", tests: 31 },
+    { rank: 4, name: "Mike Chen", points: 4890, avatar: "", change: "+98", tests: 30 },
+    { rank: 5, name: "Alex Rodriguez", points: 4820, avatar: "", change: "+87", tests: 29 },
+    { rank: 6, name: "Jessica Brown", points: 4750, avatar: "", change: "+156", tests: 28 },
+    { rank: 7, name: "David Kim", points: 4680, avatar: "", change: "+67", tests: 27 },
+    { rank: 8, name: "Chris Wilson", points: 4620, avatar: "", change: "+89", tests: 26 },
   ],
-  monthly: [
-    { rank: 1, name: "Sarah Johnson", points: 68450, avatar: "", change: "+1245", tests: 324 },
-    { rank: 2, name: "Emily Davis", points: 67820, avatar: "", change: "+1456", tests: 318 },
-    { rank: 3, name: "Mike Chen", points: 67320, avatar: "", change: "+1134", tests: 312 },
-    { rank: 4, name: "Lisa Wang", points: 66980, avatar: "", change: "+1678", tests: 309 },
-    { rank: 5, name: "Alex Rodriguez", points: 66720, avatar: "", change: "+987", tests: 305 },
-    { rank: 6, name: "David Kim", points: 65800, avatar: "", change: "+634", tests: 298 },
-    { rank: 7, name: "Jessica Brown", points: 65450, avatar: "", change: "+1234", tests: 295 },
-    { rank: 8, name: "Chris Wilson", points: 65200, avatar: "", change: "+876", tests: 292 },
+  eea: [
+    { rank: 1, name: "Alex Rodriguez", points: 5340, avatar: "", change: "+234", tests: 42 },
+    { rank: 2, name: "Sarah Johnson", points: 5280, avatar: "", change: "+189", tests: 40 },
+    { rank: 3, name: "Mike Chen", points: 5210, avatar: "", change: "+167", tests: 39 },
+    { rank: 4, name: "Emily Davis", points: 5150, avatar: "", change: "+145", tests: 38 },
+    { rank: 5, name: "Jessica Brown", points: 5090, avatar: "", change: "+198", tests: 37 },
+    { rank: 6, name: "Lisa Wang", points: 5020, avatar: "", change: "+123", tests: 36 },
+    { rank: 7, name: "David Kim", points: 4960, avatar: "", change: "+156", tests: 35 },
+    { rank: 8, name: "Chris Wilson", points: 4890, avatar: "", change: "+134", tests: 34 },
   ]
 };
 
-const currentUserRank = { rank: 42, totalUsers: 1247, points: 45680, percentile: 97 };
+const currentUserAssessmentRanks = { 
+  fpa: { rank: 25, totalUsers: 1247, points: 4180, percentile: 98 },
+  geb: { rank: 42, totalUsers: 1156, points: 4520, percentile: 97 },
+  eea: { rank: 18, totalUsers: 923, points: 5140, percentile: 98 }
+};
 
 const getRankIcon = (rank: number) => {
   switch (rank) {
@@ -54,7 +58,7 @@ const getRankIcon = (rank: number) => {
   }
 };
 
-const LeaderboardTable = ({ data }: { data: typeof mockLeaderboardData.daily }) => (
+const LeaderboardTable = ({ data }: { data: typeof mockAssessmentLeaderboards.fpa }) => (
   <div className="space-y-3">
     {data.map((user) => (
       <div key={user.rank} className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
@@ -92,76 +96,100 @@ const Leaderboard = () => {
         <p className="text-muted-foreground">See how you rank among Supsindex users</p>
       </div>
 
-      {/* Current User Rank */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-primary" />
-            Your Current Ranking
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="text-3xl font-bold">#{currentUserRank.rank}</div>
-              <div className="text-muted-foreground">out of {currentUserRank.totalUsers.toLocaleString()} users</div>
+      {/* Current User Assessment Rankings */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-primary" />
+              FPA Ranking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-2">
+              <div className="text-2xl font-bold">#{currentUserAssessmentRanks.fpa.rank}</div>
+              <div className="text-sm text-muted-foreground">of {currentUserAssessmentRanks.fpa.totalUsers.toLocaleString()}</div>
+              <div className="text-lg font-semibold text-primary">{currentUserAssessmentRanks.fpa.points.toLocaleString()} pts</div>
+              <Progress value={currentUserAssessmentRanks.fpa.percentile} className="h-2" />
             </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-primary">{currentUserRank.points.toLocaleString()}</div>
-              <div className="text-sm text-muted-foreground">Total Points</div>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Top {100 - currentUserRank.percentile}% of users</span>
-              <span>{currentUserRank.percentile}%</span>
-            </div>
-            <Progress value={currentUserRank.percentile} className="h-2" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Leaderboard Tabs */}
-      <Tabs defaultValue="daily" className="space-y-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Medal className="h-5 w-5 text-primary" />
+              GEB Ranking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-2">
+              <div className="text-2xl font-bold">#{currentUserAssessmentRanks.geb.rank}</div>
+              <div className="text-sm text-muted-foreground">of {currentUserAssessmentRanks.geb.totalUsers.toLocaleString()}</div>
+              <div className="text-lg font-semibold text-primary">{currentUserAssessmentRanks.geb.points.toLocaleString()} pts</div>
+              <Progress value={currentUserAssessmentRanks.geb.percentile} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Award className="h-5 w-5 text-primary" />
+              EEA Ranking
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-2">
+              <div className="text-2xl font-bold">#{currentUserAssessmentRanks.eea.rank}</div>
+              <div className="text-sm text-muted-foreground">of {currentUserAssessmentRanks.eea.totalUsers.toLocaleString()}</div>
+              <div className="text-lg font-semibold text-primary">{currentUserAssessmentRanks.eea.points.toLocaleString()} pts</div>
+              <Progress value={currentUserAssessmentRanks.eea.percentile} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Assessment Leaderboard Tabs */}
+      <Tabs defaultValue="fpa" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="daily">Daily</TabsTrigger>
-          <TabsTrigger value="weekly">Weekly</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly</TabsTrigger>
+          <TabsTrigger value="fpa">FPA</TabsTrigger>
+          <TabsTrigger value="geb">GEB</TabsTrigger>
+          <TabsTrigger value="eea">EEA</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="daily">
+        <TabsContent value="fpa">
           <Card>
             <CardHeader>
-              <CardTitle>Daily Leaderboard</CardTitle>
-              <p className="text-sm text-muted-foreground">Rankings updated every 24 hours</p>
+              <CardTitle>Financial Performance Assessment (FPA)</CardTitle>
+              <p className="text-sm text-muted-foreground">Top performers in financial analysis and planning</p>
             </CardHeader>
             <CardContent>
-              <LeaderboardTable data={mockLeaderboardData.daily} />
+              <LeaderboardTable data={mockAssessmentLeaderboards.fpa} />
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="weekly">
+        <TabsContent value="geb">
           <Card>
             <CardHeader>
-              <CardTitle>Weekly Leaderboard</CardTitle>
-              <p className="text-sm text-muted-foreground">Rankings for this week</p>
+              <CardTitle>Global Entrepreneurship Bootcamp (GEB)</CardTitle>
+              <p className="text-sm text-muted-foreground">Leaders in entrepreneurial skills and business development</p>
             </CardHeader>
             <CardContent>
-              <LeaderboardTable data={mockLeaderboardData.weekly} />
+              <LeaderboardTable data={mockAssessmentLeaderboards.geb} />
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="monthly">
+        <TabsContent value="eea">
           <Card>
             <CardHeader>
-              <CardTitle>Monthly Leaderboard</CardTitle>
-              <p className="text-sm text-muted-foreground">Rankings for this month</p>
+              <CardTitle>Entrepreneurial Excellence Assessment (EEA)</CardTitle>
+              <p className="text-sm text-muted-foreground">Excellence in innovation and startup leadership</p>
             </CardHeader>
             <CardContent>
-              <LeaderboardTable data={mockLeaderboardData.monthly} />
+              <LeaderboardTable data={mockAssessmentLeaderboards.eea} />
             </CardContent>
           </Card>
         </TabsContent>

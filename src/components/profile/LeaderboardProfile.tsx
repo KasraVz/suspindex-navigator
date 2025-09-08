@@ -17,44 +17,44 @@ import {
 
 // Mock user leaderboard data
 const mockUserLeaderboardData = {
-  currentRank: 42,
+  overallRank: 28,
   totalUsers: 1247,
   totalPoints: 45680,
-  percentile: 97,
-  monthlyRank: 38,
-  weeklyRank: 45,
-  dailyRank: 52,
+  percentile: 98,
+  assessmentRanks: {
+    fpa: { rank: 25, points: 4180 },
+    geb: { rank: 42, points: 4520 },
+    eea: { rank: 18, points: 5140 }
+  },
   badges: [
-    { name: "Top Performer", description: "Ranked in top 5%", icon: Trophy, earned: true },
-    { name: "Consistency Master", description: "Daily login streak 30+", icon: Target, earned: true },
-    { name: "Assessment Pro", description: "100+ assessments completed", icon: CheckCircle, earned: true },
-    { name: "Rising Star", description: "Biggest monthly improvement", icon: Star, earned: false },
-    { name: "Champion", description: "Top 10 ranking", icon: Medal, earned: false },
+    { name: "Financial Analyst", description: "FPA top performer", icon: Trophy, earned: true },
+    { name: "Global Thinker", description: "GEB excellence", icon: Target, earned: true },
+    { name: "Innovation Leader", description: "EEA champion", icon: CheckCircle, earned: true },
+    { name: "Excellence Pro", description: "All assessments mastery", icon: Star, earned: false },
+    { name: "Assessment Champion", description: "Top 10 in any assessment", icon: Medal, earned: true },
   ],
   recentAchievements: [
-    { activity: "Completed Advanced Assessment", points: "+250", date: "2 hours ago" },
-    { activity: "Perfect Score Bonus", points: "+100", date: "1 day ago" },
-    { activity: "Weekly Challenge", points: "+150", date: "3 days ago" },
-    { activity: "First Login Bonus", points: "+50", date: "1 week ago" },
+    { activity: "FPA Perfect Score", points: "+350", date: "2 hours ago" },
+    { activity: "GEB Module Completed", points: "+200", date: "1 day ago" },
+    { activity: "EEA Leadership Badge", points: "+150", date: "3 days ago" },
+    { activity: "Assessment Streak Bonus", points: "+100", date: "1 week ago" },
   ],
   nextMilestone: {
-    name: "Top 30",
-    currentProgress: 42,
-    target: 30,
-    pointsNeeded: 2340,
-    progressPercent: 85
+    name: "Top 15 Overall",
+    currentProgress: 28,
+    target: 15,
+    pointsNeeded: 1840,
+    progressPercent: 78
   }
 };
 
 export const LeaderboardProfile = () => {
   const { 
-    currentRank, 
+    overallRank, 
     totalUsers, 
     totalPoints, 
     percentile,
-    monthlyRank,
-    weeklyRank,
-    dailyRank,
+    assessmentRanks,
     badges,
     recentAchievements,
     nextMilestone
@@ -82,7 +82,7 @@ export const LeaderboardProfile = () => {
                 <h3 className="font-semibold">Current Ranking</h3>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-primary">#{currentRank}</span>
+                <span className="text-3xl font-bold text-primary">#{overallRank}</span>
                 <span className="text-muted-foreground">of {totalUsers.toLocaleString()}</span>
               </div>
               <p className="text-sm text-muted-foreground">Top {100 - percentile}% of all users</p>
@@ -99,19 +99,28 @@ export const LeaderboardProfile = () => {
 
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-3">Period Rankings</h3>
+              <h3 className="font-semibold mb-3">Assessment Rankings</h3>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Monthly</span>
-                  <Badge variant="secondary">#{monthlyRank}</Badge>
+                  <span className="text-sm text-muted-foreground">FPA</span>
+                  <div className="text-right">
+                    <Badge variant="secondary">#{assessmentRanks.fpa.rank}</Badge>
+                    <div className="text-xs text-muted-foreground mt-1">{assessmentRanks.fpa.points} pts</div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Weekly</span>
-                  <Badge variant="secondary">#{weeklyRank}</Badge>
+                  <span className="text-sm text-muted-foreground">GEB</span>
+                  <div className="text-right">
+                    <Badge variant="secondary">#{assessmentRanks.geb.rank}</Badge>
+                    <div className="text-xs text-muted-foreground mt-1">{assessmentRanks.geb.points} pts</div>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Daily</span>
-                  <Badge variant="secondary">#{dailyRank}</Badge>
+                  <span className="text-sm text-muted-foreground">EEA</span>
+                  <div className="text-right">
+                    <Badge variant="secondary">#{assessmentRanks.eea.rank}</Badge>
+                    <div className="text-xs text-muted-foreground mt-1">{assessmentRanks.eea.points} pts</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -120,17 +129,17 @@ export const LeaderboardProfile = () => {
 
         {/* Progress to Next Milestone */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">Next Milestone: {nextMilestone.name}</h3>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Progress to Top 30</span>
-              <span>{nextMilestone.pointsNeeded.toLocaleString()} points needed</span>
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Next Milestone: {nextMilestone.name}</h3>
             </div>
-            <Progress value={nextMilestone.progressPercent} className="h-2" />
-          </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress to Top 15</span>
+                <span>{nextMilestone.pointsNeeded.toLocaleString()} points needed</span>
+              </div>
+              <Progress value={nextMilestone.progressPercent} className="h-2" />
+            </div>
         </div>
 
         {/* Badges & Achievements */}
