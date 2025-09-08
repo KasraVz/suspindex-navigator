@@ -87,7 +87,9 @@ const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 export const useOrders = () => {
   const context = useContext(OrderContext);
+  console.log('useOrders called, context:', context);
   if (!context) {
+    console.error('OrderContext is undefined - OrderProvider not found in component tree');
     throw new Error('useOrders must be used within an OrderProvider');
   }
   return context;
@@ -98,15 +100,48 @@ interface OrderProviderProps {
 }
 
 export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
+  console.log('OrderProvider rendering');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [unpaidOrders, setUnpaidOrders] = useState<UnpaidOrder[]>([]);
   const [bookedItems, setBookedItems] = useState<BookedItem[]>([]);
   const [paidItems, setPaidItems] = useState<PaidItem[]>([]);
 
-  // Initialize with comprehensive mock data
+  // Simple initialization without complex mock data
   useEffect(() => {
-    const mockUnpaidOrders: UnpaidOrder[] = [
-      {
+    console.log('OrderProvider useEffect running');
+    
+    const savedCart = localStorage.getItem('cartItems');
+    const savedUnpaid = localStorage.getItem('unpaidOrders');
+    const savedBooked = localStorage.getItem('bookedItems');
+    const savedPaid = localStorage.getItem('paidItems');
+    
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        const cartWithDates = parsedCart.map((item: any) => ({
+          ...item,
+          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+        }));
+        setCartItems(cartWithDates);
+      } catch (error) {
+        console.error('Error parsing saved cart items:', error);
+      }
+    }
+    
+    if (savedUnpaid) {
+      try {
+        const parsedUnpaid = JSON.parse(savedUnpaid);
+        const unpaidWithDates = parsedUnpaid.map((item: any) => ({
+          ...item,
+          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+        }));
+        setUnpaidOrders(unpaidWithDates);
+      } catch (error) {
+        console.error('Error parsing saved unpaid orders:', error);
+      }
+    } else {
+      // Add simple mock data only if no saved data
+      setUnpaidOrders([{
         id: 'unpaid-1',
         orderId: 'ORD-2024-001',
         testName: 'Financial Planning & Analysis (FPA)',
@@ -116,96 +151,34 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         testStatus: 'not_taken',
         kycStatus: 'approved',
         status: 'unpaid'
-      },
-      {
-        id: 'unpaid-2',
-        orderId: 'ORD-2024-002',
-        testName: 'Global Entrepreneurship Bootcamp (GEB)',
-        amount: 399,
-        dateAdded: '2024-01-16',
-        assessmentType: 'GEB',
-        testStatus: 'not_taken',
-        kycStatus: 'pending',
-        status: 'unpaid',
-        bundleId: 'bundle-1'
-      },
-      {
-        id: 'unpaid-3',
-        orderId: 'ORD-2024-003',
-        testName: 'Executive Excellence Assessment (EEA)',
-        amount: 499,
-        dateAdded: '2024-01-16',
-        assessmentType: 'EEA',
-        testStatus: 'not_taken',
-        kycStatus: 'pending',
-        status: 'unpaid',
-        bundleId: 'bundle-1',
-        bookingDate: new Date('2024-02-01'),
-        bookingTime: '10:00'
-      },
-      {
-        id: 'unpaid-4',
-        orderId: 'ORD-2024-004',
-        testName: 'FPA + GEB Combo Assessment',
-        amount: 599,
-        dateAdded: '2024-01-17',
-        assessmentType: 'FPA,GEB',
-        testStatus: 'not_taken',
-        kycStatus: 'approved',
-        status: 'unpaid'
-      }
-    ];
+      }]);
+    }
 
-    const mockPaidItems: PaidItem[] = [
-      {
-        id: 'paid-1',
-        orderId: 'ORD-2023-045',
-        testName: 'Financial Planning & Analysis (FPA)',
-        amount: 299,
-        datePaid: '2023-12-15',
-        assessmentType: 'FPA',
-        testStatus: 'completed',
-        kycStatus: 'approved',
-        bookingDate: new Date('2023-12-20'),
-        bookingTime: '14:00'
-      },
-      {
-        id: 'paid-2',
-        orderId: 'ORD-2024-005',
-        testName: 'Global Entrepreneurship Bootcamp (GEB)',
-        amount: 399,
-        datePaid: '2024-01-10',
-        assessmentType: 'GEB',
-        testStatus: 'in_progress',
-        kycStatus: 'approved',
-        bookingDate: new Date('2024-01-25'),
-        bookingTime: '09:00'
+    if (savedBooked) {
+      try {
+        const parsedBooked = JSON.parse(savedBooked);
+        const bookedWithDates = parsedBooked.map((item: any) => ({
+          ...item,
+          bookingDate: new Date(item.bookingDate)
+        }));
+        setBookedItems(bookedWithDates);
+      } catch (error) {
+        console.error('Error parsing saved booked items:', error);
       }
-    ];
+    }
 
-    const mockBookedItems: BookedItem[] = [
-      {
-        id: 'unpaid-3',
-        testName: 'Executive Excellence Assessment (EEA)',
-        bookingDate: new Date('2024-02-01'),
-        bookingTime: '10:00',
-        type: 'assessment',
-        testTime: '120 minutes'
-      },
-      {
-        id: 'paid-2',
-        testName: 'Global Entrepreneurship Bootcamp (GEB)',
-        bookingDate: new Date('2024-01-25'),
-        bookingTime: '09:00',
-        type: 'assessment',
-        testTime: '180 minutes'
+    if (savedPaid) {
+      try {
+        const parsedPaid = JSON.parse(savedPaid);
+        const paidWithDates = parsedPaid.map((item: any) => ({
+          ...item,
+          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+        }));
+        setPaidItems(paidWithDates);
+      } catch (error) {
+        console.error('Error parsing saved paid items:', error);
       }
-    ];
-
-    // Only set mock data if no existing data
-    if (unpaidOrders.length === 0) setUnpaidOrders(mockUnpaidOrders);
-    if (paidItems.length === 0) setPaidItems(mockPaidItems);
-    if (bookedItems.length === 0) setBookedItems(mockBookedItems);
+    }
   }, []);
 
   // Load data from localStorage on mount
@@ -378,27 +351,29 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     );
   };
 
+  const contextValue = {
+    cartItems,
+    unpaidOrders,
+    bookedItems,
+    paidItems,
+    addToCart,
+    removeFromCart,
+    addToUnpaidOrders,
+    removeFromUnpaidOrders,
+    removeUnpaidBundle,
+    addToBookedItems,
+    removeFromBookedItems,
+    addToPaidItems,
+    removeOrder,
+    getAllOrders,
+    canRemoveOrder,
+    clearCart,
+  };
+
+  console.log('OrderProvider context value:', contextValue);
+
   return (
-    <OrderContext.Provider
-      value={{
-        cartItems,
-        unpaidOrders,
-        bookedItems,
-        paidItems,
-        addToCart,
-        removeFromCart,
-        addToUnpaidOrders,
-        removeFromUnpaidOrders,
-        removeUnpaidBundle,
-        addToBookedItems,
-        removeFromBookedItems,
-        addToPaidItems,
-        removeOrder,
-        getAllOrders,
-        canRemoveOrder,
-        clearCart,
-      }}
-    >
+    <OrderContext.Provider value={contextValue}>
       {children}
     </OrderContext.Provider>
   );
