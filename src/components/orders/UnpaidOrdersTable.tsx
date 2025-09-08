@@ -1,14 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, CreditCard, Search, Package } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useOrders } from "@/contexts/OrderContext";
+import { Badge } from "@/components/ui/badge";
+import { Search, Eye, CreditCard, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ViewOrderDetailsDialog } from "./ViewOrderDetailsDialog";
-import { UnifiedOrder } from "./UnifiedOrdersTable";
+import { useOrders, UnifiedOrder } from "@/contexts/OrderContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface OrderBundle {
   bundleId: string;
@@ -17,66 +17,73 @@ interface OrderBundle {
   orderDate: string;
 }
 
-export function UnpaidOrdersTable() {
-  const navigate = useNavigate();
-  const { unpaidOrders, removeUnpaidBundle, removeFromUnpaidOrders } = useOrders();
+export const UnpaidOrdersTable = () => {
   const [selectedOrder, setSelectedOrder] = useState<UnifiedOrder | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { unpaidOrders, addToCart, removeOrder, canRemoveOrder } = useOrders();
+  const { toast } = useToast();
 
   const totalUnpaidAmount = unpaidOrders.reduce((sum, order) => sum + order.amount, 0);
 
-  // Group items by bundleId
-  const groupedOrders = unpaidOrders.reduce((acc, order) => {
+  // Group orders by bundleId
+  const bundles: OrderBundle[] = [];
+  const individual: any[] = [];
+
+  unpaidOrders.forEach(order => {
     if (order.bundleId) {
-      if (!acc.bundles[order.bundleId]) {
-        acc.bundles[order.bundleId] = {
+      let bundle = bundles.find(b => b.bundleId === order.bundleId);
+      if (!bundle) {
+        bundle = {
           bundleId: order.bundleId,
           items: [],
           totalAmount: 0,
           orderDate: order.dateAdded
         };
+        bundles.push(bundle);
       }
-      acc.bundles[order.bundleId].items.push(order);
-      acc.bundles[order.bundleId].totalAmount += order.amount;
+      bundle.items.push(order);
+      bundle.totalAmount += order.amount;
     } else {
-      acc.individual.push(order);
+      individual.push(order);
     }
-    return acc;
-  }, { bundles: {} as Record<string, OrderBundle>, individual: [] as any[] });
+  });
 
   const handleViewOrder = (order: any) => {
-    // Convert to UnifiedOrder format for the dialog
     const unifiedOrder: UnifiedOrder = {
       id: order.id,
-      orderId: `ORD-${order.id}`,
+      orderId: order.orderId || `ORD-${order.id}`,
       testName: order.testName,
       amount: order.amount,
-      orderDate: order.dateAdded,
       paymentStatus: "unpaid" as const,
-      testStatus: "not_taken" as const,
-      kycStatus: "pending" as const,
-      overallStatus: "waiting_payment" as const,
+      testStatus: order.testStatus || "not_taken" as const,
+      kycStatus: order.kycStatus || "pending" as const,
+      overallStatus: "pending_payment" as const,
+      dateAdded: order.dateAdded,
       bookingDate: order.bookingDate,
       bookingTime: order.bookingTime,
+      bundleId: order.bundleId,
+      assessmentType: order.assessmentType
     };
     
     setSelectedOrder(unifiedOrder);
     setShowDetailsDialog(true);
   };
 
-  const handlePayBundle = (bundle: OrderBundle) => {
-    const cartItems = bundle.items.map(item => ({
+  const handlePayBundle = (bundleId: string, items: any[]) => {
+    const cartItems = items.map(item => ({
       id: item.id,
       name: item.testName,
       price: item.amount,
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
-      status: item.status,
       bundleId: item.bundleId
     }));
-    
-    navigate("/dashboard/purchase", { state: { cartItems } });
+    addToCart(cartItems);
+    toast({
+      title: "Bundle Added to Cart",
+      description: `Bundle with ${items.length} items added to cart.`,
+    });
   };
 
   const handlePayIndividual = (order: any) => {
@@ -85,37 +92,57 @@ export function UnpaidOrdersTable() {
       name: order.testName,
       price: order.amount,
       bookingDate: order.bookingDate,
-      bookingTime: order.bookingTime,
-      status: order.status
+      bookingTime: order.bookingTime
     }];
-    
-    navigate("/dashboard/purchase", { state: { cartItems } });
+    addToCart(cartItems);
+    toast({
+      title: "Added to Cart",
+      description: `${order.testName} has been added to your cart.`,
+    });
   };
 
   const handlePayAll = () => {
-    const allCartItems = unpaidOrders.map(order => ({
+    const cartItems = unpaidOrders.map(order => ({
       id: order.id,
       name: order.testName,
       price: order.amount,
       bookingDate: order.bookingDate,
       bookingTime: order.bookingTime,
-      status: order.status,
       bundleId: order.bundleId
     }));
-    
-    navigate("/dashboard/purchase", { state: { cartItems: allCartItems } });
+    addToCart(cartItems);
+    toast({
+      title: "Added to Cart",
+      description: `All ${unpaidOrders.length} unpaid orders have been added to your cart.`,
+    });
   };
 
-  const filteredBundles = Object.values(groupedOrders.bundles).filter(bundle =>
+  const handleRemoveOrder = (orderId: string, orderName: string) => {
+    const success = removeOrder(orderId);
+    if (success) {
+      toast({
+        title: "Order Removed",
+        description: `${orderName} has been successfully removed.`,
+      });
+    } else {
+      toast({
+        title: "Cannot Remove Order",
+        description: "This order cannot be removed.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const filteredBundles = bundles.filter(bundle =>
     bundle.items.some(item => 
       item.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       `BUNDLE-${bundle.bundleId}`.toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
 
-  const filteredIndividual = groupedOrders.individual.filter(order =>
+  const filteredIndividual = individual.filter(order =>
     order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    `ORD-${order.id}`.toLowerCase().includes(searchQuery.toLowerCase())
+    (order.orderId && order.orderId.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -126,7 +153,7 @@ export function UnpaidOrdersTable() {
             <CardTitle>Unpaid Orders</CardTitle>
             {unpaidOrders.length > 0 && (
               <Button onClick={handlePayAll} className="flex items-center gap-2">
-                <CreditCard size={16} />
+                <CreditCard className="w-4 h-4" />
                 Pay All (${totalUnpaidAmount})
               </Button>
             )}
@@ -167,11 +194,8 @@ export function UnpaidOrdersTable() {
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Package className="h-4 w-4 text-primary" />
-                          <Badge variant="outline">Bundle ({bundle.items.length} items)</Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground ml-6">
+                        <Badge variant="outline">Bundle ({bundle.items.length} items)</Badge>
+                        <div className="text-sm text-muted-foreground">
                           {bundle.items.map(item => item.testName).join(", ")}
                         </div>
                       </div>
@@ -186,22 +210,58 @@ export function UnpaidOrdersTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <Button
+                          variant="outline"
                           size="sm"
-                          onClick={() => handlePayBundle(bundle)}
+                          onClick={() => handlePayBundle(bundle.bundleId, bundle.items)}
                           className="flex items-center gap-2"
                         >
-                          <CreditCard size={16} />
+                          <CreditCard className="w-4 h-4" />
                           Pay Bundle (${bundle.totalAmount})
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleViewOrder(bundle.items[0])}
+                          className="flex items-center gap-2"
                         >
-                          <Eye size={16} />
+                          <Eye className="w-4 h-4" />
+                          View
                         </Button>
+                        {bundle.items.every(item => canRemoveOrder(item.id)) && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-2 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Remove Bundle
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Bundle</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove this entire bundle? This will remove all {bundle.items.length} assessments in this bundle.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => {
+                                    bundle.items.forEach(item => handleRemoveOrder(item.id, item.testName));
+                                  }}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Remove Bundle
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -211,7 +271,7 @@ export function UnpaidOrdersTable() {
                 {filteredIndividual.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <div className="font-mono text-sm">ORD-{order.id}</div>
+                      <div className="font-mono text-sm">{order.orderId || `ORD-${order.id}`}</div>
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">{order.testName}</div>
@@ -229,22 +289,57 @@ export function UnpaidOrdersTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handlePayIndividual(order)}
                           className="flex items-center gap-2"
                         >
-                          <CreditCard size={16} />
+                          <CreditCard className="w-4 h-4" />
                           Pay Now
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleViewOrder(order)}
+                          className="flex items-center gap-2"
                         >
-                          <Eye size={16} />
+                          <Eye className="w-4 h-4" />
+                          View
                         </Button>
+                        {canRemoveOrder(order.id) && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-2 text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Order</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove "{order.testName}"? This action cannot be undone.
+                                  {order.bookingDate && " This will also cancel the associated booking."}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleRemoveOrder(order.id, order.testName)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Remove Order
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -262,4 +357,4 @@ export function UnpaidOrdersTable() {
       />
     </>
   );
-}
+};

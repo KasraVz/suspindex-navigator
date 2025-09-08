@@ -12,6 +12,7 @@ export interface CartItem {
 
 export interface UnpaidOrder {
   id: string;
+  orderId: string;
   testName: string;
   amount: number;
   dateAdded: string;
@@ -19,6 +20,9 @@ export interface UnpaidOrder {
   bookingTime?: string;
   status?: string;
   bundleId?: string;
+  assessmentType?: string;
+  testStatus?: 'not_taken' | 'in_progress' | 'completed';
+  kycStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 export interface BookedItem {
@@ -32,11 +36,32 @@ export interface BookedItem {
 
 export interface PaidItem {
   id: string;
+  orderId: string;
   testName: string;
   amount: number;
   datePaid: string;
   bookingDate?: Date;
   bookingTime?: string;
+  assessmentType?: string;
+  testStatus?: 'not_taken' | 'in_progress' | 'completed';
+  kycStatus?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface UnifiedOrder {
+  id: string;
+  orderId: string;
+  testName: string;
+  amount: number;
+  paymentStatus: 'paid' | 'unpaid';
+  testStatus: 'not_taken' | 'in_progress' | 'completed';
+  kycStatus: 'pending' | 'approved' | 'rejected';
+  overallStatus: 'pending_payment' | 'pending_kyc' | 'ready_to_take' | 'in_progress' | 'completed';
+  dateAdded?: string;
+  datePaid?: string;
+  bookingDate?: Date;
+  bookingTime?: string;
+  bundleId?: string;
+  assessmentType?: string;
 }
 
 interface OrderContextType {
@@ -52,6 +77,9 @@ interface OrderContextType {
   addToBookedItems: (items: BookedItem[]) => void;
   removeFromBookedItems: (id: string) => void;
   addToPaidItems: (items: PaidItem[]) => void;
+  removeOrder: (id: string) => boolean;
+  getAllOrders: () => UnifiedOrder[];
+  canRemoveOrder: (id: string) => boolean;
   clearCart: () => void;
 }
 
@@ -74,6 +102,111 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const [unpaidOrders, setUnpaidOrders] = useState<UnpaidOrder[]>([]);
   const [bookedItems, setBookedItems] = useState<BookedItem[]>([]);
   const [paidItems, setPaidItems] = useState<PaidItem[]>([]);
+
+  // Initialize with comprehensive mock data
+  useEffect(() => {
+    const mockUnpaidOrders: UnpaidOrder[] = [
+      {
+        id: 'unpaid-1',
+        orderId: 'ORD-2024-001',
+        testName: 'Financial Planning & Analysis (FPA)',
+        amount: 299,
+        dateAdded: '2024-01-15',
+        assessmentType: 'FPA',
+        testStatus: 'not_taken',
+        kycStatus: 'approved',
+        status: 'unpaid'
+      },
+      {
+        id: 'unpaid-2',
+        orderId: 'ORD-2024-002',
+        testName: 'Global Entrepreneurship Bootcamp (GEB)',
+        amount: 399,
+        dateAdded: '2024-01-16',
+        assessmentType: 'GEB',
+        testStatus: 'not_taken',
+        kycStatus: 'pending',
+        status: 'unpaid',
+        bundleId: 'bundle-1'
+      },
+      {
+        id: 'unpaid-3',
+        orderId: 'ORD-2024-003',
+        testName: 'Executive Excellence Assessment (EEA)',
+        amount: 499,
+        dateAdded: '2024-01-16',
+        assessmentType: 'EEA',
+        testStatus: 'not_taken',
+        kycStatus: 'pending',
+        status: 'unpaid',
+        bundleId: 'bundle-1',
+        bookingDate: new Date('2024-02-01'),
+        bookingTime: '10:00'
+      },
+      {
+        id: 'unpaid-4',
+        orderId: 'ORD-2024-004',
+        testName: 'FPA + GEB Combo Assessment',
+        amount: 599,
+        dateAdded: '2024-01-17',
+        assessmentType: 'FPA,GEB',
+        testStatus: 'not_taken',
+        kycStatus: 'approved',
+        status: 'unpaid'
+      }
+    ];
+
+    const mockPaidItems: PaidItem[] = [
+      {
+        id: 'paid-1',
+        orderId: 'ORD-2023-045',
+        testName: 'Financial Planning & Analysis (FPA)',
+        amount: 299,
+        datePaid: '2023-12-15',
+        assessmentType: 'FPA',
+        testStatus: 'completed',
+        kycStatus: 'approved',
+        bookingDate: new Date('2023-12-20'),
+        bookingTime: '14:00'
+      },
+      {
+        id: 'paid-2',
+        orderId: 'ORD-2024-005',
+        testName: 'Global Entrepreneurship Bootcamp (GEB)',
+        amount: 399,
+        datePaid: '2024-01-10',
+        assessmentType: 'GEB',
+        testStatus: 'in_progress',
+        kycStatus: 'approved',
+        bookingDate: new Date('2024-01-25'),
+        bookingTime: '09:00'
+      }
+    ];
+
+    const mockBookedItems: BookedItem[] = [
+      {
+        id: 'unpaid-3',
+        testName: 'Executive Excellence Assessment (EEA)',
+        bookingDate: new Date('2024-02-01'),
+        bookingTime: '10:00',
+        type: 'assessment',
+        testTime: '120 minutes'
+      },
+      {
+        id: 'paid-2',
+        testName: 'Global Entrepreneurship Bootcamp (GEB)',
+        bookingDate: new Date('2024-01-25'),
+        bookingTime: '09:00',
+        type: 'assessment',
+        testTime: '180 minutes'
+      }
+    ];
+
+    // Only set mock data if no existing data
+    if (unpaidOrders.length === 0) setUnpaidOrders(mockUnpaidOrders);
+    if (paidItems.length === 0) setPaidItems(mockPaidItems);
+    if (bookedItems.length === 0) setBookedItems(mockBookedItems);
+  }, []);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -190,6 +323,61 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setCartItems([]);
   };
 
+  const canRemoveOrder = (id: string): boolean => {
+    // Check if order exists in unpaid orders
+    const unpaidOrder = unpaidOrders.find(order => order.id === id);
+    if (!unpaidOrder) return false;
+    
+    // Only allow removal if test hasn't been taken
+    return unpaidOrder.testStatus === 'not_taken';
+  };
+
+  const removeOrder = (id: string): boolean => {
+    if (!canRemoveOrder(id)) return false;
+
+    // Remove from unpaid orders
+    setUnpaidOrders(prev => prev.filter(order => order.id !== id));
+    
+    // Remove from booked items if it exists there
+    setBookedItems(prev => prev.filter(item => item.id !== id));
+    
+    return true;
+  };
+
+  const getAllOrders = (): UnifiedOrder[] => {
+    const allOrders: UnifiedOrder[] = [];
+
+    // Add unpaid orders
+    unpaidOrders.forEach(order => {
+      allOrders.push({
+        ...order,
+        paymentStatus: 'unpaid',
+        testStatus: order.testStatus || 'not_taken',
+        kycStatus: order.kycStatus || 'pending',
+        overallStatus: order.kycStatus === 'approved' ? 'pending_payment' : 'pending_kyc'
+      });
+    });
+
+    // Add paid orders
+    paidItems.forEach(item => {
+      allOrders.push({
+        ...item,
+        id: item.id,
+        dateAdded: item.datePaid,
+        paymentStatus: 'paid',
+        testStatus: item.testStatus || 'not_taken',
+        kycStatus: item.kycStatus || 'approved',
+        overallStatus: item.testStatus === 'completed' ? 'completed' : 
+                      item.testStatus === 'in_progress' ? 'in_progress' : 'ready_to_take'
+      });
+    });
+
+    return allOrders.sort((a, b) => 
+      new Date(b.dateAdded || b.datePaid || '').getTime() - 
+      new Date(a.dateAdded || a.datePaid || '').getTime()
+    );
+  };
+
   return (
     <OrderContext.Provider
       value={{
@@ -205,6 +393,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         addToBookedItems,
         removeFromBookedItems,
         addToPaidItems,
+        removeOrder,
+        getAllOrders,
+        canRemoveOrder,
         clearCart,
       }}
     >
