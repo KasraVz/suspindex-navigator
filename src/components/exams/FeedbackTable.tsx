@@ -53,7 +53,7 @@ const initialSubmittedFeedback: FeedbackData[] = [
     testId: "TST001",
     testName: "FPA",
     status: "under_review",
-    feedbackText: "The test was well-structured but some questions were ambiguous...",
+    feedbackText: "The test was well-structured but some questions were ambiguous. Question 12 had unclear wording that could lead to multiple interpretations.",
     uploadedFile: "screenshot.png",
     submittedDate: "2024-01-15",
     adminResponse: null
@@ -63,20 +63,51 @@ const initialSubmittedFeedback: FeedbackData[] = [
     testId: "TST002", 
     testName: "GEB",
     status: "action_taken",
-    feedbackText: "Found several typos in the questions...",
+    feedbackText: "Found several typos in the questions. Also, the timer seemed to freeze for about 30 seconds during the exam.",
     uploadedFile: null,
     submittedDate: "2024-01-10",
-    adminResponse: "Thank you for the feedback. We have corrected the typos in questions 5, 12, and 18."
+    adminResponse: "Thank you for the feedback. We have corrected the typos in questions 5, 12, and 18 and fixed the timer issue."
   },
   {
     id: "FB003",
     testId: "TST001",
     testName: "FPA",
     status: "rejected",
-    feedbackText: "This test is too hard...",
+    feedbackText: "This test is too hard and unfair. The questions don't match the study material.",
     uploadedFile: null,
     submittedDate: "2024-01-08",
-    adminResponse: "The difficulty level is appropriate for this certification level and aligns with industry standards."
+    adminResponse: "The difficulty level is appropriate for this certification level and aligns with industry standards. All questions are based on the official study guide."
+  },
+  {
+    id: "FB004",
+    testId: "TST002",
+    testName: "GEB",
+    status: "withdrawn",
+    feedbackText: "The audio quality during the listening section was poor and affected my performance.",
+    uploadedFile: "audio_issue.mp4",
+    submittedDate: "2024-01-05",
+    adminResponse: null,
+    withdrawnDate: "2024-01-12"
+  },
+  {
+    id: "FB005",
+    testId: "TST001",
+    testName: "FPA",
+    status: "reviewed",
+    feedbackText: "Excellent test format and clear instructions. The difficulty was appropriate and well-balanced.",
+    uploadedFile: null,
+    submittedDate: "2024-01-03",
+    adminResponse: "Thank you for your positive feedback. We're glad you found the test well-structured."
+  },
+  {
+    id: "FB006",
+    testId: "TST003",
+    testName: "EEA",
+    status: "under_review",
+    feedbackText: "Question 25 appears to have two correct answers based on the material provided in the preparation course.",
+    uploadedFile: "question25_analysis.pdf",
+    submittedDate: "2024-01-20",
+    adminResponse: null
   }
 ];
 
@@ -252,8 +283,8 @@ export function FeedbackTable() {
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {availableTests.map(test => (
+               <TableBody>
+                 {availableTests.filter(test => test.completed).map(test => (
                   <TableRow key={test.testId}>
                     <TableCell className="font-medium">{test.testId}</TableCell>
                     <TableCell>{test.testName}</TableCell>
