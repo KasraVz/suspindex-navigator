@@ -9,11 +9,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useOrders } from "@/contexts/OrderContext";
 import { toast } from "sonner";
+import { Calendar, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 export function BookedTestsTable() {
-  const { bookedItems, paidItems, unpaidOrders, addToCart } = useOrders();
+  const { bookedItems, paidItems, unpaidOrders, addToCart, cancelBooking, removeOrder, canRemoveOrder } = useOrders();
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<{id: string, name: string} | null>(null);
 
   const handleTakeNow = (testId: string, testName: string) => {
     toast.success(`Starting ${testName} now!`);
@@ -42,6 +48,35 @@ export function BookedTestsTable() {
     return paidItems.some(item => item.id === testId);
   };
 
+  const handleCancelBooking = (testId: string, testName: string) => {
+    setSelectedTest({id: testId, name: testName});
+    setShowCancelDialog(true);
+  };
+
+  const handleRemoveOrder = (testId: string, testName: string) => {
+    setSelectedTest({id: testId, name: testName});
+    setShowRemoveDialog(true);
+  };
+
+  const confirmCancelBooking = () => {
+    if (selectedTest) {
+      cancelBooking(selectedTest.id);
+      toast.success(`Booking for ${selectedTest.name} cancelled. Order remains in unpaid orders.`);
+    }
+    setShowCancelDialog(false);
+    setSelectedTest(null);
+  };
+
+  const confirmRemoveOrder = () => {
+    if (selectedTest && removeOrder(selectedTest.id)) {
+      toast.success(`Order for ${selectedTest.name} removed completely.`);
+    } else {
+      toast.error("Failed to remove order. Order may be paid or test already taken.");
+    }
+    setShowRemoveDialog(false);
+    setSelectedTest(null);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -63,6 +98,7 @@ export function BookedTestsTable() {
                 <TableHead>Test Name</TableHead>
                 <TableHead>Preferred Test Time</TableHead>
                 <TableHead>Actions</TableHead>
+                <TableHead>Manage</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -100,6 +136,30 @@ export function BookedTestsTable() {
                         Take it Now
                       </Button>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCancelBooking(test.id, test.testName)}
+                          className="flex items-center gap-2"
+                        >
+                          <X size={14} />
+                          Cancel Booking
+                        </Button>
+                        {canRemoveOrder(test.id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveOrder(test.id, test.testName)}
+                            className="flex items-center gap-2 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 size={14} />
+                            Remove Order
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -107,6 +167,42 @@ export function BookedTestsTable() {
           </Table>
         )}
       </CardContent>
+
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel the booking for {selectedTest?.name}? 
+              The order will remain in your unpaid orders and you can book it again later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCancelBooking}>
+              Cancel Booking
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to completely remove the order for {selectedTest?.name}? 
+              This will cancel the booking and remove the order entirely. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveOrder} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

@@ -4,7 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, CreditCard, Search, Package } from "lucide-react";
+import { Eye, CreditCard, Search, Package, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useOrders } from "@/contexts/OrderContext";
 import { ViewOrderDetailsDialog } from "./ViewOrderDetailsDialog";
@@ -19,10 +21,12 @@ interface OrderBundle {
 
 export function UnpaidOrdersTable() {
   const navigate = useNavigate();
-  const { unpaidOrders, removeUnpaidBundle, removeFromUnpaidOrders } = useOrders();
+  const { unpaidOrders, removeUnpaidBundle, removeFromUnpaidOrders, removeOrder, canRemoveOrder } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<UnifiedOrder | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<{id: string, name: string, isBundle?: boolean, bundleId?: string} | null>(null);
 
   const totalUnpaidAmount = unpaidOrders.reduce((sum, order) => sum + order.amount, 0);
 
@@ -104,6 +108,47 @@ export function UnpaidOrdersTable() {
     }));
     
     navigate("/dashboard/purchase", { state: { cartItems: allCartItems } });
+  };
+
+  const handleRemoveIndividual = (order: any) => {
+    setItemToRemove({
+      id: order.id,
+      name: order.testName,
+      isBundle: false
+    });
+    setShowRemoveDialog(true);
+  };
+
+  const handleRemoveBundle = (bundle: OrderBundle) => {
+    setItemToRemove({
+      id: bundle.bundleId,
+      name: `Bundle (${bundle.items.length} items)`,
+      isBundle: true,
+      bundleId: bundle.bundleId
+    });
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemoveItem = () => {
+    if (!itemToRemove) return;
+
+    try {
+      if (itemToRemove.isBundle && itemToRemove.bundleId) {
+        removeUnpaidBundle(itemToRemove.bundleId);
+        toast.success(`Bundle removed successfully`);
+      } else {
+        if (removeOrder(itemToRemove.id)) {
+          toast.success(`${itemToRemove.name} removed successfully`);
+        } else {
+          toast.error("Failed to remove order. Order may be paid or test already taken.");
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to remove item");
+    }
+
+    setShowRemoveDialog(false);
+    setItemToRemove(null);
   };
 
   const filteredBundles = Object.values(groupedOrders.bundles).filter(bundle =>
@@ -202,6 +247,14 @@ export function UnpaidOrdersTable() {
                         >
                           <Eye size={16} />
                         </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveBundle(bundle)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -245,6 +298,16 @@ export function UnpaidOrdersTable() {
                         >
                           <Eye size={16} />
                         </Button>
+                        {canRemoveOrder(order.id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveIndividual(order)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -260,6 +323,28 @@ export function UnpaidOrdersTable() {
         open={showDetailsDialog}
         onOpenChange={setShowDetailsDialog}
       />
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {itemToRemove?.isBundle ? 'Bundle' : 'Order'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove {itemToRemove?.name}? This action cannot be undone.
+              {!itemToRemove?.isBundle && unpaidOrders.find(o => o.id === itemToRemove?.id)?.bookingDate && (
+                <div className="mt-2 p-2 bg-warning/10 rounded text-warning-foreground">
+                  <strong>Warning:</strong> This order has a scheduled booking that will also be cancelled.
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveItem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove {itemToRemove?.isBundle ? 'Bundle' : 'Order'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

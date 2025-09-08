@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye, CreditCard, Calendar, FileText, Search } from "lucide-react";
+import { Eye, CreditCard, Calendar, FileText, Search, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useOrders } from "@/contexts/OrderContext";
 import { ViewOrderDetailsDialog } from "./ViewOrderDetailsDialog";
@@ -28,77 +30,46 @@ export interface UnifiedOrder {
 
 export function UnifiedOrdersTable() {
   const navigate = useNavigate();
-  const { unpaidOrders, bookedItems, paidItems } = useOrders();
+  const { unpaidOrders, bookedItems, paidItems, removeOrder, canRemoveOrder } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<UnifiedOrder | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
+  const [orderToRemove, setOrderToRemove] = useState<UnifiedOrder | null>(null);
 
-  // Mock unified orders data - in real app, this would be consolidated from all order sources
+  // Consolidate all orders from different sources into unified format
   const unifiedOrders: UnifiedOrder[] = [
-    {
-      id: "1",
-      orderId: "ORD-2024-001",
-      testName: "FPA",
-      amount: 85,
-      orderDate: "2024-01-10",
-      paymentStatus: "paid",
-      testStatus: "taken",
-      kycStatus: "approved",
-      overallStatus: "completed",
-      testTakenDate: "2024-01-15",
-      kycSubmissionDate: "2024-01-16"
-    },
-    {
-      id: "2",
-      orderId: "ORD-2024-002",
-      testName: "GEB",
-      amount: 75,
-      orderDate: "2024-01-05",
-      paymentStatus: "unpaid",
-      testStatus: "not_taken",
-      kycStatus: "pending",
-      overallStatus: "waiting_payment"
-    },
-    {
-      id: "3",
-      orderId: "ORD-2024-003",
-      testName: "EEA",
-      amount: 95,
-      orderDate: "2023-12-28",
-      paymentStatus: "paid",
-      testStatus: "not_taken",
-      kycStatus: "pending",
-      overallStatus: "waiting_test",
-      bookingDate: new Date("2024-02-15"),
-      bookingTime: "10:00 AM"
-    },
-    {
-      id: "4",
-      orderId: "ORD-2024-004",
-      testName: "CPA",
-      amount: 120,
-      orderDate: "2023-12-15",
-      paymentStatus: "paid",
-      testStatus: "taken",
-      kycStatus: "rejected",
-      overallStatus: "rejected",
-      testTakenDate: "2023-12-20",
-      kycSubmissionDate: "2023-12-21"
-    },
-    {
-      id: "5",
-      orderId: "ORD-2024-005",
-      testName: "MBA",
-      amount: 150,
-      orderDate: "2024-02-01",
-      paymentStatus: "paid",
-      testStatus: "taken",
-      kycStatus: "pending",
-      overallStatus: "waiting_kyc",
-      testTakenDate: "2024-02-05",
-      kycSubmissionDate: "2024-02-06"
-    }
+    // Unpaid orders
+    ...unpaidOrders.map(order => ({
+      id: order.id,
+      orderId: `ORD-${order.id}`,
+      testName: order.testName,
+      amount: order.amount,
+      orderDate: order.dateAdded,
+      paymentStatus: "unpaid" as const,
+      testStatus: order.testStatus || "not_taken" as const,
+      kycStatus: order.kycStatus || "pending" as const,
+      overallStatus: "waiting_payment" as const,
+      bookingDate: order.bookingDate,
+      bookingTime: order.bookingTime,
+    })),
+    // Paid orders
+    ...paidItems.map(order => ({
+      id: order.id,
+      orderId: `ORD-${order.id}`,
+      testName: order.testName,
+      amount: order.amount,
+      orderDate: order.datePaid,
+      paymentStatus: "paid" as const,
+      testStatus: order.id === "paid-1" ? "taken" as const : "not_taken" as const,
+      kycStatus: order.id === "paid-1" ? "approved" as const : "pending" as const,
+      overallStatus: order.id === "paid-1" ? "completed" as const : "waiting_test" as const,
+      testTakenDate: order.id === "paid-1" ? "2023-12-20" : undefined,
+      kycSubmissionDate: order.id === "paid-1" ? "2023-12-21" : undefined,
+      bookingDate: order.bookingDate,
+      bookingTime: order.bookingTime,
+    }))
   ];
 
   const getStatusBadge = (status: UnifiedOrder["overallStatus"]) => {
@@ -121,6 +92,21 @@ export function UnifiedOrdersTable() {
   const handleViewOrder = (order: UnifiedOrder) => {
     setSelectedOrder(order);
     setShowDetailsDialog(true);
+  };
+
+  const handleRemoveOrder = (order: UnifiedOrder) => {
+    setOrderToRemove(order);
+    setShowRemoveDialog(true);
+  };
+
+  const confirmRemoveOrder = () => {
+    if (orderToRemove && removeOrder(orderToRemove.id)) {
+      toast.success(`Order ${orderToRemove.orderId} removed successfully`);
+    } else {
+      toast.error("Failed to remove order. Order may be paid or test already taken.");
+    }
+    setShowRemoveDialog(false);
+    setOrderToRemove(null);
   };
 
   const filteredOrders = unifiedOrders.filter(order => {
@@ -212,14 +198,26 @@ export function UnifiedOrdersTable() {
                     </TableCell>
                     <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewOrder(order)}
-                        className="flex items-center gap-2"
-                      >
-                        <Eye size={16} />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewOrder(order)}
+                          className="flex items-center gap-2"
+                        >
+                          <Eye size={16} />
+                        </Button>
+                        {canRemoveOrder(order.id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveOrder(order)}
+                            className="flex items-center gap-2 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -234,6 +232,28 @@ export function UnifiedOrdersTable() {
         open={showDetailsDialog}
         onOpenChange={setShowDetailsDialog}
       />
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove order {orderToRemove?.orderId}? This action cannot be undone.
+              {orderToRemove?.bookingDate && (
+                <div className="mt-2 p-2 bg-warning/10 rounded text-warning-foreground">
+                  <strong>Warning:</strong> This order has a scheduled booking that will also be cancelled.
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRemoveOrder} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

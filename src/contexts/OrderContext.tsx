@@ -19,6 +19,8 @@ export interface UnpaidOrder {
   bookingTime?: string;
   status?: string;
   bundleId?: string;
+  testStatus?: "not_taken" | "taken" | "scheduled";
+  kycStatus?: "pending" | "approved" | "rejected";
 }
 
 export interface BookedItem {
@@ -53,6 +55,10 @@ interface OrderContextType {
   removeFromBookedItems: (id: string) => void;
   addToPaidItems: (items: PaidItem[]) => void;
   clearCart: () => void;
+  removeOrder: (id: string) => boolean;
+  canRemoveOrder: (id: string) => boolean;
+  bookOrder: (orderId: string, bookingData: { bookingDate: Date; bookingTime: string; testTime: string }) => void;
+  cancelBooking: (id: string) => void;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -75,12 +81,126 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const [bookedItems, setBookedItems] = useState<BookedItem[]>([]);
   const [paidItems, setPaidItems] = useState<PaidItem[]>([]);
 
+  // Initialize mock data if localStorage is empty
+  const initializeMockData = () => {
+    const mockUnpaidOrders: UnpaidOrder[] = [
+      {
+        id: "unpaid-1",
+        testName: "FPA",
+        amount: 85,
+        dateAdded: "2024-01-15",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "pending"
+      },
+      {
+        id: "unpaid-2", 
+        testName: "GEB",
+        amount: 75,
+        dateAdded: "2024-01-10",
+        bookingDate: new Date("2024-02-20"),
+        bookingTime: "2:00 PM",
+        status: "booked",
+        testStatus: "scheduled",
+        kycStatus: "pending"
+      },
+      {
+        id: "bundle-1-fpa",
+        testName: "FPA",
+        amount: 85,
+        dateAdded: "2024-01-05",
+        bundleId: "bundle-001",
+        bookingDate: new Date("2024-02-25"),
+        bookingTime: "10:00 AM",
+        status: "booked",
+        testStatus: "scheduled",
+        kycStatus: "pending"
+      },
+      {
+        id: "bundle-1-geb",
+        testName: "GEB", 
+        amount: 75,
+        dateAdded: "2024-01-05",
+        bundleId: "bundle-001",
+        bookingDate: new Date("2024-02-26"),
+        bookingTime: "2:00 PM",
+        status: "booked",
+        testStatus: "scheduled",
+        kycStatus: "pending"
+      },
+      {
+        id: "bundle-1-eea",
+        testName: "EEA",
+        amount: 95,
+        dateAdded: "2024-01-05", 
+        bundleId: "bundle-001",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "pending"
+      }
+    ];
+
+    const mockBookedItems: BookedItem[] = [
+      {
+        id: "unpaid-2",
+        testName: "GEB",
+        bookingDate: new Date("2024-02-20"),
+        bookingTime: "2:00 PM",
+        type: "Individual Assessment",
+        testTime: "90 minutes"
+      },
+      {
+        id: "bundle-1-fpa",
+        testName: "FPA",
+        bookingDate: new Date("2024-02-25"),
+        bookingTime: "10:00 AM",
+        type: "Bundle Assessment",
+        testTime: "120 minutes"
+      },
+      {
+        id: "bundle-1-geb", 
+        testName: "GEB",
+        bookingDate: new Date("2024-02-26"),
+        bookingTime: "2:00 PM",
+        type: "Bundle Assessment",
+        testTime: "90 minutes"
+      }
+    ];
+
+    const mockPaidItems: PaidItem[] = [
+      {
+        id: "paid-1",
+        testName: "CPA",
+        amount: 120,
+        datePaid: "2023-12-15",
+        bookingDate: new Date("2023-12-20"),
+        bookingTime: "9:00 AM"
+      },
+      {
+        id: "paid-2",
+        testName: "MBA",
+        amount: 150,
+        datePaid: "2024-02-01"
+      }
+    ];
+
+    setUnpaidOrders(mockUnpaidOrders);
+    setBookedItems(mockBookedItems);
+    setPaidItems(mockPaidItems);
+  };
+
   // Load data from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cartItems');
     const savedUnpaid = localStorage.getItem('unpaidOrders');
     const savedBooked = localStorage.getItem('bookedItems');
     const savedPaid = localStorage.getItem('paidItems');
+    
+    // Initialize mock data if no saved data exists
+    if (!savedUnpaid && !savedBooked && !savedPaid) {
+      initializeMockData();
+      return;
+    }
     
     if (savedCart) {
       try {
@@ -190,6 +310,96 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setCartItems([]);
   };
 
+  // Unified order removal - only allow if unpaid and not taken
+  const canRemoveOrder = (id: string): boolean => {
+    const unpaidOrder = unpaidOrders.find(order => order.id === id);
+    if (!unpaidOrder) return false;
+    
+    // Check if it's paid
+    const isPaid = paidItems.some(item => item.id === id);
+    if (isPaid) return false;
+    
+    // Check if test is taken
+    if (unpaidOrder.testStatus === "taken") return false;
+    
+    return true;
+  };
+
+  const removeOrder = (id: string): boolean => {
+    if (!canRemoveOrder(id)) {
+      return false;
+    }
+
+    try {
+      // Remove from unpaid orders
+      setUnpaidOrders(prev => prev.filter(item => item.id !== id));
+      
+      // Remove from booked items if exists
+      setBookedItems(prev => prev.filter(item => item.id !== id));
+      
+      // Remove from cart if exists
+      setCartItems(prev => prev.filter(item => item.id !== id));
+      
+      return true;
+    } catch (error) {
+      console.error('Error removing order:', error);
+      return false;
+    }
+  };
+
+  const bookOrder = (orderId: string, bookingData: { bookingDate: Date; bookingTime: string; testTime: string }) => {
+    // Update unpaid order with booking info
+    setUnpaidOrders(prev => prev.map(order => 
+      order.id === orderId 
+        ? { 
+            ...order, 
+            bookingDate: bookingData.bookingDate, 
+            bookingTime: bookingData.bookingTime,
+            testStatus: "scheduled" as const,
+            status: "booked"
+          }
+        : order
+    ));
+
+    // Add to booked items
+    const unpaidOrder = unpaidOrders.find(order => order.id === orderId);
+    if (unpaidOrder) {
+      const bookedItem: BookedItem = {
+        id: orderId,
+        testName: unpaidOrder.testName,
+        bookingDate: bookingData.bookingDate,
+        bookingTime: bookingData.bookingTime,
+        type: unpaidOrder.bundleId ? "Bundle Assessment" : "Individual Assessment",
+        testTime: bookingData.testTime
+      };
+      
+      setBookedItems(prev => {
+        // Avoid duplicates
+        const exists = prev.some(item => item.id === orderId);
+        if (exists) return prev;
+        return [...prev, bookedItem];
+      });
+    }
+  };
+
+  const cancelBooking = (id: string) => {
+    // Update unpaid order to remove booking info but keep order
+    setUnpaidOrders(prev => prev.map(order => 
+      order.id === id 
+        ? { 
+            ...order, 
+            bookingDate: undefined, 
+            bookingTime: undefined,
+            testStatus: "not_taken" as const,
+            status: "pending"
+          }
+        : order
+    ));
+
+    // Remove from booked items
+    setBookedItems(prev => prev.filter(item => item.id !== id));
+  };
+
   return (
     <OrderContext.Provider
       value={{
@@ -206,6 +416,10 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         removeFromBookedItems,
         addToPaidItems,
         clearCart,
+        removeOrder,
+        canRemoveOrder,
+        bookOrder,
+        cancelBooking,
       }}
     >
       {children}

@@ -7,9 +7,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Clock, CreditCard, FileText, Shield, User, CheckCircle, Circle, XCircle } from "lucide-react";
+import { Calendar, Clock, CreditCard, FileText, Shield, User, CheckCircle, Circle, XCircle, Trash2 } from "lucide-react";
 import { UnifiedOrder } from "./UnifiedOrdersTable";
 import { useNavigate } from "react-router-dom";
+import { useOrders } from "@/contexts/OrderContext";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface ViewOrderDetailsDialogProps {
   order: UnifiedOrder | null;
@@ -19,6 +23,8 @@ interface ViewOrderDetailsDialogProps {
 
 export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderDetailsDialogProps) {
   const navigate = useNavigate();
+  const { removeOrder, canRemoveOrder } = useOrders();
+  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
 
   if (!order) return null;
 
@@ -41,6 +47,16 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
         navigate("/dashboard/support");
         break;
     }
+  };
+
+  const handleRemoveOrder = () => {
+    if (order && removeOrder(order.id)) {
+      toast.success(`Order ${order.orderId} removed successfully`);
+      onOpenChange(false);
+    } else {
+      toast.error("Failed to remove order. Order may be paid or test already taken.");
+    }
+    setShowRemoveDialog(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -411,11 +427,43 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
                   No actions required at this time. KYC review is in progress.
                 </p>
               )}
+              {canRemoveOrder(order.id) && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowRemoveDialog(true)}
+                  className="flex items-center gap-2 text-destructive hover:text-destructive border-destructive/20"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Remove Order
+                </Button>
+              )}
             </div>
           </div>
 
         </div>
       </DialogContent>
+
+      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Order</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove order {order?.orderId}? This action cannot be undone.
+              {order?.bookingDate && (
+                <div className="mt-2 p-2 bg-warning/10 rounded text-warning-foreground">
+                  <strong>Warning:</strong> This order has a scheduled booking that will also be cancelled.
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemoveOrder} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Remove Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
