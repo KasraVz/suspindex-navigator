@@ -81,11 +81,12 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const [bookedItems, setBookedItems] = useState<BookedItem[]>([]);
   const [paidItems, setPaidItems] = useState<PaidItem[]>([]);
 
-  // Initialize mock data if localStorage is empty
+  // Initialize comprehensive mock data if localStorage is empty
   const initializeMockData = () => {
     const mockUnpaidOrders: UnpaidOrder[] = [
+      // Individual unpaid orders - various statuses
       {
-        id: "unpaid-1",
+        id: "1",
         testName: "FPA",
         amount: 85,
         dateAdded: "2024-01-15",
@@ -94,7 +95,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         kycStatus: "pending"
       },
       {
-        id: "unpaid-2", 
+        id: "2", 
         testName: "GEB",
         amount: 75,
         dateAdded: "2024-01-10",
@@ -105,11 +106,33 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         kycStatus: "pending"
       },
       {
-        id: "bundle-1-fpa",
+        id: "3",
+        testName: "EEA",
+        amount: 95,
+        dateAdded: "2024-01-08",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "rejected"
+      },
+      {
+        id: "4",
+        testName: "CPA",
+        amount: 120,
+        dateAdded: "2024-01-12",
+        bookingDate: new Date("2024-02-15"),
+        bookingTime: "10:00 AM",
+        status: "booked",
+        testStatus: "scheduled",
+        kycStatus: "approved"
+      },
+      
+      // FPA + GEB Professional Bundle
+      {
+        id: "5",
         testName: "FPA",
-        amount: 85,
+        amount: 80,
         dateAdded: "2024-01-05",
-        bundleId: "bundle-001",
+        bundleId: "FPA_GEB_001",
         bookingDate: new Date("2024-02-25"),
         bookingTime: "10:00 AM",
         status: "booked",
@@ -117,32 +140,79 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         kycStatus: "pending"
       },
       {
-        id: "bundle-1-geb",
+        id: "6",
         testName: "GEB", 
-        amount: 75,
+        amount: 70,
         dateAdded: "2024-01-05",
-        bundleId: "bundle-001",
+        bundleId: "FPA_GEB_001",
         bookingDate: new Date("2024-02-26"),
         bookingTime: "2:00 PM",
         status: "booked",
         testStatus: "scheduled",
         kycStatus: "pending"
       },
+      
+      // All Assessments Complete Package Bundle
       {
-        id: "bundle-1-eea",
-        testName: "EEA",
-        amount: 95,
-        dateAdded: "2024-01-05", 
-        bundleId: "bundle-001",
+        id: "7",
+        testName: "FPA",
+        amount: 75,
+        dateAdded: "2024-01-03",
+        bundleId: "ALL_ASSESSMENTS_001",
         status: "pending",
         testStatus: "not_taken",
         kycStatus: "pending"
+      },
+      {
+        id: "8",
+        testName: "GEB",
+        amount: 70,
+        dateAdded: "2024-01-03",
+        bundleId: "ALL_ASSESSMENTS_001",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "pending"
+      },
+      {
+        id: "9",
+        testName: "EEA",
+        amount: 85,
+        dateAdded: "2024-01-03",
+        bundleId: "ALL_ASSESSMENTS_001",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "pending"
+      },
+      
+      // Foundation Bundle (FPA + EEA)
+      {
+        id: "10",
+        testName: "FPA",
+        amount: 80,
+        dateAdded: "2024-01-07",
+        bundleId: "FOUNDATION_001",
+        bookingDate: new Date("2024-02-28"),
+        bookingTime: "9:00 AM",
+        status: "booked",
+        testStatus: "scheduled",
+        kycStatus: "approved"
+      },
+      {
+        id: "11",
+        testName: "EEA",
+        amount: 80,
+        dateAdded: "2024-01-07",
+        bundleId: "FOUNDATION_001",
+        status: "pending",
+        testStatus: "not_taken",
+        kycStatus: "approved"
       }
     ];
 
     const mockBookedItems: BookedItem[] = [
+      // Individual bookings
       {
-        id: "unpaid-2",
+        id: "2",
         testName: "GEB",
         bookingDate: new Date("2024-02-20"),
         bookingTime: "2:00 PM",
@@ -150,26 +220,47 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         testTime: "90 minutes"
       },
       {
-        id: "bundle-1-fpa",
+        id: "4",
+        testName: "CPA",
+        bookingDate: new Date("2024-02-15"),
+        bookingTime: "10:00 AM",
+        type: "Individual Assessment",
+        testTime: "120 minutes"
+      },
+      
+      // Bundle bookings - FPA + GEB Professional Bundle
+      {
+        id: "5",
         testName: "FPA",
         bookingDate: new Date("2024-02-25"),
         bookingTime: "10:00 AM",
-        type: "Bundle Assessment",
+        type: "Bundle Assessment (FPA + GEB Professional)",
         testTime: "120 minutes"
       },
       {
-        id: "bundle-1-geb", 
+        id: "6", 
         testName: "GEB",
         bookingDate: new Date("2024-02-26"),
         bookingTime: "2:00 PM",
-        type: "Bundle Assessment",
+        type: "Bundle Assessment (FPA + GEB Professional)",
         testTime: "90 minutes"
+      },
+      
+      // Foundation Bundle booking
+      {
+        id: "10",
+        testName: "FPA",
+        bookingDate: new Date("2024-02-28"),
+        bookingTime: "9:00 AM",
+        type: "Bundle Assessment (Foundation)",
+        testTime: "120 minutes"
       }
     ];
 
     const mockPaidItems: PaidItem[] = [
+      // Completed orders - test taken, KYC approved
       {
-        id: "paid-1",
+        id: "101",
         testName: "CPA",
         amount: 120,
         datePaid: "2023-12-15",
@@ -177,10 +268,54 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bookingTime: "9:00 AM"
       },
       {
-        id: "paid-2",
+        id: "102",
         testName: "MBA",
         amount: 150,
+        datePaid: "2024-01-01"
+      },
+      
+      // Paid bundle - Professional Bundle completed
+      {
+        id: "103",
+        testName: "FPA",
+        amount: 80,
+        datePaid: "2023-11-20",
+        bookingDate: new Date("2023-11-25"),
+        bookingTime: "10:00 AM"
+      },
+      {
+        id: "104",
+        testName: "GEB",
+        amount: 70,
+        datePaid: "2023-11-20",
+        bookingDate: new Date("2023-11-26"),
+        bookingTime: "2:00 PM"
+      },
+      
+      // Paid but waiting for test/KYC
+      {
+        id: "105",
+        testName: "EEA",
+        amount: 95,
+        datePaid: "2024-01-20",
+        bookingDate: new Date("2024-02-10"),
+        bookingTime: "1:00 PM"
+      },
+      {
+        id: "106",
+        testName: "Advanced Analytics",
+        amount: 180,
         datePaid: "2024-02-01"
+      },
+      
+      // Paid with various completion states
+      {
+        id: "107",
+        testName: "Leadership Assessment",
+        amount: 200,
+        datePaid: "2024-01-25",
+        bookingDate: new Date("2024-02-05"),
+        bookingTime: "11:00 AM"
       }
     ];
 
