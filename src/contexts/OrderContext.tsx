@@ -39,6 +39,7 @@ export interface PaidItem {
   datePaid: string;
   bookingDate?: Date;
   bookingTime?: string;
+  bundleId?: string;
 }
 
 interface OrderContextType {
@@ -283,7 +284,8 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         amount: 80,
         datePaid: "2023-11-20",
         bookingDate: new Date("2023-11-25"),
-        bookingTime: "10:00 AM"
+        bookingTime: "10:00 AM",
+        bundleId: "FPA_GEB_PAID_001"
       },
       {
         id: "104",
@@ -291,7 +293,8 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         amount: 70,
         datePaid: "2023-11-20",
         bookingDate: new Date("2023-11-26"),
-        bookingTime: "2:00 PM"
+        bookingTime: "2:00 PM",
+        bundleId: "FPA_GEB_PAID_001"
       },
       
       // Paid but waiting for test/KYC

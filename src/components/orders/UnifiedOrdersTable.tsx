@@ -26,6 +26,10 @@ export interface UnifiedOrder {
   kycSubmissionDate?: string;
   bookingDate?: Date;
   bookingTime?: string;
+  bundleId?: string;
+  bundleName?: string;
+  isBundleHeader?: boolean;
+  bundleItems?: UnifiedOrder[];
 }
 
 export function UnifiedOrdersTable() {
@@ -37,6 +41,14 @@ export function UnifiedOrdersTable() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [orderToRemove, setOrderToRemove] = useState<UnifiedOrder | null>(null);
+
+  // Bundle name mapping
+  const bundleNames: Record<string, string> = {
+    "FPA_GEB_001": "FPA + GEB Professional Bundle",
+    "FPA_GEB_PAID_001": "FPA + GEB Professional Bundle",
+    "ALL_ASSESSMENTS_001": "All Assessments Complete Package",
+    "FOUNDATION_001": "Foundation Bundle (FPA + EEA)"
+  };
 
   // Consolidate all orders from different sources into unified format
   const allOrders: UnifiedOrder[] = [
@@ -53,6 +65,8 @@ export function UnifiedOrdersTable() {
       overallStatus: "waiting_payment" as const,
       bookingDate: order.bookingDate,
       bookingTime: order.bookingTime,
+      bundleId: order.bundleId,
+      bundleName: order.bundleId ? bundleNames[order.bundleId] : undefined,
     })),
     // Paid orders
     ...paidItems.map(order => ({
@@ -69,14 +83,89 @@ export function UnifiedOrdersTable() {
       kycSubmissionDate: ["101", "103", "104"].includes(order.id) ? "2023-12-21" : undefined,
       bookingDate: order.bookingDate,
       bookingTime: order.bookingTime,
+      bundleId: order.bundleId,
+      bundleName: order.bundleId ? bundleNames[order.bundleId] : undefined,
     }))
   ];
 
   // Remove duplicates based on original order ID
-  const unifiedOrders = allOrders.filter((order, index, array) => {
+  const deduplicatedOrders = allOrders.filter((order, index, array) => {
     const originalId = order.id.replace(/^(unpaid-|paid-)/, '');
     return array.findIndex(o => o.id.replace(/^(unpaid-|paid-)/, '') === originalId) === index;
   });
+
+  // Process bundles and create bundle headers
+  const processedOrders: UnifiedOrder[] = [];
+  const bundleGroups: Record<string, UnifiedOrder[]> = {};
+  const individualOrders: UnifiedOrder[] = [];
+
+  // Group orders by bundle
+  deduplicatedOrders.forEach(order => {
+    if (order.bundleId) {
+      if (!bundleGroups[order.bundleId]) {
+        bundleGroups[order.bundleId] = [];
+      }
+      bundleGroups[order.bundleId].push(order);
+    } else {
+      individualOrders.push(order);
+    }
+  });
+
+  // Create bundle headers and add individual orders
+  Object.entries(bundleGroups).forEach(([bundleId, orders]) => {
+    if (orders.length > 0) {
+      const firstOrder = orders[0];
+      const totalAmount = orders.reduce((sum, order) => sum + order.amount, 0);
+      
+      // Determine bundle status based on all items
+      const allCompleted = orders.every(o => o.overallStatus === "completed");
+      const anyWaitingPayment = orders.some(o => o.overallStatus === "waiting_payment");
+      const anyWaitingTest = orders.some(o => o.overallStatus === "waiting_test");
+      const anyWaitingKyc = orders.some(o => o.overallStatus === "waiting_kyc");
+      const anyRejected = orders.some(o => o.overallStatus === "rejected");
+
+      let bundleStatus: UnifiedOrder["overallStatus"];
+      if (allCompleted) bundleStatus = "completed";
+      else if (anyWaitingPayment) bundleStatus = "waiting_payment";
+      else if (anyWaitingTest) bundleStatus = "waiting_test";
+      else if (anyWaitingKyc) bundleStatus = "waiting_kyc";
+      else if (anyRejected) bundleStatus = "rejected";
+      else bundleStatus = "waiting_payment";
+
+      // Create bundle header
+      const bundleHeader: UnifiedOrder = {
+        id: `bundle-${bundleId}`,
+        orderId: `BUNDLE-${bundleId}`,
+        testName: firstOrder.bundleName || `Bundle ${bundleId}`,
+        amount: totalAmount,
+        orderDate: firstOrder.orderDate,
+        paymentStatus: orders.every(o => o.paymentStatus === "paid") ? "paid" : "unpaid",
+        testStatus: orders.every(o => o.testStatus === "taken") ? "taken" : 
+                   orders.some(o => o.testStatus === "scheduled") ? "scheduled" : "not_taken",
+        kycStatus: orders.every(o => o.kycStatus === "approved") ? "approved" :
+                  orders.some(o => o.kycStatus === "rejected") ? "rejected" : "pending",
+        overallStatus: bundleStatus,
+        bundleId,
+        bundleName: firstOrder.bundleName,
+        isBundleHeader: true,
+        bundleItems: orders
+      };
+
+      processedOrders.push(bundleHeader);
+      // Add individual items with indentation
+      orders.forEach(order => {
+        processedOrders.push({
+          ...order,
+          testName: `  └─ ${order.testName}` // Add visual indication
+        });
+      });
+    }
+  });
+
+  // Add individual orders
+  processedOrders.push(...individualOrders);
+
+  const unifiedOrders = processedOrders;
 
   const getStatusBadge = (status: UnifiedOrder["overallStatus"]) => {
     switch (status) {
@@ -120,7 +209,8 @@ export function UnifiedOrdersTable() {
 
   const filteredOrders = unifiedOrders.filter(order => {
     const matchesSearch = order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.orderId.toLowerCase().includes(searchQuery.toLowerCase());
+                         order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (order.bundleName && order.bundleName.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === "all" || order.overallStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -165,7 +255,7 @@ export function UnifiedOrdersTable() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Order ID</TableHead>
-                  <TableHead>Test Name</TableHead>
+                  <TableHead>Test Name / Bundle</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Payment</TableHead>
@@ -177,9 +267,16 @@ export function UnifiedOrdersTable() {
               </TableHeader>
               <TableBody>
                 {filteredOrders.map((order) => (
-                  <TableRow key={order.id}>
+                  <TableRow key={order.id} className={order.isBundleHeader ? "bg-muted/50 font-semibold" : ""}>
                     <TableCell className="font-medium">{order.orderId}</TableCell>
-                    <TableCell className="font-medium">{order.testName}</TableCell>
+                    <TableCell className={`font-medium ${order.isBundleHeader ? "text-primary" : ""}`}>
+                      {order.testName}
+                      {order.isBundleHeader && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {order.bundleItems?.length} assessments
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell>{order.orderDate}</TableCell>
                     <TableCell>${order.amount}</TableCell>
                     <TableCell>
@@ -216,7 +313,7 @@ export function UnifiedOrdersTable() {
                         >
                           <Eye size={16} />
                         </Button>
-                        {canRemoveOrder(order.id.replace(/^(unpaid-|paid-)/, '')) && (
+                        {!order.isBundleHeader && canRemoveOrder(order.id.replace(/^(unpaid-|paid-)/, '')) && (
                           <Button
                             variant="ghost"
                             size="sm"
@@ -225,6 +322,11 @@ export function UnifiedOrdersTable() {
                           >
                             <Trash2 size={16} />
                           </Button>
+                        )}
+                        {order.isBundleHeader && (
+                          <Badge variant="secondary" className="text-xs">
+                            Bundle
+                          </Badge>
                         )}
                       </div>
                     </TableCell>
