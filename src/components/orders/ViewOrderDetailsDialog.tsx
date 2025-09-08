@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Clock, CreditCard, FileText, Shield, User, CheckCircle, Circle, XCircle } from "lucide-react";
-import { UnifiedOrder } from "@/contexts/OrderContext";
+import { UnifiedOrder } from "./UnifiedOrdersTable";
 import { useNavigate } from "react-router-dom";
 
 interface ViewOrderDetailsDialogProps {
@@ -76,7 +76,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
     const timeline = [
       {
         title: "Order Placed",
-        date: order.dateAdded || order.datePaid || '',
+        date: order.orderDate,
         completed: true,
         icon: CheckCircle,
         description: `${order.testName} assessment ordered`
@@ -87,7 +87,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
     if (order.paymentStatus === "paid") {
       timeline.push({
         title: "Payment Completed",
-        date: order.datePaid || order.dateAdded || '',
+        date: order.orderDate, // Assuming payment was on same day for mock data
         completed: true,
         icon: CheckCircle,
         description: `$${order.amount} payment processed`
@@ -103,15 +103,15 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
     }
 
     // Test step
-    if (order.testStatus === "completed") {
+    if (order.testStatus === "taken" && order.testTakenDate) {
       timeline.push({
         title: "Test Completed",
-        date: order.dateAdded || '',
+        date: order.testTakenDate,
         completed: true,
         icon: CheckCircle,
         description: "Assessment successfully completed"
       });
-    } else if (order.bookingDate) {
+    } else if (order.testStatus === "scheduled") {
       timeline.push({
         title: "Test Scheduled",
         date: order.bookingDate?.toISOString().split('T')[0] || "",
@@ -133,7 +133,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
     if (order.kycStatus === "approved") {
       timeline.push({
         title: "KYC Approved",
-        date: order.dateAdded || '',
+        date: order.kycSubmissionDate || "",
         completed: true,
         icon: CheckCircle,
         description: "Identity verification approved"
@@ -141,10 +141,18 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
     } else if (order.kycStatus === "rejected") {
       timeline.push({
         title: "KYC Rejected",
-        date: order.dateAdded || '',
+        date: order.kycSubmissionDate || "",
         completed: false,
         icon: XCircle,
         description: "Identity verification rejected"
+      });
+    } else if (order.kycSubmissionDate) {
+      timeline.push({
+        title: "KYC Under Review",
+        date: order.kycSubmissionDate,
+        completed: false,
+        icon: Circle,
+        description: "Identity verification in progress"
       });
     } else {
       timeline.push({
@@ -156,28 +164,45 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
       });
     }
 
+    // Certificate/Completion step
+    if (order.overallStatus === "completed") {
+      timeline.push({
+        title: "Certificate Issued",
+        date: order.kycSubmissionDate || "", // Mock date
+        completed: true,
+        icon: CheckCircle,
+        description: "Assessment certificate ready for download"
+      });
+    }
+
     return timeline;
   };
 
   const getNextSteps = () => {
     switch (order.overallStatus) {
-      case "pending_payment":
+      case "waiting_payment":
         return [
           "Complete payment to proceed",
           "You can still take the test without payment",
           "KYC verification will begin after test completion"
         ];
-      case "ready_to_take":
+      case "waiting_test":
         return [
           "Take your scheduled test",
           order.bookingDate ? `Scheduled for ${formatDate(order.bookingDate.toISOString())} at ${order.bookingTime}` : "Schedule your test if needed",
           "KYC verification will begin after test completion"
         ];
-      case "pending_kyc":
+      case "waiting_kyc":
         return [
           "KYC documents are being reviewed",
           "Review typically takes 2-3 business days",
           "You'll be notified once approved or if additional documents are needed"
+        ];
+      case "rejected":
+        return [
+          "KYC verification was rejected",
+          "Contact support for more information",
+          "You may be able to resubmit with corrected documents"
         ];
       case "completed":
         return [
@@ -206,7 +231,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Test Information</h3>
               <p className="text-lg font-semibold mt-1">{order.testName}</p>
-              <p className="text-sm text-muted-foreground">Order placed on {formatDate(order.dateAdded || order.datePaid || '')}</p>
+              <p className="text-sm text-muted-foreground">Order placed on {formatDate(order.orderDate)}</p>
             </div>
             <div>
               <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Amount</h3>
@@ -237,9 +262,14 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
                 <FileText className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm font-medium">Test</p>
                 <Badge variant={getStatusColor(order.testStatus)} className="mt-1">
-                  {order.testStatus === "completed" ? "Completed" : 
-                   order.testStatus === "in_progress" ? "In Progress" : "Not Taken"}
+                  {order.testStatus === "taken" ? "Taken" : 
+                   order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
                 </Badge>
+                {order.testTakenDate && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formatDate(order.testTakenDate)}
+                  </p>
+                )}
               </div>
               <div className="text-center p-3 rounded-lg border">
                 <User className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
@@ -248,6 +278,11 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
                   {order.kycStatus === "approved" ? "Approved" : 
                    order.kycStatus === "rejected" ? "Rejected" : "Pending"}
                 </Badge>
+                {order.kycSubmissionDate && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formatDate(order.kycSubmissionDate)}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -334,7 +369,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
           <div>
             <h3 className="font-semibold mb-3">Available Actions</h3>
             <div className="flex flex-wrap gap-2">
-              {order.overallStatus === "pending_payment" && (
+              {order.overallStatus === "waiting_payment" && (
                 <>
                   <Button onClick={() => handleAction("pay")} className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
@@ -346,7 +381,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
                   </Button>
                 </>
               )}
-              {order.overallStatus === "ready_to_take" && (
+              {order.overallStatus === "waiting_test" && (
                 <>
                   <Button onClick={() => handleAction("take_test")} className="flex items-center gap-2">
                     <FileText className="h-4 w-4" />
@@ -366,7 +401,12 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
                   View Report
                 </Button>
               )}
-              {order.overallStatus === "pending_kyc" && (
+              {order.overallStatus === "rejected" && (
+                <Button variant="outline" onClick={() => handleAction("appeal")} className="flex items-center gap-2">
+                  Appeal Decision
+                </Button>
+              )}
+              {order.overallStatus === "waiting_kyc" && (
                 <p className="text-sm text-muted-foreground py-2">
                   No actions required at this time. KYC review is in progress.
                 </p>

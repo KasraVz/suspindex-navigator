@@ -116,15 +116,11 @@ const PurchasePage = () => {
     // Move items from unpaid to paid
     const paidItems = tests.map(test => ({
       id: test.id,
-      orderId: `ORD-${Date.now()}-${test.id}`,
       testName: test.name,
       amount: test.price,
       datePaid: new Date().toLocaleDateString(),
       bookingDate: test.bookingDate ? new Date(test.bookingDate) : undefined,
       bookingTime: test.bookingTime,
-      assessmentType: test.name,
-      testStatus: 'not_taken' as const,
-      kycStatus: 'approved' as const
     }));
     
     addToPaidItems(paidItems);

@@ -7,9 +7,7 @@ import { Notification } from "./Notifications";
 import { useOrders } from "@/contexts/OrderContext";
 
 const DashboardLayout = () => {
-  console.log('DashboardLayout rendering, attempting to use useOrders...');
   const { cartItems, removeFromCart } = useOrders();
-  console.log('DashboardLayout successfully got orders context:', { cartItems });
   
   // Notification generator function
   const generateNotification = (index: number): Notification => {

@@ -1,39 +1,118 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Eye, Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Eye, CreditCard, Calendar, FileText, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useOrders } from "@/contexts/OrderContext";
 import { ViewOrderDetailsDialog } from "./ViewOrderDetailsDialog";
-import { useOrders, UnifiedOrder } from "@/contexts/OrderContext";
-import { useToast } from "@/hooks/use-toast";
 
-export const UnifiedOrdersTable = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+export interface UnifiedOrder {
+  id: string;
+  orderId: string;
+  testName: string;
+  amount: number;
+  orderDate: string;
+  paymentStatus: "paid" | "unpaid";
+  testStatus: "not_taken" | "taken" | "scheduled";
+  kycStatus: "pending" | "approved" | "rejected";
+  overallStatus: "completed" | "waiting_payment" | "waiting_test" | "waiting_kyc" | "rejected";
+  testTakenDate?: string;
+  kycSubmissionDate?: string;
+  bookingDate?: Date;
+  bookingTime?: string;
+}
+
+export function UnifiedOrdersTable() {
+  const navigate = useNavigate();
+  const { unpaidOrders, bookedItems, paidItems } = useOrders();
   const [selectedOrder, setSelectedOrder] = useState<UnifiedOrder | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-  const { getAllOrders, removeOrder, canRemoveOrder } = useOrders();
-  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  // Get real unified orders from context
-  const unifiedOrders = getAllOrders();
+  // Mock unified orders data - in real app, this would be consolidated from all order sources
+  const unifiedOrders: UnifiedOrder[] = [
+    {
+      id: "1",
+      orderId: "ORD-2024-001",
+      testName: "FPA",
+      amount: 85,
+      orderDate: "2024-01-10",
+      paymentStatus: "paid",
+      testStatus: "taken",
+      kycStatus: "approved",
+      overallStatus: "completed",
+      testTakenDate: "2024-01-15",
+      kycSubmissionDate: "2024-01-16"
+    },
+    {
+      id: "2",
+      orderId: "ORD-2024-002",
+      testName: "GEB",
+      amount: 75,
+      orderDate: "2024-01-05",
+      paymentStatus: "unpaid",
+      testStatus: "not_taken",
+      kycStatus: "pending",
+      overallStatus: "waiting_payment"
+    },
+    {
+      id: "3",
+      orderId: "ORD-2024-003",
+      testName: "EEA",
+      amount: 95,
+      orderDate: "2023-12-28",
+      paymentStatus: "paid",
+      testStatus: "not_taken",
+      kycStatus: "pending",
+      overallStatus: "waiting_test",
+      bookingDate: new Date("2024-02-15"),
+      bookingTime: "10:00 AM"
+    },
+    {
+      id: "4",
+      orderId: "ORD-2024-004",
+      testName: "CPA",
+      amount: 120,
+      orderDate: "2023-12-15",
+      paymentStatus: "paid",
+      testStatus: "taken",
+      kycStatus: "rejected",
+      overallStatus: "rejected",
+      testTakenDate: "2023-12-20",
+      kycSubmissionDate: "2023-12-21"
+    },
+    {
+      id: "5",
+      orderId: "ORD-2024-005",
+      testName: "MBA",
+      amount: 150,
+      orderDate: "2024-02-01",
+      paymentStatus: "paid",
+      testStatus: "taken",
+      kycStatus: "pending",
+      overallStatus: "waiting_kyc",
+      testTakenDate: "2024-02-05",
+      kycSubmissionDate: "2024-02-06"
+    }
+  ];
 
   const getStatusBadge = (status: UnifiedOrder["overallStatus"]) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-600 text-white">Completed</Badge>;
-      case "pending_payment":
-        return <Badge variant="destructive">Pending Payment</Badge>;
-      case "ready_to_take":
-        return <Badge className="bg-blue-600 text-white">Ready to Take</Badge>;
-      case "in_progress":
-        return <Badge className="bg-yellow-600 text-white">In Progress</Badge>;
-      case "pending_kyc":
-        return <Badge className="bg-orange-600 text-white">Pending KYC</Badge>;
+        return <Badge className="bg-success text-success-foreground">Completed</Badge>;
+      case "waiting_payment":
+        return <Badge variant="destructive">Waiting for Payment</Badge>;
+      case "waiting_test":
+        return <Badge className="bg-warning text-warning-foreground">Waiting for Test</Badge>;
+      case "waiting_kyc":
+        return <Badge className="bg-info text-info-foreground">Waiting for KYC</Badge>;
+      case "rejected":
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
@@ -42,22 +121,6 @@ export const UnifiedOrdersTable = () => {
   const handleViewOrder = (order: UnifiedOrder) => {
     setSelectedOrder(order);
     setShowDetailsDialog(true);
-  };
-
-  const handleRemoveOrder = (orderId: string, orderName: string) => {
-    const success = removeOrder(orderId);
-    if (success) {
-      toast({
-        title: "Order Removed",
-        description: `${orderName} has been successfully removed from your orders.`,
-      });
-    } else {
-      toast({
-        title: "Cannot Remove Order",
-        description: "This order cannot be removed. Only unpaid orders that haven't been taken can be removed.",
-        variant: "destructive",
-      });
-    }
   };
 
   const filteredOrders = unifiedOrders.filter(order => {
@@ -89,10 +152,10 @@ export const UnifiedOrdersTable = () => {
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="pending_payment">Pending Payment</SelectItem>
-                <SelectItem value="ready_to_take">Ready to Take</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="pending_kyc">Pending KYC</SelectItem>
+                <SelectItem value="waiting_payment">Waiting for Payment</SelectItem>
+                <SelectItem value="waiting_test">Waiting for Test</SelectItem>
+                <SelectItem value="waiting_kyc">Waiting for KYC</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -108,11 +171,12 @@ export const UnifiedOrdersTable = () => {
                 <TableRow>
                   <TableHead>Order ID</TableHead>
                   <TableHead>Test Name</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Payment Status</TableHead>
-                  <TableHead>Test Status</TableHead>
-                  <TableHead>Overall Status</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Payment</TableHead>
+                  <TableHead>Test</TableHead>
+                  <TableHead>KYC</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -121,6 +185,7 @@ export const UnifiedOrdersTable = () => {
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.orderId}</TableCell>
                     <TableCell className="font-medium">{order.testName}</TableCell>
+                    <TableCell>{order.orderDate}</TableCell>
                     <TableCell>${order.amount}</TableCell>
                     <TableCell>
                       <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
@@ -129,59 +194,32 @@ export const UnifiedOrdersTable = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={
-                        order.testStatus === "completed" ? "default" : 
-                        order.testStatus === "in_progress" ? "secondary" : "outline"
+                        order.testStatus === "taken" ? "default" : 
+                        order.testStatus === "scheduled" ? "secondary" : "outline"
                       }>
-                        {order.testStatus === "completed" ? "Completed" : 
-                         order.testStatus === "in_progress" ? "In Progress" : "Not Taken"}
+                        {order.testStatus === "taken" ? "Taken" : 
+                         order.testStatus === "scheduled" ? "Scheduled" : "Not Taken"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={
+                        order.kycStatus === "approved" ? "default" : 
+                        order.kycStatus === "rejected" ? "destructive" : "secondary"
+                      }>
+                        {order.kycStatus === "approved" ? "Approved" : 
+                         order.kycStatus === "rejected" ? "Rejected" : "Pending"}
                       </Badge>
                     </TableCell>
                     <TableCell>{getStatusBadge(order.overallStatus)}</TableCell>
-                    <TableCell>{order.dateAdded || order.datePaid}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewOrder(order)}
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View
-                        </Button>
-                        {canRemoveOrder(order.id) && (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="flex items-center gap-2 text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Remove
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Remove Order</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to remove "{order.testName}"? This action cannot be undone.
-                                  {order.bookingDate && " This will also cancel any associated bookings."}
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleRemoveOrder(order.id, order.testName)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Remove Order
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewOrder(order)}
+                        className="flex items-center gap-2"
+                      >
+                        <Eye size={16} />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -198,4 +236,4 @@ export const UnifiedOrdersTable = () => {
       />
     </>
   );
-};
+}

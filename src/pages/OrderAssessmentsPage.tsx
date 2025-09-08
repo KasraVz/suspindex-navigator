@@ -127,17 +127,13 @@ const OrderAssessmentsPage = () => {
 
     const unpaidItems = validItems.map(item => ({
       id: item.id,
-      orderId: `ORD-${Date.now()}-${item.id}`,
       testName: item.assessment,
       amount: item.price,
       dateAdded: new Date().toLocaleDateString(),
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
       status: item.status,
-      bundleId,
-      assessmentType: item.assessment,
-      testStatus: 'not_taken' as const,
-      kycStatus: 'pending' as const
+      bundleId
     }));
 
     // Add booked items to the booked items list
