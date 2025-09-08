@@ -324,42 +324,46 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setPaidItems(mockPaidItems);
   };
 
+  // Clear localStorage and reinitialize
+  const clearStorageAndReinitialize = () => {
+    localStorage.removeItem('cartItems');
+    localStorage.removeItem('unpaidOrders');
+    localStorage.removeItem('bookedItems');
+    localStorage.removeItem('paidItems');
+    initializeMockData();
+    console.log('Cleared localStorage and reinitialized with fresh mock data');
+  };
+
+  // Validate data structure
+  const isValidData = (data: any[], requiredFields: string[]) => {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    return data.every(item => 
+      typeof item === 'object' && 
+      requiredFields.every(field => item.hasOwnProperty(field))
+    );
+  };
+
   // Load data from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cartItems');
     const savedUnpaid = localStorage.getItem('unpaidOrders');
     const savedBooked = localStorage.getItem('bookedItems');
     const savedPaid = localStorage.getItem('paidItems');
+
+    let hasValidData = false;
     
-    // Initialize mock data if no saved data exists
-    if (!savedUnpaid && !savedBooked && !savedPaid) {
-      initializeMockData();
-      return;
-    }
-    
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart);
-        // Parse dates back from strings
-        const cartWithDates = parsedCart.map((item: any) => ({
-          ...item,
-          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
-        }));
-        setCartItems(cartWithDates);
-      } catch (error) {
-        console.error('Error parsing saved cart items:', error);
-      }
-    }
-    
+    // Try to load and validate saved data
     if (savedUnpaid) {
       try {
         const parsedUnpaid = JSON.parse(savedUnpaid);
-        // Parse dates back from strings
-        const unpaidWithDates = parsedUnpaid.map((item: any) => ({
-          ...item,
-          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
-        }));
-        setUnpaidOrders(unpaidWithDates);
+        if (isValidData(parsedUnpaid, ['id', 'testName', 'amount'])) {
+          const unpaidWithDates = parsedUnpaid.map((item: any) => ({
+            ...item,
+            bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+          }));
+          setUnpaidOrders(unpaidWithDates);
+          hasValidData = true;
+        }
       } catch (error) {
         console.error('Error parsing saved unpaid orders:', error);
       }
@@ -368,11 +372,14 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     if (savedBooked) {
       try {
         const parsedBooked = JSON.parse(savedBooked);
-        const bookedWithDates = parsedBooked.map((item: any) => ({
-          ...item,
-          bookingDate: new Date(item.bookingDate)
-        }));
-        setBookedItems(bookedWithDates);
+        if (isValidData(parsedBooked, ['id', 'testName', 'bookingDate'])) {
+          const bookedWithDates = parsedBooked.map((item: any) => ({
+            ...item,
+            bookingDate: new Date(item.bookingDate)
+          }));
+          setBookedItems(bookedWithDates);
+          hasValidData = true;
+        }
       } catch (error) {
         console.error('Error parsing saved booked items:', error);
       }
@@ -381,14 +388,37 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     if (savedPaid) {
       try {
         const parsedPaid = JSON.parse(savedPaid);
-        const paidWithDates = parsedPaid.map((item: any) => ({
-          ...item,
-          bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
-        }));
-        setPaidItems(paidWithDates);
+        if (isValidData(parsedPaid, ['id', 'testName', 'amount'])) {
+          const paidWithDates = parsedPaid.map((item: any) => ({
+            ...item,
+            bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+          }));
+          setPaidItems(paidWithDates);
+          hasValidData = true;
+        }
       } catch (error) {
         console.error('Error parsing saved paid items:', error);
       }
+    }
+
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart)) {
+          const cartWithDates = parsedCart.map((item: any) => ({
+            ...item,
+            bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+          }));
+          setCartItems(cartWithDates);
+        }
+      } catch (error) {
+        console.error('Error parsing saved cart items:', error);
+      }
+    }
+    
+    // If no valid data found, clear storage and initialize mock data
+    if (!hasValidData) {
+      clearStorageAndReinitialize();
     }
   }, []);
 
