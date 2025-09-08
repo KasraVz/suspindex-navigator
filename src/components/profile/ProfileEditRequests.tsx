@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Clock, CheckCircle, XCircle, FileText, AlertCircle } from "lucide-react";
+import { ViewEditRequestDetailsDialog } from "./ViewEditRequestDetailsDialog";
 
 // Mock data for edit requests
 const mockEditRequests = [
@@ -84,6 +86,14 @@ const getPriorityBadge = (priority: string) => {
 };
 
 export function ProfileEditRequests() {
+  const [selectedRequest, setSelectedRequest] = useState<typeof mockEditRequests[0] | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  const handleViewDetails = (request: typeof mockEditRequests[0]) => {
+    setSelectedRequest(request);
+    setIsDetailsDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -147,7 +157,11 @@ export function ProfileEditRequests() {
                         {new Date(request.submittedDate).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleViewDetails(request)}
+                        >
                           View Details
                         </Button>
                       </TableCell>
@@ -160,27 +174,11 @@ export function ProfileEditRequests() {
         </CardContent>
       </Card>
 
-      {/* Request details or admin responses could be shown in expandable sections */}
-      {mockEditRequests.some(req => req.adminResponse) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Admin Responses</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {mockEditRequests
-              .filter(req => req.adminResponse)
-              .map((request) => (
-                <div key={request.id} className="border-l-4 border-l-primary pl-4 py-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-sm">{request.id}</span>
-                    {getStatusBadge(request.status)}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{request.adminResponse}</p>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
+      <ViewEditRequestDetailsDialog
+        request={selectedRequest}
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+      />
     </div>
   );
 }
