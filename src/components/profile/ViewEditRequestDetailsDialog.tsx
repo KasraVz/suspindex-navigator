@@ -169,7 +169,13 @@ export function ViewEditRequestDetailsDialog({
               Close
             </Button>
             {request.status === "pending" && (
-              <Button variant="secondary">
+              <Button 
+                variant="secondary"
+                onClick={() => {
+                  // TODO: Implement edit request functionality
+                  alert("Edit request functionality will be implemented soon");
+                }}
+              >
                 Edit Request
               </Button>
             )}
