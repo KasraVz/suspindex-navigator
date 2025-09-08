@@ -21,6 +21,7 @@ interface ViewEditRequestDetailsDialogProps {
   request: EditRequest | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEditRequest?: (request: EditRequest) => void;
 }
 
 const getStatusIcon = (status: string) => {
@@ -66,6 +67,7 @@ export function ViewEditRequestDetailsDialog({
   request,
   open,
   onOpenChange,
+  onEditRequest,
 }: ViewEditRequestDetailsDialogProps) {
   if (!request) return null;
 
@@ -172,8 +174,8 @@ export function ViewEditRequestDetailsDialog({
               <Button 
                 variant="secondary"
                 onClick={() => {
-                  // TODO: Implement edit request functionality
-                  alert("Edit request functionality will be implemented soon");
+                  onEditRequest?.(request);
+                  onOpenChange(false);
                 }}
               >
                 Edit Request

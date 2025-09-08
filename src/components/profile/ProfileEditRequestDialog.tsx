@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,9 +8,23 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle, FileEdit } from "lucide-react";
 
+interface EditRequest {
+  id: string;
+  profileSection: string;
+  field: string;
+  currentValue: string;
+  requestedValue: string;
+  reason: string;
+  priority: string;
+  status: string;
+  submittedDate: string;
+  adminResponse: string | null;
+}
+
 interface ProfileEditRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editingRequest?: EditRequest | null;
 }
 
 const PROFILE_SECTIONS = {
@@ -46,7 +60,7 @@ const MOCK_CURRENT_VALUES = {
   targetEcosystem: "Silicon Valley"
 };
 
-export function ProfileEditRequestDialog({ open, onOpenChange }: ProfileEditRequestDialogProps) {
+export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }: ProfileEditRequestDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [profileSection, setProfileSection] = useState<string>("");
   const [selectedField, setSelectedField] = useState<string>("");
@@ -55,6 +69,43 @@ export function ProfileEditRequestDialog({ open, onOpenChange }: ProfileEditRequ
   const [priority, setPriority] = useState<string>("");
   
   const { toast } = useToast();
+
+  // Pre-populate form when editing an existing request
+  useEffect(() => {
+    if (editingRequest) {
+      // Map the profile section names to the form values
+      const sectionMap: Record<string, string> = {
+        "Personal Profile": "personal",
+        "Business Profile": "business"
+      };
+      
+      // Map field names to form values
+      const fieldMap: Record<string, string> = {
+        "Full Name": "fullName",
+        "Email Address": "email",
+        "Passport ID": "passportId",
+        "Profile Photo": "profilePhoto",
+        "Startup Name": "startupName",
+        "Startup Website": "startupWebsite",
+        "Primary Industry": "primaryIndustry",
+        "Development Stage": "developmentStage",
+        "Target Ecosystem": "targetEcosystem"
+      };
+
+      setProfileSection(sectionMap[editingRequest.profileSection] || "");
+      setSelectedField(fieldMap[editingRequest.field] || "");
+      setRequestedValue(editingRequest.requestedValue);
+      setReason(editingRequest.reason);
+      setPriority(editingRequest.priority);
+    } else {
+      // Reset form when not editing
+      setProfileSection("");
+      setSelectedField("");
+      setRequestedValue("");
+      setReason("");
+      setPriority("");
+    }
+  }, [editingRequest, open]);
 
   const getCurrentValue = (fieldKey: string) => {
     return MOCK_CURRENT_VALUES[fieldKey as keyof typeof MOCK_CURRENT_VALUES] || "Not set";
@@ -84,16 +135,20 @@ export function ProfileEditRequestDialog({ open, onOpenChange }: ProfileEditRequ
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     toast({
-      title: "Edit Request Submitted",
-      description: "Your profile edit request has been submitted for admin review. You'll be notified once it's processed.",
+      title: editingRequest ? "Edit Request Updated" : "Edit Request Submitted",
+      description: editingRequest 
+        ? "Your profile edit request has been updated successfully."
+        : "Your profile edit request has been submitted for admin review. You'll be notified once it's processed.",
     });
     
-    // Reset form
-    setProfileSection("");
-    setSelectedField("");
-    setRequestedValue("");
-    setReason("");
-    setPriority("");
+    // Reset form only if not editing
+    if (!editingRequest) {
+      setProfileSection("");
+      setSelectedField("");
+      setRequestedValue("");
+      setReason("");
+      setPriority("");
+    }
     setIsLoading(false);
     onOpenChange(false);
   };
@@ -109,10 +164,13 @@ export function ProfileEditRequestDialog({ open, onOpenChange }: ProfileEditRequ
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileEdit className="w-5 h-5" />
-            Request Profile Edit
+            {editingRequest ? "Edit Profile Request" : "Request Profile Edit"}
           </DialogTitle>
           <DialogDescription>
-            Submit a request to modify your profile information. All changes require admin approval for security purposes.
+            {editingRequest 
+              ? "Modify your existing profile edit request. Changes will be re-submitted for admin approval."
+              : "Submit a request to modify your profile information. All changes require admin approval for security purposes."
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -216,7 +274,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange }: ProfileEditRequ
             onClick={handleSubmit}
             disabled={isLoading || !profileSection || !selectedField || !requestedValue || !reason || !priority}
           >
-            {isLoading ? "Submitting..." : "Submit Request"}
+            {isLoading ? "Submitting..." : editingRequest ? "Update Request" : "Submit Request"}
           </Button>
         </DialogFooter>
       </DialogContent>

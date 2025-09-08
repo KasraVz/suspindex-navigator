@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Clock, CheckCircle, XCircle, FileText, AlertCircle } from "lucide-react";
 import { ViewEditRequestDetailsDialog } from "./ViewEditRequestDetailsDialog";
+import { ProfileEditRequestDialog } from "./ProfileEditRequestDialog";
 
 // Mock data for edit requests
 const mockEditRequests = [
@@ -88,10 +89,16 @@ const getPriorityBadge = (priority: string) => {
 export function ProfileEditRequests() {
   const [selectedRequest, setSelectedRequest] = useState<typeof mockEditRequests[0] | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleViewDetails = (request: typeof mockEditRequests[0]) => {
     setSelectedRequest(request);
     setIsDetailsDialogOpen(true);
+  };
+
+  const handleEditRequest = (request: typeof mockEditRequests[0]) => {
+    setSelectedRequest(request);
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -178,6 +185,13 @@ export function ProfileEditRequests() {
         request={selectedRequest}
         open={isDetailsDialogOpen}
         onOpenChange={setIsDetailsDialogOpen}
+        onEditRequest={handleEditRequest}
+      />
+
+      <ProfileEditRequestDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        editingRequest={selectedRequest}
       />
     </div>
   );
