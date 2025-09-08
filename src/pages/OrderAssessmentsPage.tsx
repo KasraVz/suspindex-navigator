@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OrderItem } from "@/components/orders/OrderItem";
 import { useOrders } from "@/contexts/OrderContext";
+import { useBusinessProfile } from "@/contexts/BusinessProfileContext";
 import { toast } from "sonner";
 
 export interface OrderItemData {
@@ -14,11 +15,15 @@ export interface OrderItemData {
   bookingTime?: string;
   price: number;
   status: "empty" | "take-now" | "booked";
+  industry?: string;
+  developmentStage?: string;
+  targetEcosystem?: string;
 }
 
 const OrderAssessmentsPage = () => {
   const navigate = useNavigate();
   const { addToCart, addToUnpaidOrders, addToBookedItems, clearCart } = useOrders();
+  const { businessProfile } = useBusinessProfile();
   const [orderItems, setOrderItems] = useState<OrderItemData[]>([
     {
       id: "1",
@@ -71,11 +76,30 @@ const OrderAssessmentsPage = () => {
   };
 
   const handleAssessmentChange = (id: string, assessment: string) => {
-    updateOrderItem(id, {
+    const updates: Partial<OrderItemData> = {
       assessment,
       price: getAssessmentPrice(assessment),
       status: assessment ? "empty" : "empty"
-    });
+    };
+
+    // Pre-populate with business profile data when assessment is selected
+    if (assessment) {
+      if (assessment === "FPA" || assessment === "EEA") {
+        updates.industry = businessProfile.primaryIndustry;
+      }
+      if (assessment === "FPA" || assessment === "GEB" || assessment === "EEA") {
+        updates.developmentStage = businessProfile.developmentStage;
+      }
+      if (assessment === "EEA") {
+        updates.targetEcosystem = businessProfile.targetEcosystem;
+      }
+    }
+
+    updateOrderItem(id, updates);
+  };
+
+  const handleConfigurationChange = (id: string, field: keyof OrderItemData, value: string) => {
+    updateOrderItem(id, { [field]: value });
   };
 
   const handleTakeNow = (id: string) => {
@@ -190,6 +214,7 @@ const OrderAssessmentsPage = () => {
               key={item.id}
               item={item}
               onAssessmentChange={handleAssessmentChange}
+              onConfigurationChange={handleConfigurationChange}
               onTakeNow={handleTakeNow}
               onBooking={handleBooking}
               onRemove={orderItems.length > 1 ? () => removeOrderItem(item.id) : undefined}
@@ -215,16 +240,29 @@ const OrderAssessmentsPage = () => {
           <CardContent>
             <div className="space-y-2 mb-4">
               {validItems.map((item) => (
-                <div key={item.id} className="flex justify-between items-center">
-                  <div>
+                <div key={item.id} className="flex justify-between items-start">
+                  <div className="flex-1">
                     <span className="font-medium">{item.assessment}</span>
+                    {/* Show configuration details */}
+                    <div className="text-sm text-muted-foreground space-y-1 mt-1">
+                      {item.industry && (
+                        <p>Industry: {item.industry}</p>
+                      )}
+                      {item.developmentStage && (
+                        <p>Stage: {item.developmentStage}</p>
+                      )}
+                      {item.targetEcosystem && (
+                        <p>Target Ecosystem: {item.targetEcosystem}</p>
+                      )}
+                    </div>
+                    {/* Show booking/scheduling details */}
                     {item.status === "booked" && item.bookingDate && item.bookingTime && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Booked for: {item.bookingDate.toLocaleDateString()} at {item.bookingTime}
                       </p>
                     )}
                     {item.status === "take-now" && (
-                      <p className="text-sm text-success">Ready for immediate start after payment</p>
+                      <p className="text-sm text-success mt-1">Ready for immediate start after payment</p>
                     )}
                   </div>
                   <span className="font-semibold">${item.price}</span>

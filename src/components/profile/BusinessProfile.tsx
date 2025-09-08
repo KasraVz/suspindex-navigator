@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Globe, Briefcase, TrendingUp, MapPin, Edit2, Save, X } from "lucide-react";
 import { useState } from "react";
+import { useBusinessProfile } from "@/contexts/BusinessProfileContext";
 
 const INDUSTRY_OPTIONS = [
   "Artificial Intelligence & Machine Learning",
@@ -46,32 +47,23 @@ const DEVELOPMENT_STAGES = [
   "Established & Expanding"
 ];
 
-// Mock data - this would come from user registration data
-const mockBusinessData = {
-  startupName: "TechFlow Solutions",
-  startupWebsite: "https://www.techflowsolutions.com",
-  primaryIndustry: "Software & SaaS",
-  developmentStage: "Building Initial Traction/Early Customers",
-  targetEcosystem: "Silicon Valley"
-};
-
 export function BusinessProfile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [businessData, setBusinessData] = useState(mockBusinessData);
-  const [tempData, setTempData] = useState(mockBusinessData);
+  const { businessProfile, updateBusinessProfile } = useBusinessProfile();
+  const [tempData, setTempData] = useState(businessProfile);
   
   const handleEdit = () => {
-    setTempData(businessData);
+    setTempData(businessProfile);
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    setBusinessData(tempData);
+    updateBusinessProfile(tempData);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setTempData(businessData);
+    setTempData(businessProfile);
     setIsEditing(false);
   };
 
@@ -127,7 +119,7 @@ export function BusinessProfile() {
               />
             ) : (
               <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                {businessData.startupName}
+                {businessProfile.startupName}
               </div>
             )}
           </div>
@@ -146,12 +138,12 @@ export function BusinessProfile() {
             ) : (
               <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
                 <a 
-                  href={businessData.startupWebsite} 
+                  href={businessProfile.startupWebsite} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  {businessData.startupWebsite}
+                  {businessProfile.startupWebsite}
                 </a>
               </div>
             )}
@@ -178,7 +170,7 @@ export function BusinessProfile() {
             </Select>
           ) : (
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-              {businessData.primaryIndustry}
+              {businessProfile.primaryIndustry}
             </div>
           )}
         </div>
@@ -203,7 +195,7 @@ export function BusinessProfile() {
             </Select>
           ) : (
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-              {businessData.developmentStage}
+              {businessProfile.developmentStage}
             </div>
           )}
         </div>
@@ -221,7 +213,7 @@ export function BusinessProfile() {
             />
           ) : (
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-              {businessData.targetEcosystem}
+              {businessProfile.targetEcosystem}
             </div>
           )}
         </div>
