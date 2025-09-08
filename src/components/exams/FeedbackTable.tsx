@@ -8,18 +8,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { MessageSquare, Eye, Edit3, Trash2, Send, Save, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data for available tests
-const availableTests = [
+interface TestData {
+  testId: string;
+  testName: string;
+  completed: boolean;
+}
+
+interface FeedbackData {
+  id: string;
+  testId: string;
+  testName: string;
+  status: string;
+  feedbackText: string;
+  uploadedFile: string | null;
+  submittedDate: string;
+  adminResponse: string | null;
+  withdrawnDate?: string;
+}
+
+interface DraftData {
+  id: string;
+  testId: string;
+  testName: string;
+  feedbackText: string;
+  uploadedFile: string | null;
+  savedDate: string;
+}
+
+// Initial mock data for available tests
+const initialAvailableTests: TestData[] = [
   { testId: "TST001", testName: "FPA", completed: true },
   { testId: "TST002", testName: "GEB", completed: true },
   { testId: "TST003", testName: "EEA", completed: false }
 ];
 
-// Mock data for submitted feedback with status
-const submittedFeedback = [
+// Initial mock data for submitted feedback with status
+const initialSubmittedFeedback: FeedbackData[] = [
   {
     id: "FB001",
     testId: "TST001",
@@ -52,8 +80,8 @@ const submittedFeedback = [
   }
 ];
 
-// Mock data for draft feedback
-const draftFeedback = [
+// Initial mock data for draft feedback
+const initialDraftFeedback: DraftData[] = [
   {
     id: "DRAFT001",
     testId: "TST002",
@@ -69,7 +97,8 @@ const getStatusBadge = (status: string) => {
     under_review: { label: "Under Review", variant: "secondary" as const },
     reviewed: { label: "Reviewed", variant: "default" as const },
     action_taken: { label: "Action Taken", variant: "default" as const },
-    rejected: { label: "Rejected", variant: "destructive" as const }
+    rejected: { label: "Rejected", variant: "destructive" as const },
+    withdrawn: { label: "Withdrawn", variant: "outline" as const }
   };
   
   const config = statusConfig[status as keyof typeof statusConfig];
@@ -81,7 +110,42 @@ export function FeedbackTable() {
   const [feedbackText, setFeedbackText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableTests, setAvailableTests] = useState<TestData[]>(initialAvailableTests);
+  const [submittedFeedback, setSubmittedFeedback] = useState<FeedbackData[]>(initialSubmittedFeedback);
+  const [draftFeedback, setDraftFeedback] = useState<DraftData[]>(initialDraftFeedback);
   const { toast } = useToast();
+
+  // Helper function to check if a test has active (non-withdrawn/non-rejected) feedback
+  const hasActiveFeedback = (testId: string) => {
+    return submittedFeedback.some(feedback => 
+      feedback.testId === testId && 
+      feedback.status !== 'withdrawn' && 
+      feedback.status !== 'rejected'
+    );
+  };
+
+  // Helper function to get feedback button text and state
+  const getFeedbackButtonState = (test: TestData) => {
+    if (!test.completed) {
+      return { text: "Complete Test First", disabled: true };
+    }
+    
+    const hasActive = hasActiveFeedback(test.testId);
+    const hasWithdrawnOrRejected = submittedFeedback.some(feedback => 
+      feedback.testId === test.testId && 
+      (feedback.status === 'withdrawn' || feedback.status === 'rejected')
+    );
+    
+    if (hasActive) {
+      return { text: "Feedback Already Submitted", disabled: true };
+    }
+    
+    if (hasWithdrawnOrRejected) {
+      return { text: "Provide Feedback Again", disabled: false };
+    }
+    
+    return { text: "Provide Feedback", disabled: false };
+  };
 
   const handleSubmitFeedback = async (testId: string, testName: string, isDraft = false) => {
     if (!feedbackText.trim()) {
@@ -98,6 +162,34 @@ export function FeedbackTable() {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    if (!isDraft) {
+      // Create new feedback entry
+      const newFeedback: FeedbackData = {
+        id: `FB${Date.now()}`,
+        testId,
+        testName,
+        status: "under_review",
+        feedbackText,
+        uploadedFile: selectedFile?.name || null,
+        submittedDate: new Date().toISOString().split('T')[0],
+        adminResponse: null
+      };
+      
+      setSubmittedFeedback(prev => [...prev, newFeedback]);
+    } else {
+      // Save as draft
+      const newDraft: DraftData = {
+        id: `DRAFT${Date.now()}`,
+        testId,
+        testName,
+        feedbackText,
+        uploadedFile: selectedFile?.name || null,
+        savedDate: new Date().toISOString().split('T')[0]
+      };
+      
+      setDraftFeedback(prev => [...prev, newDraft]);
+    }
+    
     toast({
       title: isDraft ? "Draft Saved" : "Feedback Submitted",
       description: isDraft 
@@ -111,9 +203,30 @@ export function FeedbackTable() {
   };
 
   const handleWithdrawFeedback = async (feedbackId: string) => {
+    // Update the feedback status to withdrawn
+    setSubmittedFeedback(prev => 
+      prev.map(feedback => 
+        feedback.id === feedbackId 
+          ? { 
+              ...feedback, 
+              status: "withdrawn",
+              withdrawnDate: new Date().toISOString().split('T')[0]
+            }
+          : feedback
+      )
+    );
+    
     toast({
       title: "Feedback Withdrawn",
-      description: "Your feedback has been successfully withdrawn."
+      description: "Your feedback has been successfully withdrawn. You can now submit new feedback for this test."
+    });
+  };
+
+  const handleDeleteDraft = (draftId: string) => {
+    setDraftFeedback(prev => prev.filter(draft => draft.id !== draftId));
+    toast({
+      title: "Draft Deleted",
+      description: "Your draft has been deleted successfully."
     });
   };
 
@@ -147,9 +260,13 @@ export function FeedbackTable() {
                     <TableCell>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" disabled={!test.completed}>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            disabled={getFeedbackButtonState(test).disabled}
+                          >
                             <MessageSquare className="w-4 h-4 mr-2" />
-                            Provide Feedback
+                            {getFeedbackButtonState(test).text}
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
@@ -269,14 +386,32 @@ export function FeedbackTable() {
                         </DialogContent>
                       </Dialog>
                       {feedback.status === "under_review" && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => handleWithdrawFeedback(feedback.id)}
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Withdraw
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Withdraw
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Withdraw Feedback?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to withdraw your feedback for {feedback.testName}? 
+                                This action will allow you to submit new feedback for this test.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleWithdrawFeedback(feedback.id)}>
+                                Withdraw Feedback
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       )}
                     </TableCell>
                   </TableRow>
@@ -346,10 +481,29 @@ export function FeedbackTable() {
                           </div>
                         </DialogContent>
                       </Dialog>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Draft?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this draft feedback for {draft.testName}? 
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteDraft(draft.id)}>
+                              Delete Draft
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))}
