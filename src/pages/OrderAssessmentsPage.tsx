@@ -33,10 +33,6 @@ const OrderAssessmentsPage = () => {
     }
   ]);
 
-  // Clear cart when starting a new order session to prevent bundle mixing
-  useEffect(() => {
-    clearCart();
-  }, [clearCart]);
 
   const addNewItem = () => {
     const newItem: OrderItemData = {

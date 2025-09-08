@@ -41,6 +41,24 @@ export function DashboardHeader({
   isLoadingMore
 }: DashboardHeaderProps) {
   const { cartItems } = useOrders();
+  
+  // Calculate cart count: bundles count as 1, individual items count as 1 each
+  const getCartItemCount = () => {
+    const bundleIds = new Set();
+    let individualCount = 0;
+    
+    cartItems.forEach(item => {
+      if (item.bundleId) {
+        bundleIds.add(item.bundleId);
+      } else {
+        individualCount++;
+      }
+    });
+    
+    return bundleIds.size + individualCount;
+  };
+  
+  const cartItemCount = getCartItemCount();
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
@@ -115,9 +133,9 @@ export function DashboardHeader({
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="relative">
               <ShoppingCart className="h-4 w-4" />
-              {cartItems.length > 0 && (
+              {cartItemCount > 0 && (
                 <Badge variant="secondary" className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center">
-                  {cartItems.length}
+                  {cartItemCount}
                 </Badge>
               )}
             </Button>
