@@ -51,7 +51,7 @@ const otherItems = [
   { title: "SupsHub", url: "/dashboard/community", icon: Users },
   { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
   { title: "Referrals", url: "/dashboard/referrals", icon: UserPlus },
-  { title: "Scholarship", url: "/dashboard/scholarship", icon: GraduationCap },
+  { title: "Scholarship and Financial Aid", url: "/dashboard/scholarship", icon: GraduationCap },
   { title: "Support", url: "/dashboard/support", icon: HelpCircle },
 ];
 
