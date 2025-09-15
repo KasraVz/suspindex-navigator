@@ -71,21 +71,24 @@ export function Cart() {
                          <div key={item.id} className="flex items-center justify-between">
                            <div className="flex-1 min-w-0">
                              <p className="text-sm truncate">{item.name}</p>
-                             <div className="flex items-center gap-2">
-                               {item.originalPrice && item.discountAmount && item.discountAmount > 0 ? (
-                                 <>
-                                   <span className="text-xs text-muted-foreground line-through">${item.originalPrice}</span>
-                                   <span className="text-xs font-medium text-green-600">${item.price}</span>
-                                   {item.partnerName && (
-                                     <Badge variant="secondary" className="text-xs px-1 py-0">
-                                       {item.partnerName}
-                                     </Badge>
-                                   )}
-                                 </>
-                               ) : (
-                                 <span className="text-xs text-muted-foreground">${item.price}</span>
-                               )}
-                             </div>
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const computedDiscount = item.discountAmount ?? (item.originalPrice && item.price < item.originalPrice ? item.originalPrice - item.price : 0);
+                                  return item.originalPrice && computedDiscount > 0 ? (
+                                    <>
+                                      <span className="text-xs text-muted-foreground line-through">${item.originalPrice}</span>
+                                      <span className="text-xs font-medium text-green-600">${item.price}</span>
+                                      {item.partnerName && (
+                                        <Badge variant="secondary" className="text-xs px-1 py-0">
+                                          {item.partnerName}
+                                        </Badge>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">${item.price}</span>
+                                  );
+                                })()}
+                              </div>
                            </div>
                            <Button
                              variant="ghost"
@@ -118,22 +121,25 @@ export function Cart() {
                    <div className="flex items-start gap-3 mb-2">
                      <div className="flex-1 min-w-0 overflow-hidden">
                        <p className="text-sm font-medium truncate">{item.name}</p>
-                       <div className="flex items-center gap-2 flex-wrap">
-                         {item.originalPrice && item.discountAmount && item.discountAmount > 0 ? (
-                           <>
-                             <span className="text-sm text-muted-foreground line-through">${item.originalPrice}</span>
-                             <span className="text-sm font-medium text-green-600">${item.price}</span>
-                             <span className="text-xs text-green-600">(-${item.discountAmount})</span>
-                             {item.partnerName && (
-                               <Badge variant="secondary" className="text-xs px-1 py-0">
-                                 {item.partnerName} Discount
-                               </Badge>
-                             )}
-                           </>
-                         ) : (
-                           <span className="text-sm text-muted-foreground">${item.price}</span>
-                         )}
-                       </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {(() => {
+                            const computedDiscount = item.discountAmount ?? (item.originalPrice && item.price < item.originalPrice ? item.originalPrice - item.price : 0);
+                            return item.originalPrice && computedDiscount > 0 ? (
+                              <>
+                                <span className="text-sm text-muted-foreground line-through">${item.originalPrice}</span>
+                                <span className="text-sm font-medium text-green-600">${item.price}</span>
+                                <span className="text-xs text-green-600">(-${computedDiscount})</span>
+                                {item.partnerName && (
+                                  <Badge variant="secondary" className="text-xs px-1 py-0">
+                                    {item.partnerName} Discount
+                                  </Badge>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">${item.price}</span>
+                            );
+                          })()}
+                        </div>
                      </div>
                     <Button
                       variant="ghost"

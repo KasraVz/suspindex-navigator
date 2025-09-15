@@ -477,7 +477,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         if (Array.isArray(parsedCart)) {
           const cartWithDates = parsedCart.map((item: any) => ({
             ...item,
-            bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined
+            bookingDate: item.bookingDate ? new Date(item.bookingDate) : undefined,
+            // Migration: compute discountAmount if missing but originalPrice exists
+            discountAmount: item.discountAmount ?? (item.originalPrice && item.price < item.originalPrice ? item.originalPrice - item.price : undefined)
           }));
           setCartItems(cartWithDates);
         }

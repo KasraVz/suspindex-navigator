@@ -169,13 +169,6 @@ const OrderAssessmentsPage = () => {
   const handlePayNow = () => {
     const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
     
-    // Mark discounts as used for affiliate items
-    validItems.forEach(item => {
-      if (item.affiliationCodeId && item.isFromAffiliate) {
-        markDiscountUsed(item.affiliationCodeId, item.assessment);
-      }
-    });
-    
     const cartItems = validItems.map(item => {
       const discountAmount = item.originalPrice ? item.originalPrice - item.price : 0;
       const code = item.affiliationCodeId ? affiliationCodes.find(c => c.id === item.affiliationCodeId) : null;
@@ -204,15 +197,24 @@ const OrderAssessmentsPage = () => {
   const handlePayLater = () => {
     const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
     
-    const cartItems = validItems.map(item => ({
-      id: item.id,
-      name: item.assessment,
-      price: item.price,
-      bookingDate: item.bookingDate,
-      bookingTime: item.bookingTime,
-      status: item.status,
-      bundleId
-    }));
+    const cartItems = validItems.map(item => {
+      const discountAmount = item.originalPrice ? item.originalPrice - item.price : 0;
+      const code = item.affiliationCodeId ? affiliationCodes.find(c => c.id === item.affiliationCodeId) : null;
+      
+      return {
+        id: item.id,
+        name: item.assessment,
+        price: item.price,
+        originalPrice: item.originalPrice,
+        discountAmount,
+        affiliationCodeId: item.affiliationCodeId,
+        partnerName: code?.partnerName,
+        bookingDate: item.bookingDate,
+        bookingTime: item.bookingTime,
+        status: item.status,
+        bundleId
+      };
+    });
 
     const unpaidItems = validItems.map(item => ({
       id: item.id,

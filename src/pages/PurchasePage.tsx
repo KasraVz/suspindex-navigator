@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2, Tag, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
+import { useAffiliation } from "@/contexts/AffiliationContext";
 import { toast } from "sonner";
 
 interface Test {
@@ -16,6 +17,7 @@ interface Test {
   originalPrice?: number;
   discountAmount?: number;
   partnerName?: string;
+  affiliationCodeId?: string;
   description?: string;
   bookingDate?: string;
   bookingTime?: string;
@@ -26,6 +28,7 @@ const PurchasePage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addToPaidItems, removeFromUnpaidOrders, clearCart, removeFromCart } = useOrders();
+  const { markDiscountUsed } = useAffiliation();
   const [tests, setTests] = useState<Test[]>([]);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{
@@ -64,8 +67,9 @@ const PurchasePage = () => {
         name: item.name,
         price: item.price,
         originalPrice: item.originalPrice,
-        discountAmount: item.discountAmount,
+        discountAmount: item.discountAmount ?? (item.originalPrice && item.price < item.originalPrice ? item.originalPrice - item.price : undefined),
         partnerName: item.partnerName,
+        affiliationCodeId: item.affiliationCodeId,
         description: `${item.name} certification exam`,
         bookingDate: item.bookingDate ? item.bookingDate.toLocaleDateString() : undefined,
         bookingTime: item.bookingTime,
@@ -119,6 +123,13 @@ const PurchasePage = () => {
     // Mock payment processing
     console.log("Processing payment for:", tests);
     console.log("Applied discount:", appliedDiscount);
+    
+    // Mark affiliation discounts as used after successful payment
+    tests.forEach(test => {
+      if (test.affiliationCodeId && test.discountAmount && test.discountAmount > 0) {
+        markDiscountUsed(test.affiliationCodeId, test.name);
+      }
+    });
     
     // Move items from unpaid to paid
     const paidItems = tests.map(test => ({
