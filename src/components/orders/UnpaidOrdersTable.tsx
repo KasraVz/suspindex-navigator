@@ -154,13 +154,15 @@ export function UnpaidOrdersTable() {
   const filteredBundles = Object.values(groupedOrders.bundles).filter(bundle =>
     bundle.items.some(item => 
       item.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      `BUNDLE-${bundle.bundleId}`.toLowerCase().includes(searchQuery.toLowerCase())
+      `BUNDLE-${bundle.bundleId}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.partnerName && item.partnerName.toLowerCase().includes(searchQuery.toLowerCase()))
     )
   );
 
   const filteredIndividual = groupedOrders.individual.filter(order =>
     order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    `ORD-${order.id}`.toLowerCase().includes(searchQuery.toLowerCase())
+    `ORD-${order.id}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (order.partnerName && order.partnerName.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -179,7 +181,7 @@ export function UnpaidOrdersTable() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search by order ID or test name..."
+              placeholder="Search by order ID, test name, or partner name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -199,6 +201,7 @@ export function UnpaidOrdersTable() {
                   <TableHead>Order Details</TableHead>
                   <TableHead>Date Added</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Affiliation Partner</TableHead>
                   <TableHead>Booking Info</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -223,6 +226,22 @@ export function UnpaidOrdersTable() {
                     </TableCell>
                     <TableCell>{bundle.orderDate}</TableCell>
                     <TableCell className="font-semibold">${bundle.totalAmount}</TableCell>
+                    <TableCell>
+                      {bundle.items[0]?.partnerName ? (
+                        <div className="text-sm">
+                          <Badge variant="secondary" className="text-xs">
+                            {bundle.items[0].partnerName}
+                          </Badge>
+                          {bundle.items[0].affiliationCodeId && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {bundle.items[0].affiliationCodeId}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">No partner</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {bundle.items.some(item => item.bookingDate) ? (
                         <Badge variant="secondary">Has Bookings</Badge>
@@ -271,6 +290,22 @@ export function UnpaidOrdersTable() {
                     </TableCell>
                     <TableCell>{order.dateAdded}</TableCell>
                     <TableCell className="font-semibold">${order.amount}</TableCell>
+                    <TableCell>
+                      {order.partnerName ? (
+                        <div className="text-sm">
+                          <Badge variant="secondary" className="text-xs">
+                            {order.partnerName}
+                          </Badge>
+                          {order.affiliationCodeId && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {order.affiliationCodeId}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">No partner</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {order.bookingDate && order.bookingTime ? (
                         <div className="text-sm">

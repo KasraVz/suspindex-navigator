@@ -30,6 +30,8 @@ export interface UnifiedOrder {
   bundleName?: string;
   isBundleHeader?: boolean;
   bundleItems?: UnifiedOrder[];
+  affiliationCodeId?: string;
+  partnerName?: string;
 }
 
 export function UnifiedOrdersTable() {
@@ -68,6 +70,8 @@ export function UnifiedOrdersTable() {
       bookingTime: order.bookingTime,
       bundleId: order.bundleId,
       bundleName: order.bundleId ? bundleNames[order.bundleId] : undefined,
+      affiliationCodeId: order.affiliationCodeId,
+      partnerName: order.partnerName,
     })),
     // Paid orders
     ...paidItems.map(order => ({
@@ -86,6 +90,8 @@ export function UnifiedOrdersTable() {
       bookingTime: order.bookingTime,
       bundleId: order.bundleId,
       bundleName: order.bundleId ? bundleNames[order.bundleId] : undefined,
+      affiliationCodeId: order.affiliationCodeId,
+      partnerName: order.partnerName,
     }))
   ];
 
@@ -223,7 +229,8 @@ export function UnifiedOrdersTable() {
   const filteredOrders = unifiedOrders.filter(order => {
     const matchesSearch = order.testName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (order.bundleName && order.bundleName.toLowerCase().includes(searchQuery.toLowerCase()));
+                         (order.bundleName && order.bundleName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                         (order.partnerName && order.partnerName.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === "all" || order.overallStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -237,7 +244,7 @@ export function UnifiedOrdersTable() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search by test name or order ID..."
+                placeholder="Search by test name, order ID, or partner name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -264,20 +271,21 @@ export function UnifiedOrdersTable() {
               {searchQuery || statusFilter !== "all" ? "No orders match your filters" : "No orders found"}
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Test Name / Bundle</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead>Test</TableHead>
-                  <TableHead>KYC</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Test Name / Bundle</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Affiliation Partner</TableHead>
+                    <TableHead>Payment</TableHead>
+                    <TableHead>Test</TableHead>
+                    <TableHead>KYC</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
               <TableBody>
                 {filteredOrders.flatMap((order) => {
                   if (order.isBundleHeader) {
@@ -306,6 +314,22 @@ export function UnifiedOrdersTable() {
                         </TableCell>
                         <TableCell>{order.orderDate}</TableCell>
                         <TableCell>${order.amount}</TableCell>
+                        <TableCell>
+                          {order.partnerName ? (
+                            <div className="text-sm">
+                              <Badge variant="secondary" className="text-xs">
+                                {order.partnerName}
+                              </Badge>
+                              {order.affiliationCodeId && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {order.affiliationCodeId}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">No partner</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
                             {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}
@@ -364,6 +388,22 @@ export function UnifiedOrdersTable() {
                             <TableCell className="pl-8">{subOrder.testName}</TableCell>
                             <TableCell>{subOrder.orderDate}</TableCell>
                             <TableCell>${subOrder.amount}</TableCell>
+                            <TableCell className="pl-8">
+                              {subOrder.partnerName ? (
+                                <div className="text-sm">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {subOrder.partnerName}
+                                  </Badge>
+                                  {subOrder.affiliationCodeId && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {subOrder.affiliationCodeId}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground text-xs">No partner</span>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Badge variant={subOrder.paymentStatus === "paid" ? "default" : "destructive"}>
                                 {subOrder.paymentStatus === "paid" ? "Paid" : "Unpaid"}
@@ -429,6 +469,22 @@ export function UnifiedOrdersTable() {
                         <TableCell className="font-medium">{order.testName}</TableCell>
                         <TableCell>{order.orderDate}</TableCell>
                         <TableCell>${order.amount}</TableCell>
+                        <TableCell>
+                          {order.partnerName ? (
+                            <div className="text-sm">
+                              <Badge variant="secondary" className="text-xs">
+                                {order.partnerName}
+                              </Badge>
+                              {order.affiliationCodeId && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {order.affiliationCodeId}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">No partner</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={order.paymentStatus === "paid" ? "default" : "destructive"}>
                             {order.paymentStatus === "paid" ? "Paid" : "Unpaid"}

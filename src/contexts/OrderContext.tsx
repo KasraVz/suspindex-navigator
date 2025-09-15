@@ -25,6 +25,8 @@ export interface UnpaidOrder {
   bundleId?: string;
   testStatus?: "not_taken" | "taken" | "scheduled";
   kycStatus?: "pending" | "approved" | "rejected";
+  affiliationCodeId?: string;
+  partnerName?: string;
 }
 
 export interface BookedItem {
@@ -44,6 +46,8 @@ export interface PaidItem {
   bookingDate?: Date;
   bookingTime?: string;
   bundleId?: string;
+  affiliationCodeId?: string;
+  partnerName?: string;
 }
 
 interface OrderContextType {
@@ -99,7 +103,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         dateAdded: "2024-01-15",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "TECH001",
+        partnerName: "TechCorp Academy"
       },
       {
         id: "2", 
@@ -119,7 +125,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         dateAdded: "2024-01-08",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "rejected"
+        kycStatus: "rejected",
+        affiliationCodeId: "DLH002",
+        partnerName: "Digital Learning Hub"
       },
       {
         id: "4",
@@ -144,7 +152,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bookingTime: "10:00 AM",
         status: "booked",
         testStatus: "scheduled",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "PDC003",
+        partnerName: "Professional Development Center"
       },
       {
         id: "6",
@@ -156,7 +166,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bookingTime: "2:00 PM",
         status: "booked",
         testStatus: "scheduled",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "PDC003",
+        partnerName: "Professional Development Center"
       },
       
       // All Assessments Complete Package Bundle
@@ -168,7 +180,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bundleId: "ALL_ASSESSMENTS_001",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "STI004",
+        partnerName: "Skills Training Institute"
       },
       {
         id: "8",
@@ -178,7 +192,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bundleId: "ALL_ASSESSMENTS_001",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "STI004",
+        partnerName: "Skills Training Institute"
       },
       {
         id: "9",
@@ -188,7 +204,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bundleId: "ALL_ASSESSMENTS_001",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "pending"
+        kycStatus: "pending",
+        affiliationCodeId: "STI004",
+        partnerName: "Skills Training Institute"
       },
       
       // Foundation Bundle (FPA + EEA)
@@ -212,7 +230,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         bundleId: "FOUNDATION_001",
         status: "pending",
         testStatus: "not_taken",
-        kycStatus: "approved"
+        kycStatus: "approved",
+        affiliationCodeId: "TECH001",
+        partnerName: "TechCorp Academy"
       }
     ];
 
@@ -272,13 +292,17 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         amount: 120,
         datePaid: "2023-12-15",
         bookingDate: new Date("2023-12-20"),
-        bookingTime: "9:00 AM"
+        bookingTime: "9:00 AM",
+        affiliationCodeId: "TECH001",
+        partnerName: "TechCorp Academy"
       },
       {
         id: "102",
         testName: "MBA",
         amount: 150,
-        datePaid: "2024-01-01"
+        datePaid: "2024-01-01",
+        affiliationCodeId: "DLH002",
+        partnerName: "Digital Learning Hub"
       },
       
       // Paid bundle - Professional Bundle completed
@@ -289,7 +313,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         datePaid: "2023-11-20",
         bookingDate: new Date("2023-11-25"),
         bookingTime: "10:00 AM",
-        bundleId: "FPA_GEB_PAID_001"
+        bundleId: "FPA_GEB_PAID_001",
+        affiliationCodeId: "PDC003",
+        partnerName: "Professional Development Center"
       },
       {
         id: "104",
@@ -298,7 +324,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         datePaid: "2023-11-20",
         bookingDate: new Date("2023-11-26"),
         bookingTime: "2:00 PM",
-        bundleId: "FPA_GEB_PAID_001"
+        bundleId: "FPA_GEB_PAID_001",
+        affiliationCodeId: "PDC003",
+        partnerName: "Professional Development Center"
       },
       
       // Paid but waiting for test/KYC
@@ -314,7 +342,9 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         id: "106",
         testName: "Advanced Analytics",
         amount: 180,
-        datePaid: "2024-02-01"
+        datePaid: "2024-02-01",
+        affiliationCodeId: "STI004",
+        partnerName: "Skills Training Institute"
       },
       
       // Paid with various completion states
@@ -523,7 +553,16 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   };
 
   const addToUnpaidOrders = (items: UnpaidOrder[]) => {
-    setUnpaidOrders(prev => [...prev, ...items]);
+    // Preserve affiliation information from cart items if available
+    const enrichedItems = items.map(item => {
+      const cartItem = cartItems.find(c => c.id === item.id);
+      return {
+        ...item,
+        affiliationCodeId: item.affiliationCodeId || cartItem?.affiliationCodeId,
+        partnerName: item.partnerName || cartItem?.partnerName
+      };
+    });
+    setUnpaidOrders(prev => [...prev, ...enrichedItems]);
   };
 
   const removeFromUnpaidOrders = (id: string) => {
@@ -543,7 +582,17 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   };
 
   const addToPaidItems = (items: PaidItem[]) => {
-    setPaidItems(prev => [...prev, ...items]);
+    // Preserve affiliation information from unpaid orders if available
+    const enrichedItems = items.map(item => {
+      const unpaidOrder = unpaidOrders.find(u => u.id === item.id);
+      const cartItem = cartItems.find(c => c.id === item.id);
+      return {
+        ...item,
+        affiliationCodeId: item.affiliationCodeId || unpaidOrder?.affiliationCodeId || cartItem?.affiliationCodeId,
+        partnerName: item.partnerName || unpaidOrder?.partnerName || cartItem?.partnerName
+      };
+    });
+    setPaidItems(prev => [...prev, ...enrichedItems]);
   };
 
   const clearCart = () => {
