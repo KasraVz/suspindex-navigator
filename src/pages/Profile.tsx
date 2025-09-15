@@ -6,6 +6,7 @@ import { BusinessProfile } from "@/components/profile/BusinessProfile";
 import { LeaderboardProfile } from "@/components/profile/LeaderboardProfile";
 import { AccountSettings } from "@/components/profile/AccountSettings";
 import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
+import { AffiliationCodeManager } from "@/components/profile/AffiliationCodeManager";
 
 const Profile = () => {
   return (
@@ -18,6 +19,7 @@ const Profile = () => {
       <Tabs defaultValue="view" className="space-y-6">
         <TabsList>
           <TabsTrigger value="view">View Profile</TabsTrigger>
+          <TabsTrigger value="affiliation">Affiliation Codes</TabsTrigger>
           <TabsTrigger value="requests">Edit Requests</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
@@ -32,6 +34,10 @@ const Profile = () => {
           
           <BusinessProfile />
           <LeaderboardProfile />
+        </TabsContent>
+
+        <TabsContent value="affiliation" className="space-y-6">
+          <AffiliationCodeManager />
         </TabsContent>
 
         <TabsContent value="requests" className="space-y-6">

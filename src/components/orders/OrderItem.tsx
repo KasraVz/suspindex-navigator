@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { X, Calendar, Edit, Briefcase, TrendingUp, MapPin } from "lucide-react";
 import { BookingDialog } from "./BookingDialog";
 import { ProfileUpdateDialog } from "./ProfileUpdateDialog";
@@ -141,21 +142,37 @@ export function OrderItem({
         <div className="flex items-start gap-4">
           <div className="flex-1 space-y-4">
             <div className="flex items-center gap-2">
-              <Select
-                value={item.assessment}
-                onValueChange={(value) => onAssessmentChange(item.id, value)}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Select an assessment" />
-                </SelectTrigger>
-                <SelectContent>
-                  {assessmentOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {item.isFromAffiliate ? (
+                <div className="flex-1 bg-muted/50 rounded-md p-3 border border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{item.assessment}</span>
+                      <Badge variant="secondary">Partner Request</Badge>
+                    </div>
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <div className="text-sm text-success font-medium">
+                        ${item.originalPrice - item.price} discount applied
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <Select
+                  value={item.assessment}
+                  onValueChange={(value) => onAssessmentChange(item.id, value)}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder="Select an assessment" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assessmentOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
               
               {onRemove && (
                 <Button
@@ -289,7 +306,17 @@ export function OrderItem({
 
           {item.assessment && (
             <div className="text-right">
+              {item.originalPrice && item.originalPrice > item.price && (
+                <div className="text-sm text-muted-foreground line-through">
+                  ${item.originalPrice}
+                </div>
+              )}
               <p className="font-semibold text-lg">${item.price}</p>
+              {item.originalPrice && item.originalPrice > item.price && (
+                <div className="text-xs text-success">
+                  ${item.originalPrice - item.price} off
+                </div>
+              )}
             </div>
           )}
         </div>

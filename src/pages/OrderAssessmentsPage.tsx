@@ -7,6 +7,11 @@ import { OrderItem } from "@/components/orders/OrderItem";
 import { useOrders } from "@/contexts/OrderContext";
 import { useBusinessProfile } from "@/contexts/BusinessProfileContext";
 import { toast } from "sonner";
+import { useAffiliation } from "@/contexts/AffiliationContext";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export interface OrderItemData {
   id: string;
@@ -14,32 +19,77 @@ export interface OrderItemData {
   bookingDate?: Date;
   bookingTime?: string;
   price: number;
+  originalPrice?: number;
   status: "empty" | "take-now" | "booked";
   industry?: string;
   developmentStage?: string;
   targetEcosystem?: string;
+  affiliationCodeId?: string;
+  isFromAffiliate?: boolean;
 }
 
 const OrderAssessmentsPage = () => {
   const navigate = useNavigate();
   const { addToCart, addToUnpaidOrders, addToBookedItems, clearCart } = useOrders();
   const { businessProfile } = useBusinessProfile();
-  const [orderItems, setOrderItems] = useState<OrderItemData[]>([
-    {
-      id: "1",
-      assessment: "",
-      price: 0,
-      status: "empty"
-    }
-  ]);
+  const { affiliationCodes, getAvailableTests, getDiscountForTest, markDiscountUsed } = useAffiliation();
+  const [orderType, setOrderType] = useState<"self" | "affiliate" | null>(null);
+  const [selectedAffiliationCode, setSelectedAffiliationCode] = useState<string>("");
+  const [orderItems, setOrderItems] = useState<OrderItemData[]>([]);
 
+
+  const handleOrderTypeSelect = (type: "self" | "affiliate") => {
+    setOrderType(type);
+    if (type === "self") {
+      // Initialize with empty item for self-assessment
+      setOrderItems([{
+        id: "1",
+        assessment: "",
+        price: 0,
+        status: "empty"
+      }]);
+    } else {
+      // Clear items for affiliate selection
+      setOrderItems([]);
+      setSelectedAffiliationCode("");
+    }
+  };
+
+  const handleAffiliationCodeSelect = (codeId: string) => {
+    setSelectedAffiliationCode(codeId);
+    const code = affiliationCodes.find(c => c.id === codeId);
+    if (!code) return;
+
+    const availableTests = getAvailableTests(codeId);
+    const newItems: OrderItemData[] = availableTests.map((test, index) => {
+      const originalPrice = getAssessmentPrice(test);
+      const discount = getDiscountForTest(test, codeId);
+      
+      return {
+        id: `${Date.now()}-${index}`,
+        assessment: test,
+        originalPrice,
+        price: originalPrice - discount,
+        status: "empty",
+        affiliationCodeId: codeId,
+        isFromAffiliate: true,
+        // Pre-populate with business profile data
+        industry: (test === "FPA" || test === "EEA") ? businessProfile.primaryIndustry : undefined,
+        developmentStage: (test === "FPA" || test === "GEB" || test === "EEA") ? businessProfile.developmentStage : undefined,
+        targetEcosystem: test === "EEA" ? businessProfile.targetEcosystem : undefined,
+      };
+    });
+
+    setOrderItems(newItems);
+  };
 
   const addNewItem = () => {
     const newItem: OrderItemData = {
       id: Date.now().toString(),
       assessment: "",
       price: 0,
-      status: "empty"
+      status: "empty",
+      isFromAffiliate: false
     };
     setOrderItems([...orderItems, newItem]);
   };
@@ -72,9 +122,12 @@ const OrderAssessmentsPage = () => {
   };
 
   const handleAssessmentChange = (id: string, assessment: string) => {
+    const originalPrice = getAssessmentPrice(assessment);
+    
     const updates: Partial<OrderItemData> = {
       assessment,
-      price: getAssessmentPrice(assessment),
+      originalPrice,
+      price: originalPrice,
       status: assessment ? "empty" : "empty"
     };
 
@@ -116,6 +169,13 @@ const OrderAssessmentsPage = () => {
   const handlePayNow = () => {
     const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
     
+    // Mark discounts as used for affiliate items
+    validItems.forEach(item => {
+      if (item.affiliationCodeId && item.isFromAffiliate) {
+        markDiscountUsed(item.affiliationCodeId, item.assessment);
+      }
+    });
+    
     const cartItems = validItems.map(item => ({
       id: item.id,
       name: item.assessment,
@@ -123,7 +183,9 @@ const OrderAssessmentsPage = () => {
       bookingDate: item.bookingDate,
       bookingTime: item.bookingTime,
       status: item.status,
-      bundleId
+      bundleId,
+      affiliationCodeId: item.affiliationCodeId,
+      isFromAffiliate: item.isFromAffiliate
     }));
     
     addToCart(cartItems);
@@ -200,33 +262,134 @@ const OrderAssessmentsPage = () => {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Assessment Selection</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {orderItems.map((item, index) => (
-            <OrderItem
-              key={item.id}
-              item={item}
-              onAssessmentChange={handleAssessmentChange}
-              onConfigurationChange={handleConfigurationChange}
-              onTakeNow={handleTakeNow}
-              onBooking={handleBooking}
-              onRemove={orderItems.length > 1 ? () => removeOrderItem(item.id) : undefined}
-            />
-          ))}
+      {/* Order Type Selection */}
+      {!orderType && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Order Type</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Choose whether this order is for yourself or through a partner affiliation code.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/50"
+                onClick={() => handleOrderTypeSelect("self")}
+              >
+                <CardContent className="p-6 text-center">
+                  <h3 className="font-semibold mb-2">Self-Assessment</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Order assessments for yourself at regular pricing
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className="cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-primary/50"
+                onClick={() => handleOrderTypeSelect("affiliate")}
+              >
+                <CardContent className="p-6 text-center">
+                  <h3 className="font-semibold mb-2">Partner Affiliation</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Use a partner's affiliation code for special pricing and requested tests
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-          <Button
-            variant="outline"
-            onClick={addNewItem}
-            className="w-full mt-4"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Another Assessment
-          </Button>
-        </CardContent>
-      </Card>
+      {/* Affiliation Code Selection */}
+      {orderType === "affiliate" && !selectedAffiliationCode && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Affiliation Code</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Choose from your active affiliation codes:</Label>
+              <Select onValueChange={handleAffiliationCodeSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an affiliation code" />
+                </SelectTrigger>
+                <SelectContent>
+                  {affiliationCodes.map((code) => (
+                    <SelectItem key={code.id} value={code.id}>
+                      <div className="flex items-center gap-2">
+                        <span>{code.partnerName}</span>
+                        <Badge variant="secondary">{code.code}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          ({getAvailableTests(code.id).length} tests available)
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {affiliationCodes.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No affiliation codes found. Add codes in your Profile → Affiliation Codes tab first.
+              </p>
+            )}
+            <Button variant="outline" onClick={() => setOrderType(null)}>
+              Back to Order Type Selection
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Order Items Display */}
+      {orderItems.length > 0 && (
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Assessment Selection</CardTitle>
+              {orderType && (
+                <Button variant="outline" size="sm" onClick={() => {
+                  setOrderType(null);
+                  setOrderItems([]);
+                  setSelectedAffiliationCode("");
+                }}>
+                  Change Order Type
+                </Button>
+              )}
+            </div>
+            {selectedAffiliationCode && (
+              <div className="text-sm text-muted-foreground">
+                Using affiliation code from: {affiliationCodes.find(c => c.id === selectedAffiliationCode)?.partnerName}
+              </div>
+            )}
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {orderItems.map((item, index) => (
+              <OrderItem
+                key={item.id}
+                item={item}
+                onAssessmentChange={handleAssessmentChange}
+                onConfigurationChange={handleConfigurationChange}
+                onTakeNow={handleTakeNow}
+                onBooking={handleBooking}
+                onRemove={orderItems.length > 1 || !item.isFromAffiliate ? () => removeOrderItem(item.id) : undefined}
+              />
+            ))}
+
+            {orderType === "self" && (
+              <Button
+                variant="outline"
+                onClick={addNewItem}
+                className="w-full mt-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Another Assessment
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {validItems.length > 0 && (
         <Card>
@@ -238,7 +401,12 @@ const OrderAssessmentsPage = () => {
               {validItems.map((item) => (
                 <div key={item.id} className="flex justify-between items-start">
                   <div className="flex-1">
-                    <span className="font-medium">{item.assessment}</span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium">{item.assessment}</span>
+                      {item.isFromAffiliate && (
+                        <Badge variant="secondary">Partner Request</Badge>
+                      )}
+                    </div>
                     {/* Show configuration details */}
                     <div className="text-sm text-muted-foreground space-y-1 mt-1">
                       {item.industry && (
@@ -261,7 +429,19 @@ const OrderAssessmentsPage = () => {
                       <p className="text-sm text-success mt-1">Ready for immediate start after payment</p>
                     )}
                   </div>
-                  <span className="font-semibold">${item.price}</span>
+                  <div className="text-right">
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <div className="text-sm text-muted-foreground line-through">
+                        ${item.originalPrice}
+                      </div>
+                    )}
+                    <span className="font-semibold">${item.price}</span>
+                    {item.originalPrice && item.originalPrice > item.price && (
+                      <div className="text-xs text-success">
+                        ${item.originalPrice - item.price} discount
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

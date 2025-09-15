@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { OrderProvider } from "@/contexts/OrderContext";
 import { BusinessProfileProvider } from "@/contexts/BusinessProfileContext";
+import { AffiliationProvider } from "@/contexts/AffiliationContext";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -32,7 +33,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BusinessProfileProvider>
-        <OrderProvider>
+        <AffiliationProvider>
+          <OrderProvider>
           <BrowserRouter>
             <Routes>
               {/* Redirect root to dashboard */}
@@ -70,7 +72,8 @@ const App = () => (
           <Toaster />
           <Sonner />
         </OrderProvider>
-      </BusinessProfileProvider>
+      </AffiliationProvider>
+    </BusinessProfileProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
