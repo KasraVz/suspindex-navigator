@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { useOrders } from "@/contexts/OrderContext";
 
 export function Cart() {
@@ -66,22 +67,36 @@ export function Cart() {
                       </span>
                     </div>
                     <div className="space-y-2 mb-3">
-                      {bundleItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm truncate">{item.name}</p>
-                            <p className="text-xs text-muted-foreground">${item.price}</p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-destructive hover:text-destructive/80 text-xs px-1 py-1 h-auto"
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      ))}
+                       {bundleItems.map((item) => (
+                         <div key={item.id} className="flex items-center justify-between">
+                           <div className="flex-1 min-w-0">
+                             <p className="text-sm truncate">{item.name}</p>
+                             <div className="flex items-center gap-2">
+                               {item.originalPrice && item.discountAmount && item.discountAmount > 0 ? (
+                                 <>
+                                   <span className="text-xs text-muted-foreground line-through">${item.originalPrice}</span>
+                                   <span className="text-xs font-medium text-green-600">${item.price}</span>
+                                   {item.partnerName && (
+                                     <Badge variant="secondary" className="text-xs px-1 py-0">
+                                       {item.partnerName}
+                                     </Badge>
+                                   )}
+                                 </>
+                               ) : (
+                                 <span className="text-xs text-muted-foreground">${item.price}</span>
+                               )}
+                             </div>
+                           </div>
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => removeFromCart(item.id)}
+                             className="text-destructive hover:text-destructive/80 text-xs px-1 py-1 h-auto"
+                           >
+                             Remove
+                           </Button>
+                         </div>
+                       ))}
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold">Total: ${bundleTotal}</span>
@@ -100,11 +115,26 @@ export function Cart() {
               {/* Render Individual Items */}
               {individualItems.map((item) => (
                 <div key={item.id} className="border-b border-border pb-3 last:border-b-0">
-                  <div className="flex items-start gap-3 mb-2">
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      <p className="text-sm font-medium truncate">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">${item.price}</p>
-                    </div>
+                   <div className="flex items-start gap-3 mb-2">
+                     <div className="flex-1 min-w-0 overflow-hidden">
+                       <p className="text-sm font-medium truncate">{item.name}</p>
+                       <div className="flex items-center gap-2 flex-wrap">
+                         {item.originalPrice && item.discountAmount && item.discountAmount > 0 ? (
+                           <>
+                             <span className="text-sm text-muted-foreground line-through">${item.originalPrice}</span>
+                             <span className="text-sm font-medium text-green-600">${item.price}</span>
+                             <span className="text-xs text-green-600">(-${item.discountAmount})</span>
+                             {item.partnerName && (
+                               <Badge variant="secondary" className="text-xs px-1 py-0">
+                                 {item.partnerName} Discount
+                               </Badge>
+                             )}
+                           </>
+                         ) : (
+                           <span className="text-sm text-muted-foreground">${item.price}</span>
+                         )}
+                       </div>
+                     </div>
                     <Button
                       variant="ghost"
                       size="sm"

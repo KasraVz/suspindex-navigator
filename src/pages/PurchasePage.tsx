@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2, Tag, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
@@ -12,6 +13,9 @@ interface Test {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
+  discountAmount?: number;
+  partnerName?: string;
   description?: string;
   bookingDate?: string;
   bookingTime?: string;
@@ -59,6 +63,9 @@ const PurchasePage = () => {
         id: item.id,
         name: item.name,
         price: item.price,
+        originalPrice: item.originalPrice,
+        discountAmount: item.discountAmount,
+        partnerName: item.partnerName,
         description: `${item.name} certification exam`,
         bookingDate: item.bookingDate ? item.bookingDate.toLocaleDateString() : undefined,
         bookingTime: item.bookingTime,
@@ -225,13 +232,28 @@ const PurchasePage = () => {
                                     {test.description && (
                                       <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
                                     )}
-                                    {test.bookingDate && (
-                                      <p className="text-sm text-primary mt-2 font-medium">
-                                        Booked for: {test.bookingDate}
-                                        {test.bookingTime && ` at ${test.bookingTime}`}
-                                      </p>
-                                    )}
-                                    <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
+                                     {test.bookingDate && (
+                                       <p className="text-sm text-primary mt-2 font-medium">
+                                         Booked for: {test.bookingDate}
+                                         {test.bookingTime && ` at ${test.bookingTime}`}
+                                       </p>
+                                     )}
+                                     <div className="flex items-center gap-2 mt-2">
+                                       {test.originalPrice && test.discountAmount && test.discountAmount > 0 ? (
+                                         <>
+                                           <span className="text-lg text-muted-foreground line-through">${test.originalPrice}</span>
+                                           <span className="text-lg font-bold text-green-600">${test.price}</span>
+                                           <span className="text-sm text-green-600">(-${test.discountAmount})</span>
+                                           {test.partnerName && (
+                                             <Badge variant="secondary" className="text-xs">
+                                               {test.partnerName} Discount
+                                             </Badge>
+                                           )}
+                                         </>
+                                       ) : (
+                                         <span className="text-lg font-bold text-primary">${test.price}</span>
+                                       )}
+                                     </div>
                                   </div>
                                   <Button
                                     variant="ghost"
@@ -266,13 +288,28 @@ const PurchasePage = () => {
                                   {test.description && (
                                     <p className="text-muted-foreground text-sm mt-1">{test.description}</p>
                                   )}
-                                  {test.bookingDate && (
-                                    <p className="text-sm text-primary mt-2 font-medium">
-                                      Booked for: {test.bookingDate}
-                                      {test.bookingTime && ` at ${test.bookingTime}`}
-                                    </p>
-                                  )}
-                                  <p className="text-lg font-bold text-primary mt-2">${test.price}</p>
+                                   {test.bookingDate && (
+                                     <p className="text-sm text-primary mt-2 font-medium">
+                                       Booked for: {test.bookingDate}
+                                       {test.bookingTime && ` at ${test.bookingTime}`}
+                                     </p>
+                                   )}
+                                   <div className="flex items-center gap-2 mt-2">
+                                     {test.originalPrice && test.discountAmount && test.discountAmount > 0 ? (
+                                       <>
+                                         <span className="text-lg text-muted-foreground line-through">${test.originalPrice}</span>
+                                         <span className="text-lg font-bold text-green-600">${test.price}</span>
+                                         <span className="text-sm text-green-600">(-${test.discountAmount})</span>
+                                         {test.partnerName && (
+                                           <Badge variant="secondary" className="text-xs">
+                                             {test.partnerName} Discount
+                                           </Badge>
+                                         )}
+                                       </>
+                                     ) : (
+                                       <span className="text-lg font-bold text-primary">${test.price}</span>
+                                     )}
+                                   </div>
                                 </div>
                                 <Button
                                   variant="ghost"
@@ -301,14 +338,23 @@ const PurchasePage = () => {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 mb-4">
-                  {tests.map((test) => (
-                    <div key={test.id} className="flex justify-between text-sm">
-                      <span>{test.name}</span>
-                      <span>${test.price}</span>
-                    </div>
-                  ))}
-                </div>
+                 <div className="space-y-3 mb-4">
+                   {tests.map((test) => (
+                     <div key={test.id} className="flex justify-between text-sm">
+                       <span className="flex-1">{test.name}</span>
+                       <div className="flex items-center gap-2">
+                         {test.originalPrice && test.discountAmount && test.discountAmount > 0 ? (
+                           <>
+                             <span className="text-muted-foreground line-through">${test.originalPrice}</span>
+                             <span className="font-medium text-green-600">${test.price}</span>
+                           </>
+                         ) : (
+                           <span>${test.price}</span>
+                         )}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
                 
                 <Separator className="mb-4" />
                 

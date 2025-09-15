@@ -4,6 +4,10 @@ export interface CartItem {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
+  discountAmount?: number;
+  affiliationCodeId?: string;
+  partnerName?: string;
   bookingDate?: Date;
   bookingTime?: string;
   status?: string;

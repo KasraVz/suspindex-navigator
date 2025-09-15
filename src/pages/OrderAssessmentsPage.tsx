@@ -176,17 +176,24 @@ const OrderAssessmentsPage = () => {
       }
     });
     
-    const cartItems = validItems.map(item => ({
-      id: item.id,
-      name: item.assessment,
-      price: item.price,
-      bookingDate: item.bookingDate,
-      bookingTime: item.bookingTime,
-      status: item.status,
-      bundleId,
-      affiliationCodeId: item.affiliationCodeId,
-      isFromAffiliate: item.isFromAffiliate
-    }));
+    const cartItems = validItems.map(item => {
+      const discountAmount = item.originalPrice ? item.originalPrice - item.price : 0;
+      const code = item.affiliationCodeId ? affiliationCodes.find(c => c.id === item.affiliationCodeId) : null;
+      
+      return {
+        id: item.id,
+        name: item.assessment,
+        price: item.price,
+        originalPrice: item.originalPrice,
+        discountAmount,
+        affiliationCodeId: item.affiliationCodeId,
+        partnerName: code?.partnerName,
+        bookingDate: item.bookingDate,
+        bookingTime: item.bookingTime,
+        status: item.status,
+        bundleId
+      };
+    });
     
     addToCart(cartItems);
     navigate("/dashboard/purchase", {
