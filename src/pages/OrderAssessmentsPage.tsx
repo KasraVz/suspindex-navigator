@@ -315,7 +315,14 @@ const OrderAssessmentsPage = () => {
                   <SelectValue placeholder="Select an affiliation code" />
                 </SelectTrigger>
                 <SelectContent>
-                  {affiliationCodes.map((code) => (
+                  {affiliationCodes
+                    .filter(code => {
+                      // Filter out expired codes and codes with no available tests
+                      const isExpired = new Date(code.expiryDate) < new Date();
+                      const availableTests = getAvailableTests(code.id);
+                      return !isExpired && availableTests.length > 0;
+                    })
+                    .map((code) => (
                     <SelectItem key={code.id} value={code.id}>
                       <div className="flex items-center gap-2">
                         <span>{code.partnerName}</span>
@@ -332,6 +339,16 @@ const OrderAssessmentsPage = () => {
             {affiliationCodes.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 No affiliation codes found. Add codes in your Profile → Affiliation Codes tab first.
+              </p>
+            )}
+            {affiliationCodes.length > 0 && 
+             affiliationCodes.filter(code => {
+               const isExpired = new Date(code.expiryDate) < new Date();
+               const availableTests = getAvailableTests(code.id);
+               return !isExpired && availableTests.length > 0;
+             }).length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No valid affiliation codes available. All codes may be expired or have no remaining tests.
               </p>
             )}
             <Button variant="outline" onClick={() => setOrderType(null)}>

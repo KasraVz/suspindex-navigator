@@ -11,7 +11,7 @@ export function QuickLinks() {
       </CardHeader>
       <CardContent className="grid gap-4 md:grid-cols-3">
         <Button asChild className="h-20 flex-col gap-2 bg-brand-orange hover:bg-brand-orange/90 text-white">
-          <Link to="/dashboard/exams/booked">
+          <Link to="/dashboard/orders/new">
             <BookOpen className="h-6 w-6" />
             Order New Assessment
           </Link>

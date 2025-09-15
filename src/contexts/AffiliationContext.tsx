@@ -118,7 +118,15 @@ export const AffiliationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   useEffect(() => {
     const stored = localStorage.getItem('affiliationCodes');
     if (stored) {
-      setAffiliationCodes(JSON.parse(stored));
+      const parsedData = JSON.parse(stored);
+      // Only use stored data if it has content, otherwise use initial mock codes
+      if (parsedData && parsedData.length > 0) {
+        setAffiliationCodes(parsedData);
+      } else {
+        // If stored data is empty, reset with initial mock codes
+        localStorage.setItem('affiliationCodes', JSON.stringify(initialMockCodes));
+        setAffiliationCodes(initialMockCodes);
+      }
     } else {
       // If no stored data, use initial mock codes and save them
       localStorage.setItem('affiliationCodes', JSON.stringify(initialMockCodes));
