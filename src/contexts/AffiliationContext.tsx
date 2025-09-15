@@ -70,13 +70,58 @@ const mockAffiliationData: Record<string, Omit<AffiliationCode, 'id' | 'dateAdde
   }
 };
 
+const initialMockCodes: AffiliationCode[] = [
+  {
+    id: 'aff-demo-1',
+    partnerName: 'Stanford StartX',
+    partnerType: 'University Program',
+    code: 'STANFORD2024',
+    requestedTests: ['GEB', 'EEA'],
+    discounts: { GEB: 35, EEA: 25 },
+    usedDiscounts: { GEB: false, EEA: true },
+    completedTests: ['EEA'],
+    expiryDate: '2024-10-15',
+    contactEmail: 'startx@stanford.edu',
+    dateAdded: '2024-08-15T10:30:00.000Z'
+  },
+  {
+    id: 'aff-demo-2', 
+    partnerName: 'Founder Institute',
+    partnerType: 'Startup Accelerator',
+    code: 'FI2024ASSESS',
+    requestedTests: ['FPA'],
+    discounts: { FPA: 30 },
+    usedDiscounts: { FPA: false },
+    completedTests: [],
+    expiryDate: '2024-12-01',
+    contactEmail: 'support@fi.co',
+    dateAdded: '2024-09-01T14:20:00.000Z'
+  },
+  {
+    id: 'aff-demo-3',
+    partnerName: 'Plug and Play Tech Center',
+    partnerType: 'Corporate Accelerator',
+    code: 'PNP2024BUNDLE',
+    requestedTests: ['FPA', 'GEB', 'EEA'],
+    discounts: { FPA: 20, GEB: 25, EEA: 15 },
+    usedDiscounts: { FPA: true, GEB: false, EEA: false },
+    completedTests: ['FPA'],
+    expiryDate: '2024-11-20',
+    contactEmail: 'ventures@pnptc.com',
+    dateAdded: '2024-08-28T16:45:00.000Z'
+  }
+];
+
 export const AffiliationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [affiliationCodes, setAffiliationCodes] = useState<AffiliationCode[]>([]);
+  const [affiliationCodes, setAffiliationCodes] = useState<AffiliationCode[]>(initialMockCodes);
 
   useEffect(() => {
     const stored = localStorage.getItem('affiliationCodes');
     if (stored) {
       setAffiliationCodes(JSON.parse(stored));
+    } else {
+      // If no stored data, use initial mock codes and save them
+      localStorage.setItem('affiliationCodes', JSON.stringify(initialMockCodes));
     }
   }, []);
 
