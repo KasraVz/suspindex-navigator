@@ -90,8 +90,10 @@ export function ReportsTable() {
               <PopoverTrigger asChild>
                 <Button 
                   variant="outline" 
+                  type="button"
                   className="w-full justify-between text-left font-normal"
                   role="combobox"
+                  onClick={(e) => e.preventDefault()}
                 >
                   {selectedPartners.length === 0 
                     ? "Choose referring partners" 
@@ -107,7 +109,17 @@ export function ReportsTable() {
                   {referringPartners.map((partner) => (
                     <div
                       key={partner.id}
-                      className="flex items-center space-x-2 rounded-md px-2 py-1.5 hover:bg-accent"
+                      className="flex items-center space-x-2 rounded-md px-2 py-1.5 hover:bg-accent cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const isChecked = selectedPartners.includes(partner.id);
+                        if (isChecked) {
+                          setSelectedPartners(selectedPartners.filter(id => id !== partner.id));
+                        } else {
+                          setSelectedPartners([...selectedPartners, partner.id]);
+                        }
+                      }}
                     >
                       <Checkbox
                         id={partner.id}
@@ -119,13 +131,11 @@ export function ReportsTable() {
                             setSelectedPartners(selectedPartners.filter(id => id !== partner.id));
                           }
                         }}
+                        onClick={(e) => e.stopPropagation()}
                       />
-                      <label 
-                        htmlFor={partner.id}
-                        className="flex-1 text-sm cursor-pointer"
-                      >
+                      <span className="flex-1 text-sm select-none">
                         {partner.name}
-                      </label>
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -134,8 +144,13 @@ export function ReportsTable() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      type="button"
                       className="w-full text-xs"
-                      onClick={() => setSelectedPartners([])}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedPartners([]);
+                      }}
                     >
                       Clear All
                     </Button>
