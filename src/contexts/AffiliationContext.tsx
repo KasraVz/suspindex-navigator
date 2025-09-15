@@ -80,7 +80,7 @@ const initialMockCodes: AffiliationCode[] = [
     discounts: { GEB: 35, EEA: 25 },
     usedDiscounts: { GEB: false, EEA: true },
     completedTests: ['EEA'],
-    expiryDate: '2024-10-15',
+    expiryDate: '2025-12-15',
     contactEmail: 'startx@stanford.edu',
     dateAdded: '2024-08-15T10:30:00.000Z'
   },
@@ -93,7 +93,7 @@ const initialMockCodes: AffiliationCode[] = [
     discounts: { FPA: 30 },
     usedDiscounts: { FPA: false },
     completedTests: [],
-    expiryDate: '2024-12-01',
+    expiryDate: '2025-12-01',
     contactEmail: 'support@fi.co',
     dateAdded: '2024-09-01T14:20:00.000Z'
   },
@@ -106,7 +106,7 @@ const initialMockCodes: AffiliationCode[] = [
     discounts: { FPA: 20, GEB: 25, EEA: 15 },
     usedDiscounts: { FPA: true, GEB: false, EEA: false },
     completedTests: ['FPA'],
-    expiryDate: '2024-11-20',
+    expiryDate: '2025-11-20',
     contactEmail: 'ventures@pnptc.com',
     dateAdded: '2024-08-28T16:45:00.000Z'
   }
@@ -131,6 +131,10 @@ export const AffiliationProvider: React.FC<{ children: React.ReactNode }> = ({ c
       // If no stored data, use initial mock codes and save them
       localStorage.setItem('affiliationCodes', JSON.stringify(initialMockCodes));
     }
+    
+    // Force reset for testing - remove this line once confirmed working
+    localStorage.setItem('affiliationCodes', JSON.stringify(initialMockCodes));
+    setAffiliationCodes(initialMockCodes);
   }, []);
 
   useEffect(() => {
