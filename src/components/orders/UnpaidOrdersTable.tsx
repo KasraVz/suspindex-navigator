@@ -243,7 +243,11 @@ export function UnpaidOrdersTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Has Bookings</Badge>
+                      {bundle.items.some(item => item.bookingDate && item.bookingTime) ? (
+                        <Badge variant="secondary">Has Bookings</Badge>
+                      ) : (
+                        <Badge variant="destructive" className="text-xs">Missing Bookings</Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
@@ -303,10 +307,14 @@ export function UnpaidOrdersTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">
-                        <div>{order.bookingDate.toLocaleDateString()}</div>
-                        <div className="text-muted-foreground">{order.bookingTime}</div>
-                      </div>
+                      {order.bookingDate && order.bookingTime ? (
+                        <div className="text-sm">
+                          <div>{order.bookingDate.toLocaleDateString()}</div>
+                          <div className="text-muted-foreground">{order.bookingTime}</div>
+                        </div>
+                      ) : (
+                        <Badge variant="destructive" className="text-xs">Missing Booking</Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
