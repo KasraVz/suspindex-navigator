@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Download, Share2, Users, AlertTriangle, RotateCcw } from "lucide-react";
+import { Eye, Download, Share2, Users, AlertTriangle, RotateCcw, Check, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState } from "react";
 const reports = [{
@@ -70,7 +71,7 @@ const referringPartners = [{
   name: "Skills Training Institute"
 }];
 export function ReportsTable() {
-  const [selectedPartner, setSelectedPartner] = useState("");
+  const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
   const ShareWithPartnerModal = ({
     report
   }: {
@@ -84,17 +85,64 @@ export function ReportsTable() {
         <div className="space-y-6">
           {/* Section 1: Partner Selection */}
           <div className="space-y-3">
-            <label className="text-sm font-medium">Select Referring Partner</label>
-            <Select value={selectedPartner} onValueChange={setSelectedPartner}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a referring partner" />
-              </SelectTrigger>
-              <SelectContent>
-                {referringPartners.map(partner => <SelectItem key={partner.id} value={partner.id}>
-                    {partner.name}
-                  </SelectItem>)}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium">Select Referring Partners</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-between text-left font-normal"
+                  role="combobox"
+                >
+                  {selectedPartners.length === 0 
+                    ? "Choose referring partners" 
+                    : selectedPartners.length === 1 
+                      ? referringPartners.find(p => p.id === selectedPartners[0])?.name
+                      : `${selectedPartners.length} partners selected`
+                  }
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 bg-background border border-border z-50" align="start">
+                <div className="p-2">
+                  {referringPartners.map((partner) => (
+                    <div
+                      key={partner.id}
+                      className="flex items-center space-x-2 rounded-md px-2 py-1.5 hover:bg-accent"
+                    >
+                      <Checkbox
+                        id={partner.id}
+                        checked={selectedPartners.includes(partner.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedPartners([...selectedPartners, partner.id]);
+                          } else {
+                            setSelectedPartners(selectedPartners.filter(id => id !== partner.id));
+                          }
+                        }}
+                      />
+                      <label 
+                        htmlFor={partner.id}
+                        className="flex-1 text-sm cursor-pointer"
+                      >
+                        {partner.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {selectedPartners.length > 0 && (
+                  <div className="border-t p-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs"
+                      onClick={() => setSelectedPartners([])}
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Section 2: Conditional Performance Warning */}
@@ -114,8 +162,8 @@ export function ReportsTable() {
 
           {/* Final Share Button */}
           <div className="flex justify-end">
-            <Button disabled={!selectedPartner} className="w-full">
-              Share Report
+            <Button disabled={selectedPartners.length === 0} className="w-full">
+              Share Report ({selectedPartners.length} partner{selectedPartners.length !== 1 ? 's' : ''})
             </Button>
           </div>
         </div>
