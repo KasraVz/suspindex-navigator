@@ -59,7 +59,6 @@ const MOCK_CURRENT_VALUES = {
 
 export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }: ProfileEditRequestDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [profileSection, setProfileSection] = useState<string>("");
   const [selectedField, setSelectedField] = useState<string>("");
   const [requestedValue, setRequestedValue] = useState<string>("");
   const [reason, setReason] = useState<string>("");
@@ -71,12 +70,6 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
   // Pre-populate form when editing an existing request
   useEffect(() => {
     if (editingRequest) {
-      // Map the profile section names to the form values
-      const sectionMap: Record<string, string> = {
-        "Personal Profile": "personal",
-        "Business Profile": "business"
-      };
-      
       // Map field names to form values
       const fieldMap: Record<string, string> = {
         "Full Name": "fullName",
@@ -88,14 +81,12 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
         "Target Ecosystem": "targetEcosystem"
       };
 
-      setProfileSection(sectionMap[editingRequest.profileSection] || "");
       setSelectedField(fieldMap[editingRequest.field] || "");
       setRequestedValue(editingRequest.requestedValue);
       setReason(editingRequest.reason);
       setPriority(editingRequest.priority);
     } else {
       // Reset form when not editing
-      setProfileSection("");
       setSelectedField("");
       setRequestedValue("");
       setReason("");
@@ -108,16 +99,11 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
     return MOCK_CURRENT_VALUES[fieldKey as keyof typeof MOCK_CURRENT_VALUES] || "Not set";
   };
 
-  const getAvailableFields = () => {
-    if (profileSection === "personal") return PROFILE_FIELDS.personal;
-    if (profileSection === "business") return PROFILE_FIELDS.business;
-    return [];
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!profileSection || !selectedField || !requestedValue || !reason || !priority) {
+    if (!selectedField || !requestedValue || !reason || !priority) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
@@ -150,7 +136,6 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
     
     // Reset form only if not editing
     if (!editingRequest) {
-      setProfileSection("");
       setSelectedField("");
       setRequestedValue("");
       setReason("");
@@ -161,10 +146,6 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
     onOpenChange(false);
   };
 
-  const handleProfileSectionChange = (value: string) => {
-    setProfileSection(value);
-    setSelectedField(""); // Reset selected field when profile section changes
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -172,49 +153,32 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileEdit className="w-5 h-5" />
-            {editingRequest ? "Edit Profile Request" : "Request Profile Edit"}
+            {editingRequest ? "Edit Personal Profile Request" : "Request Personal Profile Edit"}
           </DialogTitle>
           <DialogDescription>
             {editingRequest 
               ? "Modify your existing personal profile edit request. Changes will be re-submitted for admin approval."
-              : "Submit a request to modify your personal profile information. All changes require admin approval for security purposes."
+              : "Submit a request to modify your personal profile information. Changes require admin approval for security purposes."
             }
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="profileSection">Profile Section *</Label>
-            <Select value={profileSection} onValueChange={handleProfileSectionChange}>
+            <Label htmlFor="field">Field to Change *</Label>
+            <Select value={selectedField} onValueChange={setSelectedField}>
               <SelectTrigger>
-                <SelectValue placeholder="Select profile section to edit" />
+                <SelectValue placeholder="Select field to edit" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="personal">Personal Profile</SelectItem>
+                {PROFILE_FIELDS.personal.map((field) => (
+                  <SelectItem key={field.value} value={field.value}>
+                    {field.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              Note: Business profile information can be edited directly without approval requests.
-            </p>
           </div>
-
-          {profileSection && (
-            <div className="space-y-2">
-              <Label htmlFor="field">Field to Change *</Label>
-              <Select value={selectedField} onValueChange={setSelectedField}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select field to edit" />
-                </SelectTrigger>
-                <SelectContent>
-                  {getAvailableFields().map((field) => (
-                    <SelectItem key={field.value} value={field.value}>
-                      {field.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           {selectedField && (
             <div className="space-y-2">
@@ -296,7 +260,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isLoading || !profileSection || !selectedField || !requestedValue || !reason || !priority}
+            disabled={isLoading || !selectedField || !requestedValue || !reason || !priority}
           >
             {isLoading ? "Submitting..." : editingRequest ? "Update Request" : "Submit Request"}
           </Button>
