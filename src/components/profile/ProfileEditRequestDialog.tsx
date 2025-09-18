@@ -197,9 +197,11 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="personal">Personal Profile</SelectItem>
-                <SelectItem value="business">Business Profile</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              Note: Business profile information can be edited directly without approval requests.
+            </p>
           </div>
 
           {profileSection && (
