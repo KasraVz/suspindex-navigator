@@ -36,9 +36,7 @@ const PROFILE_SECTIONS = {
 const PROFILE_FIELDS = {
   personal: [
     { value: "fullName", label: "Full Name" },
-    { value: "email", label: "Email Address" },
-    { value: "passportId", label: "Passport ID" },
-    { value: "profilePhoto", label: "Profile Photo" }
+    { value: "passportId", label: "Passport ID" }
   ],
   business: [
     { value: "startupName", label: "Startup Name" },
@@ -51,9 +49,7 @@ const PROFILE_FIELDS = {
 
 const MOCK_CURRENT_VALUES = {
   fullName: "John Doe",
-  email: "john.doe@example.com",
   passportId: "ABC123456789",
-  profilePhoto: "Current profile photo",
   startupName: "TechFlow Solutions",
   startupWebsite: "https://www.techflowsolutions.com",
   primaryIndustry: "Software & SaaS",
@@ -84,9 +80,7 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
       // Map field names to form values
       const fieldMap: Record<string, string> = {
         "Full Name": "fullName",
-        "Email Address": "email",
         "Passport ID": "passportId",
-        "Profile Photo": "profilePhoto",
         "Startup Name": "startupName",
         "Startup Website": "startupWebsite",
         "Primary Industry": "primaryIndustry",
@@ -182,8 +176,8 @@ export function ProfileEditRequestDialog({ open, onOpenChange, editingRequest }:
           </DialogTitle>
           <DialogDescription>
             {editingRequest 
-              ? "Modify your existing profile edit request. Changes will be re-submitted for admin approval."
-              : "Submit a request to modify your profile information. All changes require admin approval for security purposes."
+              ? "Modify your existing personal profile edit request. Changes will be re-submitted for admin approval."
+              : "Submit a request to modify your personal profile information. All changes require admin approval for security purposes."
             }
           </DialogDescription>
         </DialogHeader>
