@@ -97,7 +97,7 @@ export function AppSidebar() {
                       <span className={item.special ? "text-brand-orange font-semibold" : ""}>{item.title}</span>
                       {item.special && <div className="ml-auto w-2 h-2 bg-brand-orange rounded-full animate-pulse" />}
                       {item.title === "My Orders" && hasUnpaidOrders && (
-                        <Circle className="w-2 h-2 fill-primary text-primary ml-auto" />
+                        <Circle className="w-2 h-2 fill-destructive text-destructive ml-auto" />
                       )}
                     </NavLink>
                   </SidebarMenuButton>
