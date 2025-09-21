@@ -167,9 +167,19 @@ const OrderAssessmentsPage = () => {
   const totalAmount = validItems.reduce((sum, item) => sum + item.price, 0);
 
   const handlePayNow = () => {
-    const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
+    // Only allow payment if items have booking information
+    const itemsWithBooking = validItems.filter(item => 
+      item.status === "booked" && item.bookingDate && item.bookingTime
+    );
+
+    if (itemsWithBooking.length === 0) {
+      toast.error("Please book at least one assessment before payment");
+      return;
+    }
+
+    const bundleId = itemsWithBooking.length > 1 ? `bundle-${Date.now()}` : undefined;
     
-    const cartItems = validItems.map(item => {
+    const cartItems = itemsWithBooking.map(item => {
       const discountAmount = item.originalPrice ? item.originalPrice - item.price : 0;
       const code = item.affiliationCodeId ? affiliationCodes.find(c => c.id === item.affiliationCodeId) : null;
       
@@ -188,64 +198,58 @@ const OrderAssessmentsPage = () => {
       };
     });
     
-    addToCart(cartItems);
     navigate("/dashboard/purchase", {
       state: { cartItems }
     });
   };
 
   const handlePayLater = () => {
-    const bundleId = validItems.length > 1 ? `bundle-${Date.now()}` : undefined;
-    
-    const cartItems = validItems.map(item => {
-      const discountAmount = item.originalPrice ? item.originalPrice - item.price : 0;
+    // Only create orders if they have booking information
+    const itemsWithBooking = validItems.filter(item => 
+      item.status === "booked" && item.bookingDate && item.bookingTime
+    );
+
+    if (itemsWithBooking.length === 0) {
+      toast.error("Please book at least one assessment before saving the order");
+      return;
+    }
+
+    const bundleId = itemsWithBooking.length > 1 ? `bundle-${Date.now()}` : undefined;
+
+    const unpaidItems = itemsWithBooking.map(item => {
       const code = item.affiliationCodeId ? affiliationCodes.find(c => c.id === item.affiliationCodeId) : null;
       
       return {
         id: item.id,
-        name: item.assessment,
-        price: item.price,
-        originalPrice: item.originalPrice,
-        discountAmount,
+        testName: item.assessment,
+        amount: item.price,
+        dateAdded: new Date().toLocaleDateString(),
+        bookingDate: item.bookingDate!,
+        bookingTime: item.bookingTime!,
+        status: item.status,
+        bundleId,
+        testStatus: "scheduled" as const,
+        kycStatus: "pending" as const,
         affiliationCodeId: item.affiliationCodeId,
         partnerName: code?.partnerName,
-        bookingDate: item.bookingDate,
-        bookingTime: item.bookingTime,
-        status: item.status,
-        bundleId
       };
     });
 
-    const unpaidItems = validItems.map(item => ({
-      id: item.id,
-      testName: item.assessment,
-      amount: item.price,
-      dateAdded: new Date().toLocaleDateString(),
-      bookingDate: item.bookingDate,
-      bookingTime: item.bookingTime,
-      status: item.status,
-      bundleId
-    }));
-
     // Add booked items to the booked items list
-    const bookedOnlyItems = validItems.filter(item => item.status === "booked" && item.bookingDate && item.bookingTime);
-    const bookedItems = bookedOnlyItems.map(item => ({
+    const bookedItems = itemsWithBooking.map(item => ({
       id: item.id,
       testName: item.assessment,
       bookingDate: item.bookingDate!,
       bookingTime: item.bookingTime!,
-      type: "Individual", // Default type, could be made configurable
+      type: bundleId ? "Bundle Assessment" : "Individual Assessment",
       testTime: getTestDuration(item.assessment)
     }));
     
-    // Add to cart, unpaid orders, and booked items (if applicable)
-    addToCart(cartItems);
+    // Add to unpaid orders and booked items only (no cart)
     addToUnpaidOrders(unpaidItems);
-    if (bookedItems.length > 0) {
-      addToBookedItems(bookedItems);
-    }
+    addToBookedItems(bookedItems);
     
-    toast.success(`${validItems.length} item(s) added to cart and saved for later payment`);
+    toast.success(`${itemsWithBooking.length} assessment(s) booked and added to unpaid orders`);
     navigate("/dashboard/orders");
   };
 

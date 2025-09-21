@@ -60,7 +60,7 @@ const PurchasePage = () => {
       }));
       setTests(mockTests);
     } else if (location.state?.cartItems) {
-      // From cart (array of CartItem objects)
+      // From cart (array of CartItem objects) - legacy support
       const cartItems = location.state.cartItems as CartItem[];
       const convertedTests = cartItems.map(item => ({
         id: item.id,
@@ -74,6 +74,23 @@ const PurchasePage = () => {
         bookingDate: item.bookingDate ? item.bookingDate.toLocaleDateString() : undefined,
         bookingTime: item.bookingTime,
         bundleId: item.bundleId, // Preserve bundle information
+      }));
+      setTests(convertedTests);
+    } else if (location.state?.selectedOrders) {
+      // From selected orders (new flow)
+      const selectedOrders = location.state.selectedOrders as any[];
+      const convertedTests = selectedOrders.map(order => ({
+        id: order.id,
+        name: order.name,
+        price: order.price,
+        originalPrice: order.originalPrice,
+        discountAmount: order.discountAmount,
+        partnerName: order.partnerName,
+        affiliationCodeId: order.affiliationCodeId,
+        description: `${order.name} certification exam`,
+        bookingDate: order.bookingDate ? order.bookingDate.toLocaleDateString() : undefined,
+        bookingTime: order.bookingTime,
+        bundleId: order.bundleId,
       }));
       setTests(convertedTests);
     } else {

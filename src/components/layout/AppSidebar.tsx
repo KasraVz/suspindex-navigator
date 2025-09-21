@@ -15,7 +15,9 @@ import {
   CreditCard,
   ExternalLink,
   Trophy,
+  Circle
 } from "lucide-react";
+import { useOrders } from "@/contexts/OrderContext";
 import {
   Sidebar,
   SidebarContent,
@@ -61,6 +63,9 @@ const offerItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { unpaidOrders } = useOrders();
+  
+  const hasUnpaidOrders = unpaidOrders.length > 0;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -91,6 +96,9 @@ export function AppSidebar() {
                       <item.icon className={`h-4 w-4 ${item.special ? "text-brand-orange" : ""}`} />
                       <span className={item.special ? "text-brand-orange font-semibold" : ""}>{item.title}</span>
                       {item.special && <div className="ml-auto w-2 h-2 bg-brand-orange rounded-full animate-pulse" />}
+                      {item.title === "My Orders" && hasUnpaidOrders && (
+                        <Circle className="w-2 h-2 fill-primary text-primary ml-auto" />
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

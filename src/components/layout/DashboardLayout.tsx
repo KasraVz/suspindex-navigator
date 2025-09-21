@@ -4,10 +4,8 @@ import { AppSidebar } from "./AppSidebar";
 import { DashboardHeader } from "./DashboardHeader";
 import { useState } from "react";
 import { Notification } from "./Notifications";
-import { useOrders } from "@/contexts/OrderContext";
 
 const DashboardLayout = () => {
-  const { cartItems, removeFromCart } = useOrders();
   
   // Notification generator function
   const generateNotification = (index: number): Notification => {
@@ -94,10 +92,6 @@ const DashboardLayout = () => {
       setTotalGenerated(prev => prev + 4);
       setIsLoadingMore(false);
     }, 300);
-  };
-
-  const handleRemoveCartItem = (id: string) => {
-    removeFromCart(id);
   };
 
   const unreadNotifications = displayedNotifications.filter(n => !n.isRead);

@@ -3,10 +3,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { UnifiedOrdersTable } from "@/components/orders/UnifiedOrdersTable";
-import { UnpaidOrdersTable } from "@/components/orders/UnpaidOrdersTable";
+import UnpaidOrdersTable from "@/components/orders/UnpaidOrdersTable";
+import { useOrders } from "@/contexts/OrderContext";
+import { Badge } from "@/components/ui/badge";
 
 const MyOrdersPage = () => {
   const navigate = useNavigate();
+  const { unpaidOrders } = useOrders();
+  
+  const unpaidCount = unpaidOrders.length;
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6">
@@ -23,7 +28,14 @@ const MyOrdersPage = () => {
 
       <Tabs defaultValue="unpaid" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="unpaid">Unpaid Orders</TabsTrigger>
+          <TabsTrigger value="unpaid" className="relative">
+            Unpaid Orders
+            {unpaidCount > 0 && (
+              <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs">
+                {unpaidCount}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="all">All Orders</TabsTrigger>
         </TabsList>
         <TabsContent value="unpaid">

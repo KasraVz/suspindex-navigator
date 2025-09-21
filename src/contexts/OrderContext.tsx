@@ -55,6 +55,7 @@ interface OrderContextType {
   unpaidOrders: UnpaidOrder[];
   bookedItems: BookedItem[];
   paidItems: PaidItem[];
+  selectedOrderIds: string[];
   addToCart: (items: CartItem[]) => void;
   removeFromCart: (id: string) => void;
   addToUnpaidOrders: (items: UnpaidOrder[]) => void;
@@ -68,6 +69,10 @@ interface OrderContextType {
   canRemoveOrder: (id: string) => boolean;
   bookOrder: (orderId: string, bookingData: { bookingDate: Date; bookingTime: string; testTime: string }) => void;
   cancelBooking: (id: string) => void;
+  toggleOrderSelection: (orderId: string) => void;
+  selectAllOrders: () => void;
+  deselectAllOrders: () => void;
+  getSelectedOrders: () => UnpaidOrder[];
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -89,6 +94,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
   const [unpaidOrders, setUnpaidOrders] = useState<UnpaidOrder[]>([]);
   const [bookedItems, setBookedItems] = useState<BookedItem[]>([]);
   const [paidItems, setPaidItems] = useState<PaidItem[]>([]);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
   // Initialize comprehensive mock data if localStorage is empty
   const initializeMockData = () => {
@@ -689,6 +695,27 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setBookedItems(prev => prev.filter(item => item.id !== id));
   };
 
+  // Selection management functions
+  const toggleOrderSelection = (orderId: string) => {
+    setSelectedOrderIds(prev => 
+      prev.includes(orderId) 
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    );
+  };
+
+  const selectAllOrders = () => {
+    setSelectedOrderIds(unpaidOrders.map(order => order.id));
+  };
+
+  const deselectAllOrders = () => {
+    setSelectedOrderIds([]);
+  };
+
+  const getSelectedOrders = (): UnpaidOrder[] => {
+    return unpaidOrders.filter(order => selectedOrderIds.includes(order.id));
+  };
+
   return (
     <OrderContext.Provider
       value={{
@@ -696,6 +723,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         unpaidOrders,
         bookedItems,
         paidItems,
+        selectedOrderIds,
         addToCart,
         removeFromCart,
         addToUnpaidOrders,
@@ -709,6 +737,10 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         canRemoveOrder,
         bookOrder,
         cancelBooking,
+        toggleOrderSelection,
+        selectAllOrders,
+        deselectAllOrders,
+        getSelectedOrders,
       }}
     >
       {children}
