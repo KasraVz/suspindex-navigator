@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileUpload } from "@/components/ui/file-upload";
 import { FileText } from "lucide-react";
 interface RequestScholarshipProps {
   initialData?: any;
@@ -20,16 +21,32 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
       <CardContent>
         <form className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
-            
-            
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input id="fullName" defaultValue={initialData?.fullName} placeholder="Enter your full name" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input id="email" type="email" defaultValue={initialData?.email} placeholder="Enter your email address" />
+            </div>
           </div>
 
           <div className="space-y-2">
-            
-            
+            <Label htmlFor="companyName">Startup/Company Name</Label>
+            <Input id="companyName" defaultValue={initialData?.companyName} placeholder="Enter your startup or company name" />
           </div>
 
-          
+          <div className="space-y-2">
+            <Label htmlFor="businessPlanFile">Business Plan Upload</Label>
+            <FileUpload
+              accept=".pdf,.doc,.docx"
+              onFileSelect={(file) => console.log('Business plan file selected:', file)}
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Upload your business plan (PDF, DOC, or DOCX format, max 20MB)
+            </p>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="scholarshipType">Scholarship Type</Label>
