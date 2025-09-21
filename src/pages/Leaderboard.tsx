@@ -167,13 +167,6 @@ const LeaderboardTable = ({ data }: { data: typeof mockLeaderboardData.seasonal.
             <Badge className={`${quarterStyle.badge} text-xs font-semibold`}>
               {user.quarter === 'Q4' ? 'Legendary' : user.quarter}
             </Badge>
-            <div className="text-right">
-              <div className="font-semibold">{user.points.toLocaleString()} pts</div>
-              <div className={`text-sm flex items-center gap-1 ${user.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                <TrendingUp className="h-3 w-3" />
-                {user.change}
-              </div>
-            </div>
           </div>
         </div>
       );
@@ -203,7 +196,6 @@ const UserRankingCards = ({ rankData, timeframe }: { rankData: typeof currentUse
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">of {rankData.fpa.totalUsers.toLocaleString()}</div>
-            <div className="text-lg font-semibold text-primary">{rankData.fpa.points.toLocaleString()} pts</div>
             <Progress value={rankData.fpa.percentile} className="h-2" />
           </div>
         </CardContent>
@@ -226,7 +218,6 @@ const UserRankingCards = ({ rankData, timeframe }: { rankData: typeof currentUse
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">of {rankData.geb.totalUsers.toLocaleString()}</div>
-            <div className="text-lg font-semibold text-primary">{rankData.geb.points.toLocaleString()} pts</div>
             <Progress value={rankData.geb.percentile} className="h-2" />
           </div>
         </CardContent>
@@ -249,7 +240,6 @@ const UserRankingCards = ({ rankData, timeframe }: { rankData: typeof currentUse
               </Badge>
             </div>
             <div className="text-sm text-muted-foreground">of {rankData.eea.totalUsers.toLocaleString()}</div>
-            <div className="text-lg font-semibold text-primary">{rankData.eea.points.toLocaleString()} pts</div>
             <Progress value={rankData.eea.percentile} className="h-2" />
           </div>
         </CardContent>
