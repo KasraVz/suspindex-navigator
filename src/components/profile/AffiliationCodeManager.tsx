@@ -94,6 +94,9 @@ export function AffiliationCodeManager() {
                       <User className="w-5 h-5" />
                       {code.partnerName}
                     </CardTitle>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Code: {code.code}
+                    </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <Badge variant="secondary">{code.partnerType}</Badge>
                       <span className="flex items-center gap-1">

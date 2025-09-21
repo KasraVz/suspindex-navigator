@@ -272,11 +272,18 @@ const PurchasePage = () => {
                                            <span className="text-lg text-muted-foreground line-through">${test.originalPrice}</span>
                                            <span className="text-lg font-bold text-green-600">${test.price}</span>
                                            <span className="text-sm text-green-600">(-${test.discountAmount})</span>
-                                           {test.partnerName && (
-                                             <Badge variant="secondary" className="text-xs">
-                                               {test.partnerName} Discount
-                                             </Badge>
-                                           )}
+                                            {test.partnerName && (
+                                              <div className="mt-1">
+                                                <Badge variant="secondary" className="text-xs">
+                                                  {test.partnerName} Discount
+                                                </Badge>
+                                                {test.affiliationCodeId && (
+                                                  <div className="text-xs text-muted-foreground mt-1">
+                                                    Code: {test.affiliationCodeId}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                          </>
                                        ) : (
                                          <span className="text-lg font-bold text-primary">${test.price}</span>
@@ -328,11 +335,18 @@ const PurchasePage = () => {
                                          <span className="text-lg text-muted-foreground line-through">${test.originalPrice}</span>
                                          <span className="text-lg font-bold text-green-600">${test.price}</span>
                                          <span className="text-sm text-green-600">(-${test.discountAmount})</span>
-                                         {test.partnerName && (
-                                           <Badge variant="secondary" className="text-xs">
-                                             {test.partnerName} Discount
-                                           </Badge>
-                                         )}
+                                          {test.partnerName && (
+                                            <div className="mt-1">
+                                              <Badge variant="secondary" className="text-xs">
+                                                {test.partnerName} Discount
+                                              </Badge>
+                                              {test.affiliationCodeId && (
+                                                <div className="text-xs text-muted-foreground mt-1">
+                                                  Code: {test.affiliationCodeId}
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
                                        </>
                                      ) : (
                                        <span className="text-lg font-bold text-primary">${test.price}</span>

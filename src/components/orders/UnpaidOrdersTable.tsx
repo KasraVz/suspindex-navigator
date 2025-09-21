@@ -267,8 +267,19 @@ const UnpaidOrdersTable = () => {
                     <TableCell>{bundle.orderDate}</TableCell>
                     <TableCell>${bundle.totalAmount}</TableCell>
                     <TableCell>
-                      {bundle.items[0]?.partnerName && (
-                        <Badge variant="secondary">{bundle.items[0].partnerName}</Badge>
+                      {bundle.items[0]?.partnerName ? (
+                        <div className="text-sm">
+                          <Badge variant="secondary" className="text-xs">
+                            {bundle.items[0].partnerName}
+                          </Badge>
+                          {bundle.items[0]?.affiliationCodeId && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {bundle.items[0].affiliationCodeId}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">No partner</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -332,8 +343,19 @@ const UnpaidOrdersTable = () => {
                     <TableCell>{order.dateAdded}</TableCell>
                     <TableCell>${order.amount}</TableCell>
                     <TableCell>
-                      {order.partnerName && (
-                        <Badge variant="secondary">{order.partnerName}</Badge>
+                      {order.partnerName ? (
+                        <div className="text-sm">
+                          <Badge variant="secondary" className="text-xs">
+                            {order.partnerName}
+                          </Badge>
+                          {order.affiliationCodeId && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {order.affiliationCodeId}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">No partner</span>
                       )}
                     </TableCell>
                     <TableCell>

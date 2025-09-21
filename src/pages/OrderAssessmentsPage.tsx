@@ -337,12 +337,14 @@ const OrderAssessmentsPage = () => {
                     })
                     .map((code) => (
                     <SelectItem key={code.id} value={code.id}>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col">
                         <span>{code.partnerName}</span>
-                        <Badge variant="secondary">{code.code}</Badge>
-                        <span className="text-sm text-muted-foreground">
-                          ({getAvailableTests(code.id).length} tests available)
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">{code.code}</Badge>
+                          <span className="text-sm text-muted-foreground">
+                            ({getAvailableTests(code.id).length} tests available)
+                          </span>
+                        </div>
                       </div>
                     </SelectItem>
                   ))}
@@ -390,7 +392,8 @@ const OrderAssessmentsPage = () => {
             </div>
             {selectedAffiliationCode && (
               <div className="text-sm text-muted-foreground">
-                Using affiliation code from: {affiliationCodes.find(c => c.id === selectedAffiliationCode)?.partnerName}
+                <div>Using affiliation code from: {affiliationCodes.find(c => c.id === selectedAffiliationCode)?.partnerName}</div>
+                <div className="text-xs mt-1">Code: {affiliationCodes.find(c => c.id === selectedAffiliationCode)?.code}</div>
               </div>
             )}
           </CardHeader>
