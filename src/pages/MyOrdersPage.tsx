@@ -31,7 +31,7 @@ const MyOrdersPage = () => {
           <TabsTrigger value="unpaid" className="relative">
             Unpaid Orders
             {unpaidCount > 0 && (
-              <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs">
+              <Badge variant="destructive" className="ml-2 h-5 px-2 text-xs">
                 {unpaidCount}
               </Badge>
             )}
