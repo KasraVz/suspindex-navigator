@@ -69,6 +69,7 @@ interface OrderContextType {
   canRemoveOrder: (id: string) => boolean;
   bookOrder: (orderId: string, bookingData: { bookingDate: Date; bookingTime: string; testTime: string }) => void;
   cancelBooking: (id: string) => void;
+  rescheduleBooking: (id: string, newBookingDate: Date, newBookingTime: string) => void;
   toggleOrderSelection: (orderId: string) => void;
   selectAllOrders: () => void;
   deselectAllOrders: () => void;
@@ -695,6 +696,41 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
     setBookedItems(prev => prev.filter(item => item.id !== id));
   };
 
+  const rescheduleBooking = (id: string, newBookingDate: Date, newBookingTime: string) => {
+    // Update unpaid order with new booking info
+    setUnpaidOrders(prev => prev.map(order => 
+      order.id === id 
+        ? { 
+            ...order, 
+            bookingDate: newBookingDate, 
+            bookingTime: newBookingTime
+          }
+        : order
+    ));
+
+    // Update booked items with new booking info
+    setBookedItems(prev => prev.map(item => 
+      item.id === id 
+        ? { 
+            ...item, 
+            bookingDate: newBookingDate, 
+            bookingTime: newBookingTime
+          }
+        : item
+    ));
+
+    // Update paid items if exists
+    setPaidItems(prev => prev.map(item => 
+      item.id === id 
+        ? { 
+            ...item, 
+            bookingDate: newBookingDate, 
+            bookingTime: newBookingTime
+          }
+        : item
+    ));
+  };
+
   // Selection management functions
   const toggleOrderSelection = (orderId: string) => {
     setSelectedOrderIds(prev => 
@@ -737,6 +773,7 @@ export const OrderProvider: React.FC<OrderProviderProps> = ({ children }) => {
         canRemoveOrder,
         bookOrder,
         cancelBooking,
+        rescheduleBooking,
         toggleOrderSelection,
         selectAllOrders,
         deselectAllOrders,

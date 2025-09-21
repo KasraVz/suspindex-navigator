@@ -13,6 +13,7 @@ interface BookingDialogProps {
   onConfirm: (date: Date, time: string) => void;
   initialDate?: Date;
   initialTime?: string;
+  mode?: "booking" | "rescheduling";
 }
 
 export function BookingDialog({ 
@@ -20,7 +21,8 @@ export function BookingDialog({
   onOpenChange, 
   onConfirm, 
   initialDate, 
-  initialTime 
+  initialTime,
+  mode = "booking"
 }: BookingDialogProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate);
   const [selectedTime, setSelectedTime] = useState<string>(initialTime || "");
@@ -64,7 +66,9 @@ export function BookingDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Schedule Assessment</DialogTitle>
+          <DialogTitle>
+            {mode === "rescheduling" ? "Reschedule Assessment" : "Schedule Assessment"}
+          </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
@@ -139,7 +143,7 @@ export function BookingDialog({
               disabled={!selectedDate || !selectedTime || !acceptedRules}
               className="flex-1"
             >
-              Confirm Booking
+              {mode === "rescheduling" ? "Confirm Reschedule" : "Confirm Booking"}
             </Button>
           </div>
         </div>

@@ -12,14 +12,15 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useOrders } from "@/contexts/OrderContext";
 import { toast } from "sonner";
-import { Calendar, Trash2, X } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 import { useState } from "react";
+import { BookingDialog } from "@/components/orders/BookingDialog";
 
 export function BookedTestsTable() {
-  const { bookedItems, paidItems, unpaidOrders, addToCart, cancelBooking, removeOrder, canRemoveOrder } = useOrders();
+  const { bookedItems, paidItems, unpaidOrders, addToCart, cancelBooking, rescheduleBooking } = useOrders();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [showRemoveDialog, setShowRemoveDialog] = useState(false);
-  const [selectedTest, setSelectedTest] = useState<{id: string, name: string} | null>(null);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
+  const [selectedTest, setSelectedTest] = useState<{id: string, name: string, bookingDate?: Date, bookingTime?: string} | null>(null);
 
   const handleTakeNow = (testId: string, testName: string) => {
     toast.success(`Starting ${testName} now!`);
@@ -53,9 +54,9 @@ export function BookedTestsTable() {
     setShowCancelDialog(true);
   };
 
-  const handleRemoveOrder = (testId: string, testName: string) => {
-    setSelectedTest({id: testId, name: testName});
-    setShowRemoveDialog(true);
+  const handleReschedule = (testId: string, testName: string, bookingDate: Date, bookingTime: string) => {
+    setSelectedTest({id: testId, name: testName, bookingDate, bookingTime});
+    setShowRescheduleDialog(true);
   };
 
   const confirmCancelBooking = () => {
@@ -67,13 +68,12 @@ export function BookedTestsTable() {
     setSelectedTest(null);
   };
 
-  const confirmRemoveOrder = () => {
-    if (selectedTest && removeOrder(selectedTest.id)) {
-      toast.success(`Order for ${selectedTest.name} removed completely.`);
-    } else {
-      toast.error("Failed to remove order. Order may be paid or test already taken.");
+  const confirmReschedule = (newDate: Date, newTime: string) => {
+    if (selectedTest) {
+      rescheduleBooking(selectedTest.id, newDate, newTime);
+      toast.success(`${selectedTest.name} rescheduled successfully.`);
     }
-    setShowRemoveDialog(false);
+    setShowRescheduleDialog(false);
     setSelectedTest(null);
   };
 
@@ -141,23 +141,21 @@ export function BookedTestsTable() {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => handleReschedule(test.id, test.testName, test.bookingDate, test.bookingTime)}
+                          className="flex items-center gap-2"
+                        >
+                          <Calendar size={14} />
+                          Reschedule
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleCancelBooking(test.id, test.testName)}
                           className="flex items-center gap-2"
                         >
                           <X size={14} />
                           Cancel Booking
                         </Button>
-                        {canRemoveOrder(test.id) && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveOrder(test.id, test.testName)}
-                            className="flex items-center gap-2 text-destructive hover:text-destructive"
-                          >
-                            <Trash2 size={14} />
-                            Remove Order
-                          </Button>
-                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -186,23 +184,14 @@ export function BookedTestsTable() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showRemoveDialog} onOpenChange={setShowRemoveDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove Order</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to completely remove the order for {selectedTest?.name}? 
-              This will cancel the booking and remove the order entirely. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmRemoveOrder} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Remove Order
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <BookingDialog
+        open={showRescheduleDialog}
+        onOpenChange={setShowRescheduleDialog}
+        onConfirm={confirmReschedule}
+        initialDate={selectedTest?.bookingDate}
+        initialTime={selectedTest?.bookingTime}
+        mode="rescheduling"
+      />
     </Card>
   );
 }
