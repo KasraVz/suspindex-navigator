@@ -60,19 +60,19 @@ const getQuarterStyle = (quarter: string) => {
 const mockUserLeaderboardData = {
   overallRank: 28,
   totalUsers: 1247,
-  totalPoints: 45680,
   percentile: 98,
   currentQuarter: "Q3",
+  quartersAchieved: ["Q1", "Q2", "Q3"], // Quarters the user has achieved
   assessmentRanks: {
     seasonal: {
-      fpa: { rank: 28, points: 2180, quarter: "Q3" },
-      geb: { rank: 35, points: 2320, quarter: "Q3" },
-      eea: { rank: 22, points: 2640, quarter: "Q3" }
+      fpa: { rank: 28, quarter: "Q3", testScore: 92 },
+      geb: { rank: 35, quarter: "Q3", testScore: 88 },
+      eea: { rank: 22, quarter: "Q3", testScore: 95 }
     },
     allTime: {
-      fpa: { rank: 25, points: 11180, quarter: "Q3" },
-      geb: { rank: 42, points: 10520, quarter: "Q3" },
-      eea: { rank: 18, points: 12140, quarter: "Q3" }
+      fpa: { rank: 25, quarter: "Q3", testScore: 94 },
+      geb: { rank: 42, quarter: "Q3", testScore: 87 },
+      eea: { rank: 18, quarter: "Q3", testScore: 96 }
     }
   },
   badges: [
@@ -84,17 +84,16 @@ const mockUserLeaderboardData = {
     { name: "Legendary Elite", description: "Achieved Q4 status", icon: Award, earned: false, category: "legendary" },
   ],
   recentAchievements: [
-    { activity: "Season Dominator Badge", points: "+500", date: "2 hours ago" },
-    { activity: "Q3 Quarter Achievement", points: "+300", date: "1 day ago" },
-    { activity: "Insight Master Badge", points: "+250", date: "3 days ago" },
-    { activity: "Assessment Streak Bonus", points: "+100", date: "1 week ago" },
+    { activity: "Season Dominator Badge earned", type: "badge", date: "2 hours ago" },
+    { activity: "Q3 Quarter Achievement unlocked", type: "quarter", date: "1 day ago" },
+    { activity: "Insight Master Badge earned", type: "badge", date: "3 days ago" },
+    { activity: "FPA Excellence Certificate awarded", type: "certificate", date: "1 week ago" },
   ],
-  nextMilestone: {
-    name: "Q4 Legendary Status",
-    currentProgress: 2180,
-    target: 3000,
-    pointsNeeded: 820,
-    progressPercent: 73
+  quarterRequirements: {
+    Q1: { minScore: 70, description: "Bronze level - Good foundation" },
+    Q2: { minScore: 80, description: "Silver level - Strong performance" },
+    Q3: { minScore: 90, description: "Gold level - Excellent results" },
+    Q4: { minScore: 95, description: "Legendary - Outstanding mastery" }
   },
   certificates: [
     { name: "Q3 Excellence Certificate", assessment: "FPA", issued: "2024-03-15" },
@@ -106,13 +105,13 @@ export const LeaderboardProfile = () => {
   const { 
     overallRank, 
     totalUsers, 
-    totalPoints, 
     percentile,
     currentQuarter,
+    quartersAchieved,
     assessmentRanks,
     badges,
     recentAchievements,
-    nextMilestone,
+    quarterRequirements,
     certificates
   } = mockUserLeaderboardData;
 
@@ -191,12 +190,12 @@ export const LeaderboardProfile = () => {
                     <div>
                       <div className="text-xs text-muted-foreground">Seasonal (90d)</div>
                       <div className="font-semibold">#{seasonal.rank}</div>
-                      <div className="text-xs text-muted-foreground">{seasonal.points.toLocaleString()} pts</div>
+                      <div className="text-xs text-muted-foreground">Score: {seasonal.testScore}%</div>
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">All-Time</div>
                       <div className="font-semibold">#{allTime.rank}</div>
-                      <div className="text-xs text-muted-foreground">{allTime.points.toLocaleString()} pts</div>
+                      <div className="text-xs text-muted-foreground">Score: {allTime.testScore}%</div>
                     </div>
                   </div>
                 </div>
@@ -205,18 +204,87 @@ export const LeaderboardProfile = () => {
           </div>
         </div>
 
-        {/* Progress to Next Quarter/Milestone */}
+        {/* Quarter Progression Tracker */}
         <div>
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-4">
             <Target className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">Next Milestone: {nextMilestone.name}</h3>
+            <h3 className="font-semibold">Quarter Progression</h3>
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Progress to Q4 Legendary</span>
-              <span>{nextMilestone.pointsNeeded.toLocaleString()} points needed</span>
+          
+          {/* Quarter Progression Visual */}
+          <div className="relative">
+            <div className="flex items-center justify-between mb-4">
+              {["Q1", "Q2", "Q3", "Q4"].map((quarter, index) => {
+                const isAchieved = quartersAchieved.includes(quarter);
+                const isCurrent = quarter === currentQuarter;
+                const quarterStyle = getQuarterStyle(quarter);
+                
+                return (
+                  <div key={quarter} className="flex flex-col items-center flex-1">
+                    <div 
+                      className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-semibold transition-all ${
+                        isAchieved 
+                          ? `${quarterStyle.bg} ${quarterStyle.text} border-current` 
+                          : 'bg-muted border-muted-foreground/20 text-muted-foreground'
+                      } ${isCurrent ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                    >
+                      {isAchieved ? (
+                        <CheckCircle className="h-6 w-6" />
+                      ) : (
+                        <span>{quarter}</span>
+                      )}
+                    </div>
+                    <div className="mt-2 text-center">
+                      <div className="text-xs font-medium">{quarter}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {quarterRequirements[quarter].minScore}%+
+                      </div>
+                    </div>
+                    {index < 3 && (
+                      <div 
+                        className={`absolute top-6 w-16 h-0.5 ${
+                          quartersAchieved.includes(["Q1", "Q2", "Q3", "Q4"][index + 1]) 
+                            ? 'bg-primary' 
+                            : 'bg-muted-foreground/20'
+                        }`}
+                        style={{ left: `${(index + 1) * 25 - 8}%` }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <Progress value={nextMilestone.progressPercent} className="h-2" />
+          </div>
+          
+          {/* Next Quarter Target */}
+          {currentQuarter !== "Q4" && (
+            <div className="mt-4 p-3 rounded-lg bg-secondary/30 border">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">{getQuarterStyle(["Q1", "Q2", "Q3", "Q4"][["Q1", "Q2", "Q3", "Q4"].indexOf(currentQuarter) + 1]).icon}</span>
+                <div>
+                  <div className="font-medium text-sm">
+                    Next Target: {["Q1", "Q2", "Q3", "Q4"][["Q1", "Q2", "Q3", "Q4"].indexOf(currentQuarter) + 1]}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {quarterRequirements[["Q1", "Q2", "Q3", "Q4"][["Q1", "Q2", "Q3", "Q4"].indexOf(currentQuarter) + 1]].description}
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Maintain {quarterRequirements[["Q1", "Q2", "Q3", "Q4"][["Q1", "Q2", "Q3", "Q4"].indexOf(currentQuarter) + 1]].minScore}%+ average test scores across assessments
+              </div>
+            </div>
+          )}
+          
+          {/* Quarter Requirements Legend */}
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+            {Object.entries(quarterRequirements).map(([quarter, req]) => (
+              <div key={quarter} className="flex items-center gap-2">
+                <span className={`w-3 h-3 rounded-full ${getQuarterStyle(quarter).bg.split(' ')[0]}`} />
+                <span className="font-medium">{quarter}:</span>
+                <span className="text-muted-foreground">{req.description}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -300,20 +368,36 @@ export const LeaderboardProfile = () => {
             <h3 className="font-semibold">Recent Activity</h3>
           </div>
           <div className="space-y-3">
-            {recentAchievements.slice(0, 3).map((achievement, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                <div>
-                  <div className="text-sm font-medium">{achievement.activity}</div>
-                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {achievement.date}
+            {recentAchievements.slice(0, 3).map((achievement, index) => {
+              const getTypeIcon = (type: string) => {
+                switch (type) {
+                  case 'badge': return Award;
+                  case 'quarter': return Trophy;
+                  case 'certificate': return Star;
+                  default: return CheckCircle;
+                }
+              };
+              
+              const TypeIcon = getTypeIcon(achievement.type);
+              
+              return (
+                <div key={index} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                  <div className="flex items-center gap-2">
+                    <TypeIcon className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="text-sm font-medium">{achievement.activity}</div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {achievement.date}
+                      </div>
+                    </div>
                   </div>
+                  <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5 capitalize">
+                    {achievement.type}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="text-green-600 border-green-600/20 bg-green-600/5">
-                  {achievement.points}
-                </Badge>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </CardContent>
