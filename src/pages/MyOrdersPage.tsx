@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { UnifiedOrdersTable } from "@/components/orders/UnifiedOrdersTable";
-import UnpaidOrdersTable from "@/components/orders/UnpaidOrdersTable";
+import { default as UnpaidOrdersTable } from "@/components/orders/UnpaidOrdersTable";
 import { useOrders } from "@/contexts/OrderContext";
 import { Badge } from "@/components/ui/badge";
 

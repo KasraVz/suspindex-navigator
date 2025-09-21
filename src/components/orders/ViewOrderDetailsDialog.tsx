@@ -253,7 +253,7 @@ export function ViewOrderDetailsDialog({ order, open, onOpenChange }: ViewOrderD
               <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Amount</h3>
               <p className="text-lg font-semibold mt-1">${order.amount}</p>
               <Badge variant={getStatusColor(order.overallStatus)} className="mt-1">
-                {order.overallStatus.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {order.overallStatus?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Pending'}
               </Badge>
             </div>
           </div>
