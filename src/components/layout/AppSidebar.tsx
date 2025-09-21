@@ -91,11 +91,11 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)} className={item.special ? "bg-gradient-to-r from-brand-orange/10 to-brand-orange/5 border border-brand-orange/20 hover:from-brand-orange/20 hover:to-brand-orange/10" : undefined}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url}>
-                      <item.icon className={`h-4 w-4 ${item.special ? "text-brand-orange" : ""}`} />
-                      <span className={item.special ? "text-brand-orange font-semibold" : ""}>{item.title}</span>
-                      {item.special && <div className="ml-auto w-2 h-2 bg-brand-orange rounded-full animate-pulse" />}
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      {item.title === "Fast Trak" && <div className="ml-auto w-2 h-2 bg-brand-orange rounded-full animate-pulse" />}
                       {item.title === "My Orders" && hasUnpaidOrders && (
                         <Circle className="w-2 h-2 fill-destructive text-destructive ml-auto" />
                       )}
