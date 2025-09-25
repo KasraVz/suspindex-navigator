@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GraduationCap, Calendar, DollarSign } from "lucide-react";
+import { GraduationCap, Calendar, Award } from "lucide-react";
+import { ScholarshipApplicationDialog } from "./ScholarshipApplicationDialog";
 
 const scholarships = [
   {
     id: 1,
     title: "Startup Innovation Scholarship",
     description: "Support for innovative startup founders in their certification journey",
-    amount: "$1,000",
+    testType: "FPA",
     deadline: "March 31, 2024",
     status: "Open",
     requirements: ["Active startup registration", "Less than 2 years operation", "Tech-based business"],
@@ -17,7 +18,7 @@ const scholarships = [
     id: 2,
     title: "Women Entrepreneurs Grant",
     description: "Empowering women in business through professional development",
-    amount: "$750",
+    testType: "EEA",
     deadline: "April 15, 2024",
     status: "Open",
     requirements: ["Female founder", "Business plan submission", "Leadership potential"],
@@ -26,10 +27,19 @@ const scholarships = [
     id: 3,
     title: "Social Impact Fellowship",
     description: "For startups focused on social and environmental impact",
-    amount: "$1,500",
+    testType: "GEB",
     deadline: "February 28, 2024",
     status: "Closing Soon",
     requirements: ["Social impact mission", "Community involvement", "Sustainability focus"],
+  },
+  {
+    id: 4,
+    title: "Tech Innovation Bundle",
+    description: "Comprehensive assessment package for technology startups",
+    testType: "Bundle of 3",
+    deadline: "May 15, 2024",
+    status: "Open",
+    requirements: ["Technology startup", "Product in development", "Growth potential"],
   },
 ];
 
@@ -53,8 +63,8 @@ export function GeneralScholarship() {
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-success" />
-                  <span className="font-bold text-success">{scholarship.amount}</span>
+                  <Award className="w-4 h-4 text-primary" />
+                  <span className="font-bold text-primary">{scholarship.testType}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -71,12 +81,14 @@ export function GeneralScholarship() {
                 </ul>
               </div>
               
-              <Button 
-                className="w-full bg-brand-green hover:bg-brand-green/90 text-white" 
-                disabled={scholarship.status === "Closing Soon"}
-              >
-                Apply Now
-              </Button>
+              <ScholarshipApplicationDialog scholarship={scholarship}>
+                <Button 
+                  className="w-full bg-brand-green hover:bg-brand-green/90 text-white" 
+                  disabled={scholarship.status === "Closing Soon"}
+                >
+                  Apply Now
+                </Button>
+              </ScholarshipApplicationDialog>
             </CardContent>
           </Card>
         ))}
