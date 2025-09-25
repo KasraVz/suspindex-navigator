@@ -124,6 +124,23 @@ export function ScholarshipApplicationDialog({ scholarship, children }: Scholars
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="documents">Supporting Documents</Label>
+                <div className="text-sm text-muted-foreground mb-2">
+                  Upload any supporting documents (business plan, pitch deck, etc.)
+                </div>
+                <input
+                  type="file"
+                  id="documents"
+                  multiple
+                  accept=".pdf,.doc,.docx,.ppt,.pptx"
+                  className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-secondary file:text-secondary-foreground hover:file:bg-secondary/80 border border-input rounded-md"
+                />
+                <div className="text-xs text-muted-foreground">
+                  Accepted formats: PDF, DOC, DOCX, PPT, PPTX. Max file size: 10MB per file.
+                </div>
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <Button 
                   type="button" 
