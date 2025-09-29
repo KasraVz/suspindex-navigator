@@ -6,11 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileUpload } from "@/components/ui/file-upload";
 import { FileText } from "lucide-react";
-interface RequestScholarshipProps {
-  initialData?: any;
-}
-
-export function RequestScholarship({ initialData }: RequestScholarshipProps) {
+export function RequestScholarship() {
   return <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
@@ -23,17 +19,17 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" defaultValue={initialData?.fullName} placeholder="Enter your full name" />
+              <Input id="fullName" placeholder="Enter your full name" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" defaultValue={initialData?.email} placeholder="Enter your email address" />
+              <Input id="email" type="email" placeholder="Enter your email address" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="companyName">Startup/Company Name</Label>
-            <Input id="companyName" defaultValue={initialData?.companyName} placeholder="Enter your startup or company name" />
+            <Input id="companyName" placeholder="Enter your startup or company name" />
           </div>
 
           <div className="space-y-2">
@@ -50,7 +46,7 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
 
           <div className="space-y-2">
             <Label htmlFor="scholarshipType">Scholarship Type</Label>
-            <Select defaultValue={initialData?.scholarshipType}>
+            <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Select scholarship type" />
               </SelectTrigger>
@@ -66,7 +62,7 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
 
           <div className="space-y-2">
             <Label htmlFor="requestedTest">Requested Test</Label>
-            <Select defaultValue={initialData?.requestedTest}>
+            <Select>
               <SelectTrigger>
                 <SelectValue placeholder="Select requested test" />
               </SelectTrigger>
@@ -88,11 +84,8 @@ export function RequestScholarship({ initialData }: RequestScholarshipProps) {
             <Textarea id="businessPlan" placeholder="Provide a brief summary of your business plan and goals..." className="min-h-[100px]" />
           </div>
 
-          <div className="flex gap-4">
-            <Button type="button" variant="outline" className="flex-1 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white">
-              Save Draft
-            </Button>
-            <Button type="submit" className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white">
+          <div className="flex justify-end">
+            <Button type="submit" className="px-8">
               Submit Application
             </Button>
           </div>

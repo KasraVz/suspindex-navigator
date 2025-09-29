@@ -1,15 +1,10 @@
 import { GeneralScholarship } from "@/components/scholarship/GeneralScholarship";
 import { RequestScholarship } from "@/components/scholarship/RequestScholarship";
-import { DraftScholarships } from "@/components/scholarship/DraftScholarships";
+import { ApplicationStatus } from "@/components/scholarship/ApplicationStatus";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 const Scholarship = () => {
   const [activeTab, setActiveTab] = useState("available");
-  const [draftData, setDraftData] = useState(null);
-  const handleEditDraft = (draft: any) => {
-    setDraftData(draft);
-    setActiveTab("request");
-  };
   return <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Scholarship Program</h1>
@@ -20,7 +15,7 @@ const Scholarship = () => {
         <TabsList>
           <TabsTrigger value="available">Available Scholarships</TabsTrigger>
           <TabsTrigger value="request">Request Financial Aid</TabsTrigger>
-          <TabsTrigger value="drafts">Draft Applications</TabsTrigger>
+          <TabsTrigger value="status">Application Status</TabsTrigger>
         </TabsList>
 
         <TabsContent value="available">
@@ -28,11 +23,11 @@ const Scholarship = () => {
         </TabsContent>
 
         <TabsContent value="request">
-          <RequestScholarship initialData={draftData} />
+          <RequestScholarship />
         </TabsContent>
 
-        <TabsContent value="drafts">
-          <DraftScholarships onEditDraft={handleEditDraft} />
+        <TabsContent value="status">
+          <ApplicationStatus />
         </TabsContent>
       </Tabs>
     </div>;
