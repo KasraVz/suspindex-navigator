@@ -2,16 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, Eye } from "lucide-react";
-import { useState } from "react";
-import { ViewApplicationDetailsDialog } from "./ViewApplicationDetailsDialog";
-import { useVoucher } from "@/contexts/VoucherContext";
-import { useToast } from "@/hooks/use-toast";
 
 export function ApplicationStatus() {
-  const [selectedApplication, setSelectedApplication] = useState<typeof applications[0] | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
-  const { addVoucher } = useVoucher();
-  const { toast } = useToast();
   const applications = [
     {
       id: "APP001",
@@ -35,34 +27,6 @@ export function ApplicationStatus() {
       status: "rejected"
     }
   ];
-
-  const handleViewDetails = (application: typeof applications[0]) => {
-    setSelectedApplication(application);
-    setIsDetailsDialogOpen(true);
-  };
-
-  const handleAcceptOffer = (application: typeof applications[0]) => {
-    // Generate voucher code
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 6); // 6 months from now
-
-    addVoucher({
-      testType: application.requestedTest,
-      discountType: 'percentage',
-      discountValue: 100,
-      isUsed: false,
-      expiryDate: expiryDate.toISOString(),
-      source: 'scholarship',
-      applicationId: application.id,
-    });
-
-    toast({
-      title: "Scholarship Accepted!",
-      description: `Your voucher code has been generated. Check your vouchers to use it during checkout.`,
-    });
-
-    setIsDetailsDialogOpen(false);
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -119,17 +83,12 @@ export function ApplicationStatus() {
                   variant="outline" 
                   size="sm" 
                   className="flex items-center gap-2"
-                  onClick={() => handleViewDetails(application)}
                 >
                   <Eye className="w-4 h-4" />
                   View Details
                 </Button>
                 {application.status === "accepted" && (
-                  <Button 
-                    size="sm" 
-                    className="flex items-center gap-2"
-                    onClick={() => handleAcceptOffer(application)}
-                  >
+                  <Button size="sm" className="flex items-center gap-2">
                     Accept Offer
                   </Button>
                 )}
@@ -146,13 +105,6 @@ export function ApplicationStatus() {
           )}
         </div>
       </CardContent>
-      
-      <ViewApplicationDetailsDialog
-        application={selectedApplication}
-        isOpen={isDetailsDialogOpen}
-        onClose={() => setIsDetailsDialogOpen(false)}
-        onAcceptOffer={handleAcceptOffer}
-      />
     </Card>
   );
 }
