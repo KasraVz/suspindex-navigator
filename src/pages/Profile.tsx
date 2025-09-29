@@ -7,6 +7,7 @@ import { LeaderboardProfile } from "@/components/profile/LeaderboardProfile";
 import { AccountSettings } from "@/components/profile/AccountSettings";
 import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
 import { AffiliationCodeManager } from "@/components/profile/AffiliationCodeManager";
+import { VoucherList } from "@/components/vouchers/VoucherList";
 
 const Profile = () => {
   return (
@@ -20,6 +21,7 @@ const Profile = () => {
         <TabsList>
           <TabsTrigger value="view">View Profile</TabsTrigger>
           <TabsTrigger value="affiliation">Affiliation Codes</TabsTrigger>
+          <TabsTrigger value="vouchers">My Vouchers</TabsTrigger>
           <TabsTrigger value="requests">Edit Requests</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
@@ -38,6 +40,10 @@ const Profile = () => {
 
         <TabsContent value="affiliation" className="space-y-6">
           <AffiliationCodeManager />
+        </TabsContent>
+
+        <TabsContent value="vouchers" className="space-y-6">
+          <VoucherList />
         </TabsContent>
 
         <TabsContent value="requests" className="space-y-6">

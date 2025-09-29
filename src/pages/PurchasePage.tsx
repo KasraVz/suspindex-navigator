@@ -8,6 +8,7 @@ import { ArrowLeft, Trash2, Tag, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
 import { useAffiliation } from "@/contexts/AffiliationContext";
+import { useVoucher as useVoucherContext } from "@/contexts/VoucherContext";
 import { toast } from "sonner";
 
 interface Test {
@@ -29,13 +30,15 @@ const PurchasePage = () => {
   const navigate = useNavigate();
   const { addToPaidItems, removeFromUnpaidOrders, clearCart, removeFromCart } = useOrders();
   const { markDiscountUsed } = useAffiliation();
+  const { getVoucherByCode, isVoucherValid, useVoucher } = useVoucherContext();
   const [tests, setTests] = useState<Test[]>([]);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{
     code: string;
-    type: "percentage" | "fixed";
+    type: "percentage" | "fixed" | "voucher";
     value: number;
     description: string;
+    applicableTestTypes?: string[];
   } | null>(null);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
@@ -113,6 +116,47 @@ const PurchasePage = () => {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const upperCode = discountCode.toUpperCase();
+    
+    // Check if it's a voucher code first
+    const voucher = getVoucherByCode(upperCode);
+    if (voucher) {
+      // Check if any test in the order matches the voucher test type
+      const applicableTests = tests.filter(test => 
+        voucher.testType === test.name || voucher.testType === 'Bundle'
+      );
+      
+      if (applicableTests.length > 0) {
+        if (voucher.isUsed) {
+          toast.error("This voucher code has already been used");
+          setIsApplyingDiscount(false);
+          return;
+        }
+        
+        if (new Date() > new Date(voucher.expiryDate)) {
+          toast.error("This voucher code has expired");
+          setIsApplyingDiscount(false);
+          return;
+        }
+        
+        setAppliedDiscount({
+          code: upperCode,
+          type: "voucher",
+          value: voucher.discountValue,
+          description: `${voucher.source === 'scholarship' ? 'Scholarship' : 'Referral'} Voucher - Free ${voucher.testType}`,
+          applicableTestTypes: [voucher.testType]
+        });
+        setDiscountCode("");
+        toast.success(`Voucher applied: Free ${voucher.testType} test!`);
+        setIsApplyingDiscount(false);
+        return;
+      } else {
+        toast.error(`This voucher is only valid for ${voucher.testType} tests`);
+        setIsApplyingDiscount(false);
+        return;
+      }
+    }
+    
+    // Check regular discount codes
     const discount = validDiscountCodes[upperCode as keyof typeof validDiscountCodes];
     
     if (discount) {
@@ -148,6 +192,11 @@ const PurchasePage = () => {
       }
     });
     
+    // Mark voucher as used if applied
+    if (appliedDiscount && appliedDiscount.type === "voucher") {
+      useVoucher(appliedDiscount.code);
+    }
+    
     // Move items from unpaid to paid
     const paidItems = tests.map(test => ({
       id: test.id,
@@ -177,7 +226,18 @@ const PurchasePage = () => {
   // Calculate discount amount
   let discountAmount = 0;
   if (appliedDiscount) {
-    if (appliedDiscount.type === "percentage") {
+    if (appliedDiscount.type === "voucher") {
+      // For voucher discounts, calculate 100% discount only for applicable tests
+      if (appliedDiscount.applicableTestTypes) {
+        const applicableTests = tests.filter(test => 
+          appliedDiscount.applicableTestTypes!.includes(test.name) || 
+          appliedDiscount.applicableTestTypes!.includes('Bundle')
+        );
+        discountAmount = applicableTests.reduce((sum, test) => sum + test.price, 0);
+      } else {
+        discountAmount = subtotal;
+      }
+    } else if (appliedDiscount.type === "percentage") {
       discountAmount = Math.round(subtotal * (appliedDiscount.value / 100));
     } else {
       discountAmount = Math.min(appliedDiscount.value, subtotal);

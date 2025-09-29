@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { OrderProvider } from "@/contexts/OrderContext";
 import { BusinessProfileProvider } from "@/contexts/BusinessProfileContext";
 import { AffiliationProvider } from "@/contexts/AffiliationContext";
+import { VoucherProvider } from "@/contexts/VoucherContext";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -34,7 +35,8 @@ const App = () => (
     <TooltipProvider>
       <BusinessProfileProvider>
         <AffiliationProvider>
-          <OrderProvider>
+          <VoucherProvider>
+            <OrderProvider>
           <BrowserRouter>
             <Routes>
               {/* Redirect root to dashboard */}
@@ -72,8 +74,9 @@ const App = () => (
           <Toaster />
           <Sonner />
         </OrderProvider>
-      </AffiliationProvider>
-    </BusinessProfileProvider>
+      </VoucherProvider>
+    </AffiliationProvider>
+  </BusinessProfileProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

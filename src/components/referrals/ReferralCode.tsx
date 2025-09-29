@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Copy, Share, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useVoucher } from "@/contexts/VoucherContext";
+import { useState, useEffect } from "react";
 
 // Mock referral data - in a real app, this would come from props or context
 const mockReferrals = [
@@ -14,11 +16,21 @@ const mockReferrals = [
 
 export function ReferralCode() {
   const { toast } = useToast();
+  const { addVoucher, vouchers } = useVoucher();
   const referralCode = "SUSP-JD-2024";
+  const [hasClaimedReward, setHasClaimedReward] = useState(false);
   
   const activeReferrals = mockReferrals.filter(ref => ref.status === "Active").length;
   const progressPercentage = Math.min((activeReferrals / 3) * 100, 100);
-  const canClaimReward = activeReferrals >= 3;
+  const canClaimReward = activeReferrals >= 3 && !hasClaimedReward;
+
+  // Check if user has already claimed referral reward
+  useEffect(() => {
+    const referralVoucher = vouchers.find(v => v.source === 'referral' && v.testType === 'FPA');
+    if (referralVoucher) {
+      setHasClaimedReward(true);
+    }
+  }, [vouchers]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralCode);
@@ -30,9 +42,24 @@ export function ReferralCode() {
 
   const handleClaimReward = () => {
     if (canClaimReward) {
+      // Generate voucher code for FPA test
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + 12); // 12 months from now
+
+      addVoucher({
+        testType: 'FPA',
+        discountType: 'percentage',
+        discountValue: 100,
+        isUsed: false,
+        expiryDate: expiryDate.toISOString(),
+        source: 'referral',
+      });
+
+      setHasClaimedReward(true);
+      
       toast({
         title: "Congratulations!",
-        description: "Your free FPA Test has been added to your account",
+        description: "Your free FPA Test voucher has been generated! Check your vouchers to use it during checkout.",
       });
     }
   };
@@ -71,7 +98,7 @@ export function ReferralCode() {
             <div className="text-lg font-bold">{activeReferrals} out of 3 people joined</div>
             <Progress value={progressPercentage} className="mt-2" />
             <div className="text-xs text-muted-foreground mt-1">
-              {canClaimReward ? "Ready to claim your reward!" : `${3 - activeReferrals} more needed for free FPA Test`}
+              {hasClaimedReward ? "Reward already claimed!" : canClaimReward ? "Ready to claim your reward!" : `${3 - activeReferrals} more needed for free FPA Test`}
             </div>
           </div>
           
@@ -82,7 +109,7 @@ export function ReferralCode() {
             variant={canClaimReward ? "default" : "secondary"}
           >
             <Gift className="w-4 h-4 mr-2" />
-            {canClaimReward ? "Claim Free FPA Test" : "Free FPA Test (Locked)"}
+            {hasClaimedReward ? "Free FPA Test (Claimed)" : canClaimReward ? "Claim Free FPA Test" : "Free FPA Test (Locked)"}
           </Button>
         </div>
       </CardContent>
