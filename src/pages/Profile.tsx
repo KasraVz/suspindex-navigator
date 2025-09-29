@@ -1,14 +1,17 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfilePhoto } from "@/components/profile/ProfilePhoto";
 import { ProfileInfo } from "@/components/profile/ProfileInfo";
 import { BusinessProfile } from "@/components/profile/BusinessProfile";
 import { LeaderboardProfile } from "@/components/profile/LeaderboardProfile";
-import { AccountSettings } from "@/components/profile/AccountSettings";
-import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
 import { AffiliationCodeManager } from "@/components/profile/AffiliationCodeManager";
+import { ProfileEditRequests } from "@/components/profile/ProfileEditRequests";
+import { AccountSettings } from "@/components/profile/AccountSettings";
+import { VoucherList } from "@/components/vouchers/VoucherList";
+import { useState } from "react";
 
 const Profile = () => {
+  const [activeTab, setActiveTab] = useState("view");
+
   return (
     <div className="space-y-6">
       <div>
@@ -16,10 +19,11 @@ const Profile = () => {
         <p className="text-muted-foreground">Manage your profile information and account settings</p>
       </div>
 
-      <Tabs defaultValue="view" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="view">View Profile</TabsTrigger>
           <TabsTrigger value="affiliation">Affiliation Codes</TabsTrigger>
+          <TabsTrigger value="vouchers">My Vouchers</TabsTrigger>
           <TabsTrigger value="requests">Edit Requests</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
@@ -38,6 +42,10 @@ const Profile = () => {
 
         <TabsContent value="affiliation" className="space-y-6">
           <AffiliationCodeManager />
+        </TabsContent>
+
+        <TabsContent value="vouchers" className="space-y-6">
+          <VoucherList />
         </TabsContent>
 
         <TabsContent value="requests" className="space-y-6">

@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Trash2, Tag, X } from "lucide-react";
+import { ArrowLeft, Trash2, Tag, X, Gift } from "lucide-react";
 import { useState, useEffect } from "react";
 import { CartItem, useOrders } from "@/contexts/OrderContext";
 import { useAffiliation } from "@/contexts/AffiliationContext";
+import { useVouchers } from "@/contexts/VoucherContext";
 import { toast } from "sonner";
 
 interface Test {
@@ -29,15 +30,23 @@ const PurchasePage = () => {
   const navigate = useNavigate();
   const { addToPaidItems, removeFromUnpaidOrders, clearCart, removeFromCart } = useOrders();
   const { markDiscountUsed } = useAffiliation();
+  const { isVoucherValid, useVoucher, getVoucherByCode } = useVouchers();
   const [tests, setTests] = useState<Test[]>([]);
   const [discountCode, setDiscountCode] = useState("");
+  const [voucherCode, setVoucherCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{
     code: string;
     type: "percentage" | "fixed";
     value: number;
     description: string;
   } | null>(null);
+  const [appliedVouchers, setAppliedVouchers] = useState<{
+    code: string;
+    testType: string;
+    testId: string;
+  }[]>([]);
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const [isApplyingVoucher, setIsApplyingVoucher] = useState(false);
 
   // Mock discount codes
   const validDiscountCodes = {
@@ -136,10 +145,72 @@ const PurchasePage = () => {
     toast.success("Discount removed");
   };
 
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) return;
+    
+    setIsApplyingVoucher(true);
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const upperCode = voucherCode.toUpperCase();
+    const voucher = getVoucherByCode(upperCode);
+    
+    if (!voucher) {
+      toast.error("Invalid voucher code");
+      setIsApplyingVoucher(false);
+      return;
+    }
+
+    if (voucher.status === 'used') {
+      toast.error("This voucher has already been used");
+      setIsApplyingVoucher(false);
+      return;
+    }
+
+    // Find matching test for this voucher
+    const matchingTest = tests.find(test => test.name === voucher.testType);
+    
+    if (!matchingTest) {
+      toast.error(`No ${voucher.testType} test found in your cart`);
+      setIsApplyingVoucher(false);
+      return;
+    }
+
+    // Check if voucher already applied to this test
+    const alreadyApplied = appliedVouchers.some(v => v.testId === matchingTest.id);
+    if (alreadyApplied) {
+      toast.error("A voucher is already applied to this test");
+      setIsApplyingVoucher(false);
+      return;
+    }
+
+    setAppliedVouchers(prev => [...prev, {
+      code: upperCode,
+      testType: voucher.testType,
+      testId: matchingTest.id,
+    }]);
+    
+    setVoucherCode("");
+    toast.success(`100% discount voucher applied to ${voucher.testType} test`);
+    setIsApplyingVoucher(false);
+  };
+
+  const handleRemoveVoucher = (testId: string) => {
+    setAppliedVouchers(prev => prev.filter(v => v.testId !== testId));
+    toast.success("Voucher removed");
+  };
+
   const handleProceedToPayment = () => {
     // Mock payment processing
     console.log("Processing payment for:", tests);
     console.log("Applied discount:", appliedDiscount);
+    console.log("Applied vouchers:", appliedVouchers);
+    
+    // Mark vouchers as used
+    appliedVouchers.forEach(voucher => {
+      useVoucher(voucher.code);
+    });
     
     // Mark affiliation discounts as used after successful payment
     tests.forEach(test => {
@@ -174,7 +245,7 @@ const PurchasePage = () => {
 
   const subtotal = tests.reduce((sum, test) => sum + test.price, 0);
   
-  // Calculate discount amount
+  // Calculate discount amount from regular discount codes
   let discountAmount = 0;
   if (appliedDiscount) {
     if (appliedDiscount.type === "percentage") {
@@ -184,7 +255,17 @@ const PurchasePage = () => {
     }
   }
   
-  const discountedSubtotal = subtotal - discountAmount;
+  // Calculate voucher discounts (100% off specific tests)
+  let voucherDiscountAmount = 0;
+  appliedVouchers.forEach(voucher => {
+    const test = tests.find(t => t.id === voucher.testId);
+    if (test) {
+      voucherDiscountAmount += test.price;
+    }
+  });
+  
+  const totalDiscountAmount = discountAmount + voucherDiscountAmount;
+  const discountedSubtotal = Math.max(0, subtotal - totalDiscountAmount);
   const tax = Math.round(discountedSubtotal * 0.08); // 8% tax on discounted amount
   const total = discountedSubtotal + tax;
 
@@ -450,39 +531,151 @@ const PurchasePage = () => {
                   )}
                 </div>
                 
-                <Separator className="mb-4" />
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal:</span>
-                    <span>${subtotal}</span>
-                  </div>
-                  {appliedDiscount && (
-                    <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                      <span>Discount ({appliedDiscount.code}):</span>
-                      <span>-${discountAmount}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm">
-                    <span>Tax:</span>
-                    <span>${tax}</span>
-                  </div>
-                </div>
-                
-                <Separator className="mb-4" />
-                
-                <div className="flex justify-between text-lg font-semibold mb-6">
-                  <span>Total:</span>
-                  <span>${total}</span>
-                </div>
-                
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={handleProceedToPayment}
-                >
-                  Proceed to Payment
-                </Button>
+                 {/* Voucher Code Section */}
+                 <div className="mb-4">
+                   <div className="flex items-center gap-2 mb-3">
+                     <Gift className="h-4 w-4 text-muted-foreground" />
+                     <span className="text-sm font-medium">Voucher Code</span>
+                   </div>
+                   
+                   {appliedVouchers.length > 0 ? (
+                     <div className="space-y-2">
+                       {appliedVouchers.map((voucher) => {
+                         const test = tests.find(t => t.id === voucher.testId);
+                         return (
+                           <div key={voucher.code} className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-md">
+                             <div className="flex items-center gap-2">
+                               <Gift className="h-4 w-4 text-primary" />
+                               <div>
+                                 <div className="text-sm font-medium">{voucher.code}</div>
+                                 <div className="text-xs text-muted-foreground">100% off {test?.name}</div>
+                               </div>
+                             </div>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleRemoveVoucher(voucher.testId)}
+                               className="text-muted-foreground hover:text-destructive"
+                             >
+                               <X className="h-4 w-4" />
+                             </Button>
+                           </div>
+                         );
+                       })}
+                     </div>
+                   ) : (
+                     <div className="flex gap-2">
+                       <Input
+                         placeholder="Enter voucher code"
+                         value={voucherCode}
+                         onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                         onKeyPress={(e) => e.key === 'Enter' && handleApplyVoucher()}
+                       />
+                       <Button
+                         onClick={handleApplyVoucher}
+                         disabled={!voucherCode.trim() || isApplyingVoucher}
+                         size="sm"
+                       >
+                         {isApplyingVoucher ? "Applying..." : "Apply"}
+                       </Button>
+                     </div>
+                   )}
+                 </div>
+                 
+                 {/* Voucher Code Section */}
+                 <div className="mb-4">
+                   <div className="flex items-center gap-2 mb-3">
+                     <Gift className="h-4 w-4 text-muted-foreground" />
+                     <span className="text-sm font-medium">Voucher Code</span>
+                   </div>
+                   
+                   {appliedVouchers.length > 0 ? (
+                     <div className="space-y-2">
+                       {appliedVouchers.map((voucher) => {
+                         const test = tests.find(t => t.id === voucher.testId);
+                         return (
+                           <div key={voucher.code} className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-md">
+                             <div className="flex items-center gap-2">
+                               <Gift className="h-4 w-4 text-primary" />
+                               <div>
+                                 <div className="text-sm font-medium">{voucher.code}</div>
+                                 <div className="text-xs text-muted-foreground">100% off {test?.name}</div>
+                               </div>
+                             </div>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleRemoveVoucher(voucher.testId)}
+                               className="text-muted-foreground hover:text-destructive"
+                             >
+                               <X className="h-4 w-4" />
+                             </Button>
+                           </div>
+                         );
+                       })}
+                     </div>
+                   ) : (
+                     <div className="flex gap-2">
+                       <Input
+                         placeholder="Enter voucher code"
+                         value={voucherCode}
+                         onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                         onKeyPress={(e) => e.key === 'Enter' && handleApplyVoucher()}
+                       />
+                       <Button
+                         onClick={handleApplyVoucher}
+                         disabled={!voucherCode.trim() || isApplyingVoucher}
+                         size="sm"
+                       >
+                         {isApplyingVoucher ? "Applying..." : "Apply"}
+                       </Button>
+                     </div>
+                   )}
+                 </div>
+                 
+                 <Separator className="mb-4" />
+                 
+                 {/* Subtotal and Discounts */}
+                 <div className="space-y-2 text-sm">
+                   <div className="flex justify-between">
+                     <span>Subtotal</span>
+                     <span>${subtotal}</span>
+                   </div>
+                   
+                   {appliedDiscount && (
+                     <div className="flex justify-between text-green-600">
+                       <span>Discount ({appliedDiscount.code})</span>
+                       <span>-${discountAmount}</span>
+                     </div>
+                   )}
+                   
+                   {voucherDiscountAmount > 0 && (
+                     <div className="flex justify-between text-green-600">
+                       <span>Voucher Discounts</span>
+                       <span>-${voucherDiscountAmount}</span>
+                     </div>
+                   )}
+                   
+                   <div className="flex justify-between">
+                     <span>Tax (8%)</span>
+                     <span>${tax}</span>
+                   </div>
+                 </div>
+                 
+                 <Separator className="my-3" />
+                 
+                 <div className="flex justify-between font-semibold text-lg">
+                   <span>Total</span>
+                   <span>${total}</span>
+                 </div>
+                 
+                 <Button 
+                   className="w-full mt-6" 
+                   size="lg"
+                   onClick={handleProceedToPayment}
+                 >
+                   Proceed to Payment - ${total}
+                 </Button>
               </CardContent>
             </Card>
           </div>

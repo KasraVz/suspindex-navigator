@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Copy, Share, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useVouchers } from "@/contexts/VoucherContext";
+import { useState } from "react";
 
 // Mock referral data - in a real app, this would come from props or context
 const mockReferrals = [
@@ -14,6 +16,9 @@ const mockReferrals = [
 
 export function ReferralCode() {
   const { toast } = useToast();
+  const { generateVoucher } = useVouchers();
+  const [rewardClaimed, setRewardClaimed] = useState(false);
+  const [generatedVoucher, setGeneratedVoucher] = useState<string | null>(null);
   const referralCode = "SUSP-JD-2024";
   
   const activeReferrals = mockReferrals.filter(ref => ref.status === "Active").length;
@@ -29,10 +34,24 @@ export function ReferralCode() {
   };
 
   const handleClaimReward = () => {
-    if (canClaimReward) {
+    if (canClaimReward && !rewardClaimed) {
+      const voucherCode = generateVoucher("FPA", "referral");
+      setGeneratedVoucher(voucherCode);
+      setRewardClaimed(true);
+      
       toast({
         title: "Congratulations!",
-        description: "Your free FPA Test has been added to your account",
+        description: "Your free FPA Test voucher has been generated!",
+      });
+    }
+  };
+
+  const copyVoucherCode = () => {
+    if (generatedVoucher) {
+      navigator.clipboard.writeText(generatedVoucher);
+      toast({
+        title: "Copied!",
+        description: "Voucher code copied to clipboard",
       });
     }
   };
@@ -77,13 +96,28 @@ export function ReferralCode() {
           
           <Button 
             onClick={handleClaimReward}
-            disabled={!canClaimReward}
+            disabled={!canClaimReward || rewardClaimed}
             className="w-full"
-            variant={canClaimReward ? "default" : "secondary"}
+            variant={canClaimReward && !rewardClaimed ? "default" : "secondary"}
           >
             <Gift className="w-4 h-4 mr-2" />
-            {canClaimReward ? "Claim Free FPA Test" : "Free FPA Test (Locked)"}
+            {rewardClaimed ? "Reward Claimed" : canClaimReward ? "Claim Free FPA Test" : "Free FPA Test (Locked)"}
           </Button>
+          
+          {generatedVoucher && (
+            <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <div className="text-sm font-medium text-primary mb-2">Your FPA Test Voucher</div>
+              <div className="flex items-center gap-2 p-2 bg-background border rounded">
+                <code className="flex-1 text-sm font-mono">{generatedVoucher}</code>
+                <Button size="sm" variant="ghost" onClick={copyVoucherCode}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Use this code at checkout for 100% discount on FPA test.
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

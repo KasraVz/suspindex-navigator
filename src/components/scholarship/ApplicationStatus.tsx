@@ -1,44 +1,59 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ViewApplicationDetailsDialog } from "./ViewApplicationDetailsDialog";
+import { useState } from "react";
 import { FileText, Calendar, Eye } from "lucide-react";
 
 export function ApplicationStatus() {
+  const [selectedApplication, setSelectedApplication] = useState<typeof applications[0] | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [acceptedApplications, setAcceptedApplications] = useState<Set<number>>(new Set());
+
   const applications = [
     {
-      id: "APP001",
-      scholarshipType: "General Scholarship", 
-      requestedTest: "FPA",
+      id: 1,
+      scholarshipType: "General Startup Scholarship",
+      requestedTest: "EEA",
       submissionDate: "2024-01-15",
-      status: "under-review"
+      status: "Under Review" as const,
     },
     {
-      id: "APP002",
-      scholarshipType: "Women Entrepreneurs",
-      requestedTest: "EEA", 
+      id: 2,
+      scholarshipType: "Women in Business Grant",
+      requestedTest: "FPA",
       submissionDate: "2024-01-10",
-      status: "accepted"
+      status: "Accepted" as const,
     },
     {
-      id: "APP003",
-      scholarshipType: "Technology Innovation",
-      requestedTest: "Bundle",
-      submissionDate: "2024-01-08", 
-      status: "rejected"
-    }
+      id: 3,
+      scholarshipType: "Student Discount Program",
+      requestedTest: "GEB",
+      submissionDate: "2024-01-05",
+      status: "Rejected" as const,
+    },
   ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "under-review":
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">Under Review</Badge>;
-      case "accepted":
-        return <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">Accepted</Badge>;
-      case "rejected":
-        return <Badge variant="secondary" className="bg-red-100 text-red-800 border-red-300">Rejected</Badge>;
+      case "Under Review":
+        return <Badge variant="secondary">Under Review</Badge>;
+      case "Accepted":
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Accepted</Badge>;
+      case "Rejected":
+        return <Badge variant="destructive">Rejected</Badge>;
       default:
-        return <Badge variant="secondary">Unknown</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const handleViewDetails = (application: typeof applications[0]) => {
+    setSelectedApplication(application);
+    setDialogOpen(true);
+  };
+
+  const handleAcceptOffer = (applicationId: number) => {
+    setAcceptedApplications(prev => new Set(prev).add(applicationId));
   };
 
   return (
@@ -59,7 +74,7 @@ export function ApplicationStatus() {
                   {getStatusBadge(application.status)}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  ID: {application.id}
+                  ID: #{application.id}
                 </div>
               </div>
               
@@ -74,23 +89,33 @@ export function ApplicationStatus() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Status:</span>
-                  <span className="font-medium capitalize">{application.status.replace('-', ' ')}</span>
+                  <span className="font-medium">{application.status}</span>
                 </div>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <Button 
                   variant="outline" 
-                  size="sm" 
+                  size="sm"
+                  onClick={() => handleViewDetails(application)}
                   className="flex items-center gap-2"
                 >
                   <Eye className="w-4 h-4" />
                   View Details
                 </Button>
-                {application.status === "accepted" && (
-                  <Button size="sm" className="flex items-center gap-2">
+                {application.status === "Accepted" && !acceptedApplications.has(application.id) && (
+                  <Button 
+                    size="sm"
+                    onClick={() => handleViewDetails(application)}
+                    className="flex items-center gap-2"
+                  >
                     Accept Offer
                   </Button>
+                )}
+                {acceptedApplications.has(application.id) && (
+                  <Badge className="bg-primary/10 text-primary border-primary/20">
+                    Offer Accepted
+                  </Badge>
                 )}
               </div>
             </div>
@@ -105,6 +130,13 @@ export function ApplicationStatus() {
           )}
         </div>
       </CardContent>
+      
+      <ViewApplicationDetailsDialog
+        application={selectedApplication}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onAcceptOffer={handleAcceptOffer}
+      />
     </Card>
   );
 }
