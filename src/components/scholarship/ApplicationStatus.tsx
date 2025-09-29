@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ViewApplicationDetailsDialog } from "./ViewApplicationDetailsDialog";
 import { useState } from "react";
-import { FileText, Calendar, Eye, Check, Clock, Gift } from "lucide-react";
+import { FileText, Calendar, Eye, Check, Clock, Gift, Copy } from "lucide-react";
+import { useVouchers } from "@/contexts/VoucherContext";
+import { useToast } from "@/hooks/use-toast";
 
 export function ApplicationStatus() {
+  const { toast } = useToast();
+  const { generateVoucher } = useVouchers();
   const [selectedApplication, setSelectedApplication] = useState<typeof applications[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [acceptedApplications, setAcceptedApplications] = useState<Set<number>>(new Set());
   const [processingAcceptance, setProcessingAcceptance] = useState<Set<number>>(new Set());
+  const [generatedVouchers, setGeneratedVouchers] = useState<Map<number, string>>(new Map());
 
   const applications = [
     {
@@ -54,16 +59,39 @@ export function ApplicationStatus() {
   };
 
   const handleAcceptOffer = (applicationId: number) => {
+    const application = applications.find(app => app.id === applicationId);
+    if (!application) return;
+
     setProcessingAcceptance(prev => new Set(prev).add(applicationId));
-    // Simulate processing time
+    
+    // Simulate processing time and generate voucher
     setTimeout(() => {
+      // Generate voucher using VoucherContext
+      const voucherCode = generateVoucher(application.requestedTest, 'scholarship');
+      
+      // Update state
       setAcceptedApplications(prev => new Set(prev).add(applicationId));
+      setGeneratedVouchers(prev => new Map(prev).set(applicationId, voucherCode));
       setProcessingAcceptance(prev => {
         const newSet = new Set(prev);
         newSet.delete(applicationId);
         return newSet;
       });
+
+      // Show success toast
+      toast({
+        title: "Voucher Generated!",
+        description: `Voucher has been added to your profile. Code: ${voucherCode}`,
+      });
     }, 1500);
+  };
+
+  const copyVoucherCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast({
+      title: "Copied!",
+      description: "Voucher code copied to clipboard",
+    });
   };
 
   return (
@@ -148,6 +176,32 @@ export function ApplicationStatus() {
                   </Badge>
                 )}
               </div>
+
+              {/* Display voucher code after acceptance */}
+              {acceptedApplications.has(application.id) && generatedVouchers.has(application.id) && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg animate-fade-in">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-800">Your Voucher Code:</p>
+                      <p className="font-mono text-sm bg-white px-2 py-1 border rounded mt-1">
+                        {generatedVouchers.get(application.id)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyVoucherCode(generatedVouchers.get(application.id)!)}
+                      className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-100"
+                    >
+                      <Copy className="w-3 h-3" />
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-xs text-green-600 mt-2">
+                    Use this code when booking your {application.requestedTest} assessment
+                  </p>
+                </div>
+              )}
             </div>
           ))}
 
