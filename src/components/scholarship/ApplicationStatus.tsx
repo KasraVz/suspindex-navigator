@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ViewApplicationDetailsDialog } from "./ViewApplicationDetailsDialog";
 import { useState } from "react";
-import { FileText, Calendar, Eye } from "lucide-react";
+import { FileText, Calendar, Eye, Check, Clock, Gift } from "lucide-react";
 
 export function ApplicationStatus() {
   const [selectedApplication, setSelectedApplication] = useState<typeof applications[0] | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [acceptedApplications, setAcceptedApplications] = useState<Set<number>>(new Set());
+  const [processingAcceptance, setProcessingAcceptance] = useState<Set<number>>(new Set());
 
   const applications = [
     {
@@ -53,7 +54,16 @@ export function ApplicationStatus() {
   };
 
   const handleAcceptOffer = (applicationId: number) => {
-    setAcceptedApplications(prev => new Set(prev).add(applicationId));
+    setProcessingAcceptance(prev => new Set(prev).add(applicationId));
+    // Simulate processing time
+    setTimeout(() => {
+      setAcceptedApplications(prev => new Set(prev).add(applicationId));
+      setProcessingAcceptance(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(applicationId);
+        return newSet;
+      });
+    }, 1500);
   };
 
   return (
@@ -103,18 +113,38 @@ export function ApplicationStatus() {
                   <Eye className="w-4 h-4" />
                   View Details
                 </Button>
-                {application.status === "Accepted" && !acceptedApplications.has(application.id) && (
+                
+                {/* Processing Accept Offer button */}
+                {processingAcceptance.has(application.id) && (
                   <Button 
                     size="sm"
-                    onClick={() => handleViewDetails(application)}
-                    className="flex items-center gap-2"
+                    disabled
+                    className="flex items-center gap-2 bg-primary/60"
                   >
+                    <Clock className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </Button>
+                )}
+                
+                {/* Accept Offer button */}
+                {application.status === "Accepted" && 
+                 !acceptedApplications.has(application.id) && 
+                 !processingAcceptance.has(application.id) && (
+                  <Button 
+                    size="sm"
+                    onClick={() => handleAcceptOffer(application.id)}
+                    className="flex items-center gap-2 hover:scale-105 transition-transform"
+                  >
+                    <Gift className="w-4 h-4" />
                     Accept Offer
                   </Button>
                 )}
+                
+                {/* Offer Accepted badge */}
                 {acceptedApplications.has(application.id) && (
-                  <Badge className="bg-primary/10 text-primary border-primary/20">
-                    Offer Accepted
+                  <Badge className="bg-green-100 text-green-800 border-green-200 animate-fade-in flex items-center gap-1">
+                    <Check className="w-3 h-3" />
+                    Offer Accepted ✨
                   </Badge>
                 )}
               </div>
