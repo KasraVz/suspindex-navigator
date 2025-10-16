@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X, Calendar, Edit, Briefcase, TrendingUp, MapPin } from "lucide-react";
+import { X, Calendar, Edit, Briefcase, TrendingUp, MapPin, Clock, FileQuestion, CheckCircle2 } from "lucide-react";
 import { BookingDialog } from "./BookingDialog";
 import { ProfileUpdateDialog } from "./ProfileUpdateDialog";
 import { useState, useEffect } from "react";
@@ -40,11 +40,38 @@ export function OrderItem({
     setShowEditBooking(false);
   };
 
-  const assessmentOptions = [
-    { value: "FPA", label: "FPA - Fundamental Payroll Assessment ($50)" },
-    { value: "GEB", label: "GEB - General Employment Basics ($60)" },
-    { value: "EEA", label: "EEA - Employment Ethics Assessment ($75)" }
-  ];
+  const assessmentTypes = {
+    FPA: {
+      code: "FPA",
+      title: "Founder Public Awareness",
+      description: "Evaluates your public visibility and market recognition as a founder.",
+      duration: "45-60 minutes",
+      questions: "80-120 questions",
+      requiredFields: ["Stage", "Industry"],
+      price: 50,
+      colorClass: "bg-accent"
+    },
+    GEB: {
+      code: "GEB",
+      title: "General Entrepreneur Behavior",
+      description: "Assesses your entrepreneurial mindset, decision-making, and leadership capabilities.",
+      duration: "30-45 minutes",
+      questions: "60-80 questions",
+      requiredFields: ["Stage"],
+      price: 60,
+      colorClass: "bg-primary"
+    },
+    EEA: {
+      code: "EEA",
+      title: "Ecosystem Environment Assessment",
+      description: "Analyzes your startup ecosystem engagement and environmental factors.",
+      duration: "50-70 minutes",
+      questions: "90-130 questions",
+      requiredFields: ["Stage", "Industry", "Ecosystem"],
+      price: 75,
+      colorClass: "bg-tertiary"
+    }
+  };
 
   const industryOptions = [
     "Artificial Intelligence & Machine Learning",
@@ -141,39 +168,10 @@ export function OrderItem({
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           <div className="flex-1 space-y-4">
-            <div className="flex items-center gap-2">
-              {item.isFromAffiliate ? (
-                <div className="flex-1 bg-muted/50 rounded-md p-3 border border-primary/20">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{item.assessment}</span>
-                      <Badge variant="secondary">Partner Request</Badge>
-                    </div>
-                    {item.originalPrice && item.originalPrice > item.price && (
-                      <div className="text-sm text-success font-medium">
-                        ${item.originalPrice - item.price} discount applied
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <Select
-                  value={item.assessment}
-                  onValueChange={(value) => onAssessmentChange(item.id, value)}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder="Select an assessment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {assessmentOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-              
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-sm text-muted-foreground">
+                {item.isFromAffiliate ? "Partner Requested Assessment" : "Select Assessment Type"}
+              </h3>
               {onRemove && (
                 <Button
                   variant="ghost"
@@ -183,6 +181,126 @@ export function OrderItem({
                 >
                   <X className="w-4 h-4" />
                 </Button>
+              )}
+            </div>
+
+            {/* Assessment Tiles */}
+            <div className={`grid gap-4 ${item.isFromAffiliate ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'}`}>
+              {item.isFromAffiliate ? (
+                // Single locked tile for affiliate orders
+                (() => {
+                  const type = assessmentTypes[item.assessment as keyof typeof assessmentTypes];
+                  if (!type) return null;
+                  return (
+                    <Card className="relative border-primary/30 bg-primary/5">
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <Badge className={`${type.colorClass} text-white`}>
+                            {type.code}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            Partner Request
+                          </Badge>
+                        </div>
+                        
+                        <div>
+                          <h4 className="font-semibold text-base mb-1">{type.title}</h4>
+                          <p className="text-sm text-muted-foreground">{type.description}</p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="w-4 h-4" />
+                            {type.duration}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <FileQuestion className="w-4 h-4" />
+                            {type.questions}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1">
+                          {type.requiredFields.map(field => (
+                            <Badge key={field} variant="secondary" className="text-xs">
+                              {field}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        {item.originalPrice && item.originalPrice > item.price && (
+                          <div className="bg-success/10 border border-success/20 rounded-md p-2 text-center">
+                            <p className="text-sm font-medium text-success">
+                              ${item.originalPrice - item.price} discount applied
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="text-right pt-2 border-t">
+                          {item.originalPrice && item.originalPrice > item.price && (
+                            <span className="text-sm text-muted-foreground line-through mr-2">
+                              ${item.originalPrice}
+                            </span>
+                          )}
+                          <span className="text-xl font-bold">${item.price}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()
+              ) : (
+                // Interactive tiles for self-assessment
+                Object.entries(assessmentTypes).map(([key, type]) => (
+                  <Card
+                    key={key}
+                    className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                      item.assessment === key 
+                        ? 'ring-2 ring-accent shadow-lg' 
+                        : ''
+                    }`}
+                    onClick={() => onAssessmentChange(item.id, key)}
+                  >
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <Badge className={`${type.colorClass} text-white`}>
+                          {type.code}
+                        </Badge>
+                        {item.assessment === key && (
+                          <div className="w-5 h-5 bg-accent rounded-full flex items-center justify-center">
+                            <CheckCircle2 className="w-3 h-3 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-semibold text-base mb-1">{type.title}</h4>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{type.description}</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          {type.duration}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <FileQuestion className="w-4 h-4" />
+                          {type.questions}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {type.requiredFields.map(field => (
+                          <Badge key={field} variant="secondary" className="text-xs">
+                            {field}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="text-right pt-2 border-t">
+                        <span className="text-xl font-bold">${type.price}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
               )}
             </div>
 
