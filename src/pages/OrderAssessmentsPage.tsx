@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { OrderItem } from "@/components/orders/OrderItem";
+import { AssessmentCatalog, assessmentTypes } from "@/components/orders/AssessmentCatalog";
+import { AssessmentConfigCard } from "@/components/orders/AssessmentConfigCard";
 import { useOrders } from "@/contexts/OrderContext";
 import { useBusinessProfile } from "@/contexts/BusinessProfileContext";
 import { toast } from "sonner";
@@ -11,7 +11,7 @@ import { useAffiliation } from "@/contexts/AffiliationContext";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { ShoppingCart } from "lucide-react";
 
 export interface OrderItemData {
   id: string;
@@ -30,27 +30,56 @@ export interface OrderItemData {
 
 const OrderAssessmentsPage = () => {
   const navigate = useNavigate();
-  const { addToCart, addToUnpaidOrders, addToBookedItems, clearCart } = useOrders();
+  const { addToUnpaidOrders, addToBookedItems } = useOrders();
   const { businessProfile } = useBusinessProfile();
-  const { affiliationCodes, getAvailableTests, getDiscountForTest, markDiscountUsed } = useAffiliation();
+  const { affiliationCodes, getAvailableTests, getDiscountForTest } = useAffiliation();
   const [orderType, setOrderType] = useState<"self" | "affiliate" | null>(null);
   const [selectedAffiliationCode, setSelectedAffiliationCode] = useState<string>("");
+  const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItemData[]>([]);
 
 
+  const handleAddAssessment = (assessment: string) => {
+    if (selectedAssessments.includes(assessment)) {
+      toast.info("Assessment already added to cart");
+      return;
+    }
+
+    const originalPrice = getAssessmentPrice(assessment);
+    let finalPrice = originalPrice;
+    let affiliationCodeId = undefined;
+    let isFromAffiliate = false;
+
+    // Apply affiliate discount if applicable
+    if (orderType === "affiliate" && selectedAffiliationCode) {
+      const discount = getDiscountForTest(assessment, selectedAffiliationCode);
+      finalPrice = originalPrice - discount;
+      affiliationCodeId = selectedAffiliationCode;
+      isFromAffiliate = true;
+    }
+
+    const newItem: OrderItemData = {
+      id: `${Date.now()}-${assessment}`,
+      assessment,
+      originalPrice,
+      price: finalPrice,
+      status: "empty",
+      affiliationCodeId,
+      isFromAffiliate,
+      // Pre-populate with business profile data
+      industry: (assessment === "FPA" || assessment === "EEA") ? businessProfile.primaryIndustry : undefined,
+      developmentStage: businessProfile.developmentStage,
+      targetEcosystem: assessment === "EEA" ? businessProfile.targetEcosystem : undefined,
+    };
+
+    setSelectedAssessments([...selectedAssessments, assessment]);
+    setOrderItems([...orderItems, newItem]);
+    toast.success(`${assessment} added to cart`);
+  };
+
   const handleOrderTypeSelect = (type: "self" | "affiliate") => {
     setOrderType(type);
-    if (type === "self") {
-      // Initialize with empty item for self-assessment
-      setOrderItems([{
-        id: "1",
-        assessment: "",
-        price: 0,
-        status: "empty"
-      }]);
-    } else {
-      // Clear items for affiliate selection
-      setOrderItems([]);
+    if (type === "affiliate") {
       setSelectedAffiliationCode("");
     }
   };
@@ -61,6 +90,10 @@ const OrderAssessmentsPage = () => {
     if (!code) return;
 
     const availableTests = getAvailableTests(codeId);
+    
+    // Pre-select assessments from affiliation code
+    setSelectedAssessments(availableTests);
+    
     const newItems: OrderItemData[] = availableTests.map((test, index) => {
       const originalPrice = getAssessmentPrice(test);
       const discount = getDiscountForTest(test, codeId);
@@ -73,9 +106,8 @@ const OrderAssessmentsPage = () => {
         status: "empty",
         affiliationCodeId: codeId,
         isFromAffiliate: true,
-        // Pre-populate with business profile data
         industry: (test === "FPA" || test === "EEA") ? businessProfile.primaryIndustry : undefined,
-        developmentStage: (test === "FPA" || test === "GEB" || test === "EEA") ? businessProfile.developmentStage : undefined,
+        developmentStage: businessProfile.developmentStage,
         targetEcosystem: test === "EEA" ? businessProfile.targetEcosystem : undefined,
       };
     });
@@ -83,15 +115,13 @@ const OrderAssessmentsPage = () => {
     setOrderItems(newItems);
   };
 
-  const addNewItem = () => {
-    const newItem: OrderItemData = {
-      id: Date.now().toString(),
-      assessment: "",
-      price: 0,
-      status: "empty",
-      isFromAffiliate: false
-    };
-    setOrderItems([...orderItems, newItem]);
+  const removeOrderItem = (id: string) => {
+    const item = orderItems.find(i => i.id === id);
+    if (item) {
+      setSelectedAssessments(selectedAssessments.filter(a => a !== item.assessment));
+      setOrderItems(orderItems.filter(i => i.id !== id));
+      toast.success(`${item.assessment} removed from cart`);
+    }
   };
 
   const updateOrderItem = (id: string, updates: Partial<OrderItemData>) => {
@@ -102,11 +132,6 @@ const OrderAssessmentsPage = () => {
     );
   };
 
-  const removeOrderItem = (id: string) => {
-    if (orderItems.length > 1) {
-      setOrderItems(items => items.filter(item => item.id !== id));
-    }
-  };
 
   const getAssessmentPrice = (assessment: string) => {
     switch (assessment) {
@@ -121,31 +146,6 @@ const OrderAssessmentsPage = () => {
     }
   };
 
-  const handleAssessmentChange = (id: string, assessment: string) => {
-    const originalPrice = getAssessmentPrice(assessment);
-    
-    const updates: Partial<OrderItemData> = {
-      assessment,
-      originalPrice,
-      price: originalPrice,
-      status: assessment ? "empty" : "empty"
-    };
-
-    // Pre-populate with business profile data when assessment is selected
-    if (assessment) {
-      if (assessment === "FPA" || assessment === "EEA") {
-        updates.industry = businessProfile.primaryIndustry;
-      }
-      if (assessment === "FPA" || assessment === "GEB" || assessment === "EEA") {
-        updates.developmentStage = businessProfile.developmentStage;
-      }
-      if (assessment === "EEA") {
-        updates.targetEcosystem = businessProfile.targetEcosystem;
-      }
-    }
-
-    updateOrderItem(id, updates);
-  };
 
   const handleConfigurationChange = (id: string, field: keyof OrderItemData, value: string) => {
     updateOrderItem(id, { [field]: value });
@@ -163,8 +163,19 @@ const OrderAssessmentsPage = () => {
     });
   };
 
+  const calculateBundleDiscount = () => {
+    const uniqueAssessments = new Set(orderItems.map(i => i.assessment));
+    const count = uniqueAssessments.size;
+    
+    if (count === 3) return 20; // $20 off for all three
+    if (count === 2) return 10; // $10 off for two
+    return 0;
+  };
+
   const validItems = orderItems.filter(item => item.assessment && item.status !== "empty");
-  const totalAmount = validItems.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = validItems.reduce((sum, item) => sum + item.price, 0);
+  const bundleDiscount = orderType === "self" ? calculateBundleDiscount() : 0;
+  const totalAmount = subtotal - bundleDiscount;
 
   const handlePayNow = () => {
     // Only allow payment if items have booking information
@@ -266,14 +277,25 @@ const OrderAssessmentsPage = () => {
     }
   };
 
+  const lockedAssessments = orderType === "affiliate" && selectedAffiliationCode 
+    ? getAvailableTests(selectedAffiliationCode) 
+    : [];
+
   return (
-    <div className="container mx-auto max-w-4xl space-y-6">
+    <div className="container mx-auto max-w-6xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Order New Assessments</h1>
         <p className="text-muted-foreground">
-          Configure your assessment orders and choose when to take them
+          Select assessments from the catalog, configure each one, and proceed to payment
         </p>
       </div>
+
+      {/* Assessment Catalog - Always Visible */}
+      <AssessmentCatalog
+        selectedAssessments={selectedAssessments}
+        onAddAssessment={handleAddAssessment}
+        lockedAssessments={lockedAssessments}
+      />
 
       {/* Order Type Selection */}
       {!orderType && (
@@ -373,20 +395,23 @@ const OrderAssessmentsPage = () => {
         </Card>
       )}
 
-      {/* Order Items Display */}
+      {/* Selected Assessments Cart */}
       {orderItems.length > 0 && (
-
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Assessment Selection</CardTitle>
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-5 h-5" />
+                <CardTitle>Selected Assessments ({orderItems.length})</CardTitle>
+              </div>
               {orderType && (
                 <Button variant="outline" size="sm" onClick={() => {
                   setOrderType(null);
                   setOrderItems([]);
+                  setSelectedAssessments([]);
                   setSelectedAffiliationCode("");
                 }}>
-                  Change Order Type
+                  Reset Order
                 </Button>
               )}
             </div>
@@ -396,30 +421,26 @@ const OrderAssessmentsPage = () => {
                 <div className="text-xs mt-1">Code: {affiliationCodes.find(c => c.id === selectedAffiliationCode)?.code}</div>
               </div>
             )}
+            {bundleDiscount > 0 && (
+              <div className="bg-success/10 border border-success/20 rounded-md p-3 mt-2">
+                <p className="text-sm font-medium text-success">
+                  🎉 Bundle discount! You're saving ${bundleDiscount}
+                </p>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
-            {orderItems.map((item, index) => (
-              <OrderItem
+            {orderItems.map((item) => (
+              <AssessmentConfigCard
                 key={item.id}
                 item={item}
-                onAssessmentChange={handleAssessmentChange}
                 onConfigurationChange={handleConfigurationChange}
                 onTakeNow={handleTakeNow}
                 onBooking={handleBooking}
-                onRemove={orderItems.length > 1 || !item.isFromAffiliate ? () => removeOrderItem(item.id) : undefined}
+                onRemove={() => removeOrderItem(item.id)}
+                canRemove={!item.isFromAffiliate}
               />
             ))}
-
-            {orderType === "self" && (
-              <Button
-                variant="outline"
-                onClick={addNewItem}
-                className="w-full mt-4"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Another Assessment
-              </Button>
-            )}
           </CardContent>
         </Card>
       )}
@@ -430,68 +451,49 @@ const OrderAssessmentsPage = () => {
             <CardTitle>Order Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 mb-4">
-              {validItems.map((item) => (
-                <div key={item.id} className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">{item.assessment}</span>
-                      {item.isFromAffiliate && (
-                        <Badge variant="secondary">Partner Request</Badge>
-                      )}
-                    </div>
-                    {/* Show configuration details */}
-                    <div className="text-sm text-muted-foreground space-y-1 mt-1">
-                      {item.industry && (
-                        <p>Industry: {item.industry}</p>
-                      )}
-                      {item.developmentStage && (
-                        <p>Stage: {item.developmentStage}</p>
-                      )}
-                      {item.targetEcosystem && (
-                        <p>Target Ecosystem: {item.targetEcosystem}</p>
-                      )}
-                    </div>
-                    {/* Show booking/scheduling details */}
-                    {item.status === "booked" && item.bookingDate && item.bookingTime && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Booked for: {item.bookingDate.toLocaleDateString()} at {item.bookingTime}
-                      </p>
-                    )}
-                    {item.status === "take-now" && (
-                      <p className="text-sm text-success mt-1">Ready for immediate start after payment</p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    {item.originalPrice && item.originalPrice > item.price && (
-                      <div className="text-sm text-muted-foreground line-through">
-                        ${item.originalPrice}
-                      </div>
-                    )}
-                    <span className="font-semibold">${item.price}</span>
-                    {item.originalPrice && item.originalPrice > item.price && (
-                      <div className="text-xs text-success">
-                        ${item.originalPrice - item.price} discount
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold">Total: ${totalAmount}</span>
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between text-base">
+                <span className="text-muted-foreground">Subtotal:</span>
+                <span className="font-medium">${subtotal}</span>
               </div>
               
-              <div className="flex gap-4">
-                <Button onClick={handlePayNow} className="flex-1">
-                  Pay Now
-                </Button>
-                <Button variant="outline" onClick={handlePayLater} className="flex-1">
-                  Pay Later
-                </Button>
-              </div>
+              {bundleDiscount > 0 && (
+                <div className="flex justify-between text-base text-success">
+                  <span className="font-medium">Bundle Discount:</span>
+                  <span className="font-semibold">-${bundleDiscount}</span>
+                </div>
+              )}
+              
+              {orderType === "affiliate" && validItems.some(item => item.originalPrice && item.originalPrice > item.price) && (
+                <div className="flex justify-between text-base text-success">
+                  <span className="font-medium">Partner Discount:</span>
+                  <span className="font-semibold">
+                    -${validItems.reduce((sum, item) => 
+                      sum + (item.originalPrice && item.originalPrice > item.price ? item.originalPrice - item.price : 0), 0
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between items-center text-xl font-bold pt-3 border-t">
+              <span>Total:</span>
+              <span className="text-primary">${totalAmount}</span>
+            </div>
+
+            <div className="mt-4 p-3 bg-muted/50 rounded-md">
+              <p className="text-sm text-muted-foreground">
+                {validItems.filter(i => i.status === "booked").length} assessment(s) scheduled • {validItems.filter(i => i.status === "take-now").length} ready to start
+              </p>
+            </div>
+            
+            <div className="flex gap-4 mt-4">
+              <Button onClick={handlePayNow} className="flex-1">
+                Pay Now
+              </Button>
+              <Button variant="outline" onClick={handlePayLater} className="flex-1">
+                Pay Later
+              </Button>
             </div>
           </CardContent>
         </Card>
