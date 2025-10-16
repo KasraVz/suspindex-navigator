@@ -26,6 +26,7 @@ export interface OrderItemData {
   targetEcosystem?: string;
   affiliationCodeId?: string;
   isFromAffiliate?: boolean;
+  bundleId?: string;
 }
 
 const OrderAssessmentsPage = () => {
@@ -40,8 +41,43 @@ const OrderAssessmentsPage = () => {
 
 
   const handleAddAssessment = (assessment: string) => {
+    // Handle bundle selection
+    if (assessment === "BUNDLE") {
+      const bundleTests = ["FPA", "GEB", "EEA"];
+      
+      // Check if any already selected
+      const alreadySelected = bundleTests.filter(t => selectedAssessments.includes(t));
+      if (alreadySelected.length > 0) {
+        toast.info(`Bundle includes tests already in cart: ${alreadySelected.join(", ")}`);
+        return;
+      }
+      
+      // Add all 3 tests with bundle flag
+      const bundleId = `bundle-${Date.now()}`;
+      const newItems: OrderItemData[] = bundleTests.map((test) => {
+        const originalPrice = getAssessmentPrice(test);
+        return {
+          id: `${bundleId}-${test}`,
+          assessment: test,
+          originalPrice,
+          price: originalPrice,
+          status: "empty",
+          bundleId: bundleId,
+          industry: (test === "FPA" || test === "EEA") ? businessProfile.primaryIndustry : undefined,
+          developmentStage: businessProfile.developmentStage,
+          targetEcosystem: test === "EEA" ? businessProfile.targetEcosystem : undefined,
+        };
+      });
+      
+      setSelectedAssessments([...selectedAssessments, ...bundleTests]);
+      setOrderItems([...orderItems, ...newItems]);
+      toast.success("Complete bundle added! Saving $20");
+      return;
+    }
+    
+    // Handle individual assessment selection
     if (selectedAssessments.includes(assessment)) {
-      toast.info("Assessment already added to cart");
+      toast.info(`${assessment} is already in your cart`);
       return;
     }
 
@@ -164,11 +200,18 @@ const OrderAssessmentsPage = () => {
   };
 
   const calculateBundleDiscount = () => {
+    // Check if any items have bundleId (added as bundle)
+    const hasBundleFlag = orderItems.some(item => item.bundleId);
+    if (hasBundleFlag) {
+      return 20; // Bundle discount
+    }
+    
+    // Otherwise calculate based on unique assessments
     const uniqueAssessments = new Set(orderItems.map(i => i.assessment));
     const count = uniqueAssessments.size;
     
-    if (count === 3) return 20; // $20 off for all three
-    if (count === 2) return 10; // $10 off for two
+    if (count === 3) return 20;
+    if (count === 2) return 10;
     return 0;
   };
 
@@ -290,13 +333,6 @@ const OrderAssessmentsPage = () => {
         </p>
       </div>
 
-      {/* Assessment Catalog - Always Visible */}
-      <AssessmentCatalog
-        selectedAssessments={selectedAssessments}
-        onAddAssessment={handleAddAssessment}
-        lockedAssessments={lockedAssessments}
-      />
-
       {/* Order Type Selection */}
       {!orderType && (
         <Card>
@@ -334,10 +370,19 @@ const OrderAssessmentsPage = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
 
-      {/* Affiliation Code Selection */}
-      {orderType === "affiliate" && !selectedAffiliationCode && (
+        {/* Assessment Catalog - Only for Self-Assessment */}
+        {orderType === "self" && (
+          <AssessmentCatalog 
+            selectedAssessments={selectedAssessments}
+            onAddAssessment={handleAddAssessment}
+            lockedAssessments={lockedAssessments}
+          />
+        )}
+
+        {/* Affiliation Code Selection */}
+        {orderType === "affiliate" && !selectedAffiliationCode && (
         <Card>
           <CardHeader>
             <CardTitle>Select Affiliation Code</CardTitle>

@@ -44,6 +44,16 @@ export const assessmentTypes: Record<string, AssessmentType> = {
     requiredFields: ["Stage", "Industry", "Ecosystem"],
     price: 75,
     colorClass: "bg-tertiary"
+  },
+  BUNDLE: {
+    code: "BUNDLE",
+    title: "Complete Assessment Bundle",
+    description: "Get all three assessments (FPA + GEB + EEA) together and save $20!",
+    duration: "2.5-3.5 hours total",
+    questions: "230-330 questions",
+    requiredFields: ["Stage", "Industry", "Ecosystem"],
+    price: 165,
+    colorClass: "bg-gradient-to-br from-accent via-primary to-tertiary"
   }
 };
 
@@ -70,11 +80,87 @@ export function AssessmentCatalog({
         </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(assessmentTypes).map(([key, type]) => {
           const selected = isSelected(key);
           const locked = isLocked(key);
           
+          // Special rendering for BUNDLE tile
+          if (key === "BUNDLE") {
+            return (
+              <Card
+                key={key}
+                className={`relative overflow-hidden transition-all duration-200 ${
+                  selected ? 'ring-2 ring-success shadow-lg' : 'hover:scale-105 hover:shadow-lg cursor-pointer'
+                }`}
+              >
+                <div className="absolute top-0 right-0 bg-success text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+                  BEST VALUE
+                </div>
+                <CardContent className="p-5 space-y-3 bg-gradient-to-br from-accent/10 via-primary/10 to-tertiary/10">
+                  <div className="flex items-start justify-between">
+                    <Badge className="bg-success text-white font-bold px-3 py-1">
+                      SAVE $20
+                    </Badge>
+                    {selected && (
+                      <div className="flex items-center gap-1 bg-success/10 text-success px-2 py-1 rounded-full">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span className="text-xs font-medium">Added</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-bold text-lg mb-1">{type.title}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{type.description}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      {type.duration}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <FileQuestion className="w-4 h-4" />
+                      {type.questions}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    <Badge className="bg-accent text-white text-xs">FPA</Badge>
+                    <Badge className="bg-primary text-white text-xs">GEB</Badge>
+                    <Badge className="bg-tertiary text-white text-xs">EEA</Badge>
+                  </div>
+
+                  <div className="pt-3 border-t flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg line-through text-muted-foreground">$185</span>
+                      <span className="text-2xl font-bold text-success">${type.price}</span>
+                    </div>
+                    
+                    <Button
+                      size="sm"
+                      variant={selected ? "ghost" : "default"}
+                      onClick={() => !selected && onAddAssessment(key)}
+                      disabled={selected}
+                      className={!selected ? "bg-success hover:bg-success/90" : ""}
+                    >
+                      {selected ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Add Bundle
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          }
+          
+          // Regular individual assessment tiles
           return (
             <Card
               key={key}
