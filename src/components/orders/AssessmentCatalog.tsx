@@ -90,11 +90,12 @@ export function AssessmentCatalog({
             return (
               <Card
                 key={key}
+                onClick={() => !selected && onAddAssessment(key)}
                 className={`relative overflow-hidden transition-all duration-200 ${
                   selected ? 'ring-2 ring-success shadow-lg' : 'hover:scale-105 hover:shadow-lg cursor-pointer'
                 }`}
               >
-                <div className="absolute top-0 right-0 bg-success text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+                <div className="absolute top-0 right-0 bg-success text-white px-3 py-1 text-xs font-bold rounded-bl-lg pointer-events-none">
                   BEST VALUE
                 </div>
                 <CardContent className="p-5 space-y-3 bg-gradient-to-br from-accent/10 via-primary/10 to-tertiary/10">
@@ -141,7 +142,10 @@ export function AssessmentCatalog({
                     <Button
                       size="sm"
                       variant={selected ? "ghost" : "default"}
-                      onClick={() => !selected && onAddAssessment(key)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!selected) onAddAssessment(key);
+                      }}
                       disabled={selected}
                       className={!selected ? "bg-success hover:bg-success/90" : ""}
                     >
@@ -164,6 +168,7 @@ export function AssessmentCatalog({
           return (
             <Card
               key={key}
+              onClick={() => !selected && !locked && onAddAssessment(key)}
               className={`transition-all duration-200 ${
                 locked ? 'opacity-60' : 'hover:scale-105 hover:shadow-lg cursor-pointer'
               } ${
@@ -219,7 +224,10 @@ export function AssessmentCatalog({
                     <Button
                       size="sm"
                       variant={selected ? "ghost" : "default"}
-                      onClick={() => !selected && onAddAssessment(key)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!selected) onAddAssessment(key);
+                      }}
                       disabled={selected}
                     >
                       {selected ? (
