@@ -17,7 +17,11 @@ interface Application {
   scholarshipType: string;
   requestedTest: string;
   submissionDate: string;
-  status: "Under Review" | "Accepted" | "Rejected";
+  status: "Under Review" | "Accepted" | "Rejected" | "KYC Pending" | "Partner Verification" | "Approved";
+  applicationType?: "General" | "LDC";
+  nationality?: string;
+  kycStatus?: string;
+  partnerName?: string;
 }
 
 interface ViewApplicationDetailsDialogProps {

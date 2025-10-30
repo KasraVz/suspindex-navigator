@@ -19,29 +19,68 @@ export function ApplicationStatus() {
   const applications = [
     {
       id: 1,
+      scholarshipType: "LDC Applicant Program",
+      requestedTest: "Bundle (FPA, GEB, EEA)",
+      submissionDate: "2024-01-20",
+      status: "Approved" as const,
+      applicationType: "LDC" as const,
+      nationality: "Bangladesh",
+      kycStatus: "Verified",
+      partnerName: "John Smith - TechHub Accelerator",
+    },
+    {
+      id: 2,
+      scholarshipType: "LDC Applicant Program",
+      requestedTest: "Bundle (FPA, GEB, EEA)",
+      submissionDate: "2024-01-18",
+      status: "KYC Pending" as const,
+      applicationType: "LDC" as const,
+      nationality: "Ethiopia",
+      kycStatus: "Pending Verification",
+      partnerName: "Sarah Johnson - Global Partners Network",
+    },
+    {
+      id: 3,
       scholarshipType: "General Startup Scholarship",
       requestedTest: "EEA",
       submissionDate: "2024-01-15",
       status: "Under Review" as const,
+      applicationType: "General" as const,
     },
     {
-      id: 2,
+      id: 4,
       scholarshipType: "Women in Business Grant",
       requestedTest: "FPA",
       submissionDate: "2024-01-10",
       status: "Accepted" as const,
+      applicationType: "General" as const,
     },
     {
-      id: 3,
+      id: 5,
       scholarshipType: "Student Discount Program",
       requestedTest: "GEB",
       submissionDate: "2024-01-05",
       status: "Rejected" as const,
+      applicationType: "General" as const,
     },
   ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "KYC Pending":
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+          <Clock className="w-3 h-3 mr-1" />
+          KYC Pending
+        </Badge>;
+      case "Partner Verification":
+        return <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-200">
+          Partner Verification
+        </Badge>;
+      case "Approved":
+        return <Badge className="bg-green-100 text-green-800 border-green-200">
+          <Check className="w-3 h-3 mr-1" />
+          Approved
+        </Badge>;
       case "Under Review":
         return <Badge variant="secondary">Under Review</Badge>;
       case "Accepted":
@@ -131,6 +170,30 @@ export function ApplicationStatus() {
                 </div>
               </div>
 
+              {/* LDC Additional Information */}
+              {application.applicationType === "LDC" && (
+                <div className="grid gap-2 md:grid-cols-2 pt-2 border-t">
+                  {application.nationality && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Nationality:</span>
+                      <Badge variant="outline" className="text-xs">{application.nationality}</Badge>
+                    </div>
+                  )}
+                  {application.kycStatus && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">KYC Status:</span>
+                      <Badge variant="secondary" className="text-xs">{application.kycStatus}</Badge>
+                    </div>
+                  )}
+                  {application.partnerName && (
+                    <div className="flex items-center gap-2 text-sm md:col-span-2">
+                      <span className="text-muted-foreground">Referred by:</span>
+                      <span className="font-medium text-xs">{application.partnerName}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex gap-2 pt-2">
                 <Button 
                   variant="outline" 
@@ -154,8 +217,8 @@ export function ApplicationStatus() {
                   </Button>
                 )}
                 
-                {/* Accept Offer button */}
-                {application.status === "Accepted" && 
+                {/* Accept Offer button for Accepted/Approved applications */}
+                {(application.status === "Accepted" || application.status === "Approved") && 
                  !acceptedApplications.has(application.id) && 
                  !processingAcceptance.has(application.id) && (
                   <Button 
@@ -177,29 +240,63 @@ export function ApplicationStatus() {
                 )}
               </div>
 
-              {/* Display voucher code after acceptance */}
+              {/* Display voucher code(s) after acceptance */}
               {acceptedApplications.has(application.id) && generatedVouchers.has(application.id) && (
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg animate-fade-in">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-green-800">Your Voucher Code:</p>
-                      <p className="font-mono text-sm bg-white px-2 py-1 border rounded mt-1">
-                        {generatedVouchers.get(application.id)}
+                  {application.applicationType === "LDC" ? (
+                    // Display 3 vouchers for LDC program
+                    <>
+                      <p className="text-sm font-medium text-green-800 mb-3">Your 3 Voucher Codes (100% FREE):</p>
+                      {generatedVouchers.get(application.id)?.split('|').map((code, index) => {
+                        const testTypes = ['FPA', 'GEB', 'EEA'];
+                        return (
+                          <div key={index} className="mb-2 last:mb-0">
+                            <div className="flex items-center justify-between bg-white px-3 py-2 border rounded">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">{testTypes[index]}</Badge>
+                                <p className="font-mono text-xs">{code}</p>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyVoucherCode(code)}
+                                className="h-7 px-2 text-green-700 hover:bg-green-100"
+                              >
+                                <Copy className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <p className="text-xs text-green-600 mt-3">
+                        🎉 All three assessments (FPA, GEB, EEA) are now FREE! Use these codes when booking.
                       </p>
+                    </>
+                  ) : (
+                    // Display single voucher for regular scholarships
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-800">Your Voucher Code:</p>
+                        <p className="font-mono text-sm bg-white px-2 py-1 border rounded mt-1">
+                          {generatedVouchers.get(application.id)}
+                        </p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyVoucherCode(generatedVouchers.get(application.id)!)}
+                        className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-100"
+                      >
+                        <Copy className="w-3 h-3" />
+                        Copy
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyVoucherCode(generatedVouchers.get(application.id)!)}
-                      className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-100"
-                    >
-                      <Copy className="w-3 h-3" />
-                      Copy
-                    </Button>
-                  </div>
-                  <p className="text-xs text-green-600 mt-2">
-                    Use this code when booking your {application.requestedTest} assessment
-                  </p>
+                  )}
+                  {application.applicationType !== "LDC" && (
+                    <p className="text-xs text-green-600 mt-2">
+                      Use this code when booking your {application.requestedTest} assessment
+                    </p>
+                  )}
                 </div>
               )}
             </div>
