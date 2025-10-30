@@ -1,17 +1,15 @@
 /**
  * List of Least Developed Countries (LDCs) as designated by the United Nations
  * Source: UN Committee for Development Policy
- * Updated: 2024
+ * Updated: 2025
+ * Total: 44 countries across 4 regions
  */
 export const LDC_COUNTRIES = [
-  "Afghanistan",
+  // Africa (32 countries)
   "Angola",
-  "Bangladesh",
   "Benin",
-  "Bhutan",
   "Burkina Faso",
   "Burundi",
-  "Cambodia",
   "Central African Republic",
   "Chad",
   "Comoros",
@@ -22,9 +20,6 @@ export const LDC_COUNTRIES = [
   "Gambia",
   "Guinea",
   "Guinea-Bissau",
-  "Haiti",
-  "Kiribati",
-  "Lao People's Democratic Republic",
   "Lesotho",
   "Liberia",
   "Madagascar",
@@ -32,24 +27,35 @@ export const LDC_COUNTRIES = [
   "Mali",
   "Mauritania",
   "Mozambique",
-  "Myanmar",
-  "Nepal",
   "Niger",
   "Rwanda",
-  "Sao Tome and Principe",
   "Senegal",
   "Sierra Leone",
-  "Solomon Islands",
   "Somalia",
   "South Sudan",
   "Sudan",
   "Tanzania",
-  "Timor-Leste",
   "Togo",
-  "Tuvalu",
   "Uganda",
-  "Yemen",
   "Zambia",
+  
+  // Asia (8 countries)
+  "Afghanistan",
+  "Bangladesh",
+  "Cambodia",
+  "Lao People's Democratic Republic",
+  "Myanmar",
+  "Nepal",
+  "Timor-Leste",
+  "Yemen",
+  
+  // Pacific (3 countries)
+  "Kiribati",
+  "Solomon Islands",
+  "Tuvalu",
+  
+  // Caribbean (1 country)
+  "Haiti",
 ] as const;
 
 export type LDCCountry = typeof LDC_COUNTRIES[number];
